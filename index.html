@@ -136,6 +136,72 @@
   .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
   .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 1px; margin-bottom: 20px; }
 
+  /* ── USER BAR (signed-in chip in header strip) ── */
+  .user-bar {
+    position: fixed; top: env(safe-area-inset-top); right: 0;
+    left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    display: none; justify-content: flex-end; align-items: center; gap: 8px;
+    padding: 10px 16px 0;
+    z-index: 90; pointer-events: none;
+  }
+  .user-bar.signed-in { display: flex; }
+  .user-bar-email {
+    pointer-events: all;
+    font-size: 11px; color: var(--muted); font-weight: 500;
+    max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .user-bar-logout {
+    pointer-events: all;
+    background: rgba(10,10,10,0.65); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.75);
+    font-size: 11px; font-weight: 600;
+    padding: 5px 11px; border-radius: 20px;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: color 0.2s;
+  }
+  .user-bar-logout:active { color: var(--accent); }
+
+  /* ── AUTH GATE (full-screen overlay, blocks app) ── */
+  .auth-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: var(--bg);
+    display: none; flex-direction: column;
+    padding: calc(64px + env(safe-area-inset-top)) 24px 32px;
+    padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+  .auth-overlay.open { display: flex; }
+  .auth-brand { text-align: center; margin-bottom: 36px; }
+  .auth-brand-label { font-size: 11px; letter-spacing: 2px; color: var(--accent); font-weight: 600; text-transform: uppercase; margin-bottom: 6px; }
+  .auth-brand-title { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 1px; line-height: 1; }
+  .auth-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px 20px;
+    max-width: 380px; width: 100%; margin: 0 auto;
+  }
+  .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+  .auth-tab {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+    padding: 10px; cursor: pointer; transition: all 0.2s;
+  }
+  .auth-tab.active { border-color: var(--accent); color: var(--accent2); background: rgba(200,168,75,0.08); }
+  .auth-error {
+    display: none; color: var(--red); font-size: 12px; font-weight: 500;
+    background: rgba(224,82,82,0.08); border: 1px solid rgba(224,82,82,0.25);
+    padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; line-height: 1.4;
+  }
+  .auth-error.show { display: block; }
+  .auth-info {
+    display: none; color: var(--green); font-size: 12px; font-weight: 500;
+    background: rgba(82,183,136,0.08); border: 1px solid rgba(82,183,136,0.25);
+    padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; line-height: 1.4;
+  }
+  .auth-info.show { display: block; }
+  .auth-card .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
   /* ── FORMS ── */
   .form-group { margin-bottom: 16px; }
   label { display: block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
@@ -218,6 +284,39 @@
 <script type="module" src="./supabase-client.js"></script>
 </head>
 <body>
+
+<!-- USER BAR (visible only when signed in) -->
+<div class="user-bar" id="user-bar">
+  <span class="user-bar-email" id="user-bar-email"></span>
+  <button class="user-bar-logout" id="user-bar-logout">Log out</button>
+</div>
+
+<!-- AUTH GATE (shown when signed out; blocks the app) -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-brand">
+    <div class="auth-brand-label">My Build</div>
+    <div class="auth-brand-title">E39 Garage</div>
+  </div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="auth-tab-login" data-mode="login">Log in</button>
+      <button class="auth-tab" id="auth-tab-signup" data-mode="signup">Sign up</button>
+    </div>
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-info" id="auth-info"></div>
+    <form id="auth-form" novalidate>
+      <div class="form-group">
+        <label for="auth-email">Email</label>
+        <input type="email" id="auth-email" autocomplete="email" inputmode="email" required>
+      </div>
+      <div class="form-group">
+        <label for="auth-password">Password</label>
+        <input type="password" id="auth-password" autocomplete="current-password" minlength="6" required>
+      </div>
+      <button type="submit" class="btn-primary" id="auth-submit">Log in</button>
+    </form>
+  </div>
+</div>
 
 <!-- GARAGE -->
 <div class="screen active" id="screen-garage">
@@ -500,7 +599,9 @@
 <div class="toast" id="toast"></div>
 <input type="file" id="import-input" accept=".json">
 
-<script>
+<script type="module">
+import { supabase } from './supabase-client.js';
+
 // ══════════════════════════════════════════════════════
 // IndexedDB
 // ══════════════════════════════════════════════════════
@@ -949,14 +1050,123 @@ if ('serviceWorker' in navigator) {
 }
 
 // ══════════════════════════════════════════════════════
-// Boot
+// Auth gate
 // ══════════════════════════════════════════════════════
-openDB().then(async () => {
+const authOverlay = document.getElementById('auth-overlay');
+const authForm    = document.getElementById('auth-form');
+const authEmail   = document.getElementById('auth-email');
+const authPass    = document.getElementById('auth-password');
+const authSubmit  = document.getElementById('auth-submit');
+const authError   = document.getElementById('auth-error');
+const authInfo    = document.getElementById('auth-info');
+const authTabLogin  = document.getElementById('auth-tab-login');
+const authTabSignup = document.getElementById('auth-tab-signup');
+const userBar       = document.getElementById('user-bar');
+const userBarEmail  = document.getElementById('user-bar-email');
+const userBarLogout = document.getElementById('user-bar-logout');
+
+let authMode = 'login';
+let appBooted = false;
+
+function setAuthMode(mode) {
+  authMode = mode;
+  authTabLogin.classList.toggle('active',  mode === 'login');
+  authTabSignup.classList.toggle('active', mode === 'signup');
+  authSubmit.textContent = mode === 'login' ? 'Log in' : 'Create account';
+  authPass.autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+  clearAuthMessages();
+}
+function clearAuthMessages() {
+  authError.classList.remove('show'); authError.textContent = '';
+  authInfo.classList.remove('show');  authInfo.textContent  = '';
+}
+function showAuthError(msg) {
+  authInfo.classList.remove('show');
+  authError.textContent = msg;
+  authError.classList.add('show');
+}
+function showAuthInfo(msg) {
+  authError.classList.remove('show');
+  authInfo.textContent = msg;
+  authInfo.classList.add('show');
+}
+
+authTabLogin.addEventListener('click',  () => setAuthMode('login'));
+authTabSignup.addEventListener('click', () => setAuthMode('signup'));
+
+authForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = authEmail.value.trim();
+  const password = authPass.value;
+  if (!email || password.length < 6) {
+    showAuthError('Enter an email and a password of at least 6 characters.');
+    return;
+  }
+  clearAuthMessages();
+  authSubmit.disabled = true;
+  const originalLabel = authSubmit.textContent;
+  authSubmit.textContent = authMode === 'login' ? 'Logging in…' : 'Creating account…';
+  try {
+    if (authMode === 'login') {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    } else {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      // If "Confirm email" is enabled in Supabase, there's no session yet.
+      if (!data.session) {
+        showAuthInfo('Check your email to confirm your account, then log in.');
+        setAuthMode('login');
+      }
+    }
+  } catch (err) {
+    showAuthError(err?.message || 'Something went wrong. Try again.');
+  } finally {
+    authSubmit.disabled = false;
+    authSubmit.textContent = originalLabel;
+  }
+});
+
+userBarLogout.addEventListener('click', async () => {
+  await supabase.auth.signOut();
+});
+
+async function bootApp(session) {
+  userBarEmail.textContent = session.user.email || '';
+  userBar.classList.add('signed-in');
+  authOverlay.classList.remove('open');
+  if (appBooted) return;
+  appBooted = true;
+  await openDB();
   await loadAll();
   await loadSavedPhoto();
   renderAll();
   document.getElementById('input-date').value = today();
-});
+}
+
+function showAuthGate() {
+  userBar.classList.remove('signed-in');
+  userBarEmail.textContent = '';
+  authPass.value = '';
+  setAuthMode('login');
+  authOverlay.classList.add('open');
+}
+
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await bootApp(session);
+  } else {
+    showAuthGate();
+  }
+  supabase.auth.onAuthStateChange((event, newSession) => {
+    if (newSession) {
+      bootApp(newSession);
+    } else {
+      showAuthGate();
+    }
+  });
+})();
 </script>
 </body>
 </html>
