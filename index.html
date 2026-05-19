@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="E39 Garage">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="manifest" href="manifest.json">
+<!-- Apple touch icon (inline SVG as data URI) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230a0a0a'/%3E%3Crect x='12' y='12' width='156' height='156' rx='26' fill='%23141414'/%3E%3Ctext x='90' y='108' font-family='Arial Black' font-size='66' font-weight='900' fill='%23c8a84b' text-anchor='middle'%3EE39%3C/text%3E%3C/svg%3E">
+<title>E39 Garage</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface2: #1c1c1c;
+    --border: #2a2a2a;
+    --text: #f0f0f0;
+    --muted: #666;
+    --accent: #c8a84b;
+    --accent2: #e8c96a;
+    --red: #e05252;
+    --green: #52b788;
+    --blue: #5294e0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 15px;
+    max-width: 430px; margin: 0 auto;
+    padding-bottom: 90px;
+    /* Safe area for iPhone notch/home indicator */
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    background: rgba(14,14,14,0.97); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex; z-index: 100;
+    padding: 8px 0;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 6px 0; color: var(--muted); transition: color 0.2s; font-size: 11px; font-weight: 500; letter-spacing: 0.3px; background: none; border: none; font-family: 'DM Sans', sans-serif; }
+  .nav-item.active { color: var(--accent); }
+  .nav-item svg { width: 22px; height: 22px; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; padding: 0 0 16px; animation: fadeIn 0.22s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+  .header {
+    padding: 60px 20px 20px;
+    padding-top: calc(56px + env(safe-area-inset-top));
+    background: linear-gradient(180deg, #111 0%, var(--bg) 100%);
+  }
+  .header-label { font-size: 11px; letter-spacing: 2px; color: var(--accent); font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+  .header-title { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 1px; line-height: 1; }
+
+  /* ── CAR CARD ── */
+  .car-card { margin: 0 16px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .car-image-wrap { height: 180px; background: #0e0e0e; position: relative; overflow: hidden; cursor: pointer; }
+  .car-image-wrap:active { opacity: 0.88; }
+  #car-photo { width: 100%; height: 100%; object-fit: cover; object-position: center; display: none; }
+  #car-photo.loaded { display: block; }
+  .car-upload-prompt { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--muted); }
+  .car-upload-prompt.hidden { display: none; }
+  .car-upload-prompt svg { width: 32px; height: 32px; opacity: 0.35; }
+  .car-upload-prompt span { font-size: 13px; opacity: 0.5; }
+  .car-upload-prompt small { font-size: 11px; opacity: 0.3; }
+  .car-image-actions { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
+  .car-edit-btn, .car-photo-btn { pointer-events: all; background: rgba(10,10,10,0.65); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 5px; transition: color 0.2s; }
+  .car-edit-btn:active, .car-photo-btn:active { color: var(--accent); }
+  .car-edit-btn svg, .car-photo-btn svg { width: 12px; height: 12px; }
+  .car-badge { background: rgba(200,168,75,0.15); border: 1px solid rgba(200,168,75,0.3); color: var(--accent2); font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; }
+  #photo-input { display: none; }
+
+  .car-info { padding: 16px 20px; }
+  .car-name { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 1px; line-height: 1; }
+  .car-sub { color: var(--muted); font-size: 13px; margin-top: 3px; font-weight: 300; }
+  .car-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--border); margin-top: 16px; border-radius: 10px; overflow: hidden; }
+  .stat { background: var(--surface2); padding: 12px 10px; text-align: center; }
+  .stat-val { font-size: 17px; font-weight: 600; }
+  .stat-val.overdue { color: var(--red); }
+  .stat-val.good { color: var(--green); }
+  .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+  /* ── SECTION ── */
+  .section-header { padding: 8px 20px 12px; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+
+  /* ── ENTRIES ── */
+  .entries { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+  .entry-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; display: flex; gap: 14px; align-items: flex-start; cursor: pointer; transition: background 0.15s; position: relative; overflow: hidden; }
+  .entry-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+  .entry-card.mod::before { background: var(--accent); }
+  .entry-card.service::before { background: var(--blue); }
+  .entry-card.repair::before { background: var(--red); }
+  .entry-card:active { background: var(--surface2); }
+  .entry-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
+  .entry-icon.mod { background: rgba(200,168,75,0.12); }
+  .entry-icon.service { background: rgba(82,148,224,0.12); }
+  .entry-icon.repair { background: rgba(224,82,82,0.12); }
+  .entry-content { flex: 1; min-width: 0; }
+  .entry-title { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .entry-meta { font-size: 12px; color: var(--muted); margin-top: 3px; font-weight: 300; }
+  .entry-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .tag { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; }
+  .tag.mod { background: rgba(200,168,75,0.12); color: var(--accent2); }
+  .tag.service { background: rgba(82,148,224,0.12); color: var(--blue); }
+  .tag.repair { background: rgba(224,82,82,0.12); color: var(--red); }
+  .tag.done { background: rgba(82,183,136,0.12); color: var(--green); }
+  .entry-right { text-align: right; flex-shrink: 0; }
+  .entry-cost { font-size: 16px; font-weight: 600; }
+
+  /* ── MODALS ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.78); backdrop-filter: blur(10px); z-index: 200; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.22s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface); border-radius: 24px 24px 0 0;
+    border: 1px solid var(--border); border-bottom: none;
+    width: 100%; max-width: 430px; margin: 0 auto;
+    padding: 24px 20px 32px;
+    padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    max-height: 88vh; overflow-y: auto;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+  .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 1px; margin-bottom: 20px; }
+
+  /* ── FORMS ── */
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  input, select, textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; padding: 13px 16px; outline: none; transition: border-color 0.2s; -webkit-appearance: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--surface2); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .type-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .type-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 12px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s; }
+  .type-btn span { font-size: 20px; }
+  .type-btn.active.mod { border-color: var(--accent); color: var(--accent2); background: rgba(200,168,75,0.08); }
+  .type-btn.active.service { border-color: var(--blue); color: var(--blue); background: rgba(82,148,224,0.08); }
+  .type-btn.active.repair { border-color: var(--red); color: var(--red); background: rgba(224,82,82,0.08); }
+
+  .btn-primary { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; padding: 16px; cursor: pointer; margin-top: 4px; transition: transform 0.1s; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-ghost { width: 100%; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 14px; cursor: pointer; margin-top: 8px; transition: color 0.2s; }
+  .btn-ghost:active { color: var(--text); }
+  .btn-ghost.danger { color: var(--red); border-color: rgba(224,82,82,0.3); }
+
+  /* ── FAB ── */
+  .fab { position: fixed; bottom: calc(88px + env(safe-area-inset-bottom)); right: 50%; transform: translateX(calc(50% + 160px)); width: 52px; height: 52px; border-radius: 50%; background: var(--accent); border: none; color: #000; font-size: 26px; cursor: pointer; box-shadow: 0 4px 24px rgba(200,168,75,0.4); display: flex; align-items: center; justify-content: center; z-index: 99; font-family: 'DM Sans', sans-serif; }
+  .fab:active { transform: translateX(calc(50% + 160px)) scale(0.93); }
+
+  /* ── SPEND ── */
+  .spend-summary { margin: 0 16px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+  .spend-total { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 1px; color: var(--accent2); line-height: 1; }
+  .spend-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+  .spend-breakdown { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 18px; }
+  .spend-item { text-align: center; padding: 12px 8px; background: var(--surface2); border-radius: 10px; }
+  .spend-item-val { font-size: 18px; font-weight: 600; }
+  .spend-item-val.mod { color: var(--accent); }
+  .spend-item-val.service { color: var(--blue); }
+  .spend-item-val.repair { color: var(--red); }
+  .spend-item-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+
+  /* ── ACCOUNT / SETTINGS ── */
+  .settings-section { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+  .settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .settings-row { display: flex; align-items: center; gap: 14px; padding: 16px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid var(--border); }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row:active { background: var(--surface2); }
+  .settings-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .settings-icon.green { background: rgba(82,183,136,0.12); }
+  .settings-icon.blue { background: rgba(82,148,224,0.12); }
+  .settings-icon.red { background: rgba(224,82,82,0.12); }
+  .settings-icon.gold { background: rgba(200,168,75,0.12); }
+  .settings-text { flex: 1; }
+  .settings-label { font-weight: 500; font-size: 15px; }
+  .settings-sub { font-size: 12px; color: var(--muted); margin-top: 2px; font-weight: 300; }
+  .settings-row svg { width: 16px; height: 16px; color: var(--muted); flex-shrink: 0; }
+
+  /* ── EMPTY ── */
+  .empty { text-align: center; padding: 48px 32px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-text { font-size: 15px; font-weight: 300; line-height: 1.6; }
+
+  /* ── DETAIL ── */
+  .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-key { color: var(--muted); font-size: 13px; flex-shrink: 0; }
+  .detail-val { font-size: 13px; font-weight: 500; text-align: right; }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: calc(110px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 500; padding: 10px 18px; border-radius: 20px; z-index: 300; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── INSTALL BANNER ── */
+  .install-banner { margin: 0 16px 16px; background: linear-gradient(135deg, rgba(200,168,75,0.12) 0%, rgba(200,168,75,0.05) 100%); border: 1px solid rgba(200,168,75,0.25); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+  .install-banner.hidden { display: none; }
+  .install-banner-text { flex: 1; }
+  .install-banner-text strong { font-size: 13px; font-weight: 600; color: var(--accent2); display: block; }
+  .install-banner-text span { font-size: 12px; color: var(--muted); font-weight: 300; }
+  .install-banner-close { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 0 0 0 8px; font-family: 'DM Sans', sans-serif; }
+
+  #import-input { display: none; }
+</style>
+</head>
+<body>
+
+<!-- GARAGE -->
+<div class="screen active" id="screen-garage">
+  <div class="header">
+    <div class="header-label">My Build</div>
+    <div class="header-title">E39 Garage</div>
+  </div>
+
+  <!-- Install banner (shown on first load if not installed) -->
+  <div class="install-banner" id="install-banner">
+    <span style="font-size:24px">📲</span>
+    <div class="install-banner-text">
+      <strong>Add to Home Screen</strong>
+      <span>Tap Share → "Add to Home Screen" for app-like access</span>
+    </div>
+    <button class="install-banner-close" id="dismiss-banner">×</button>
+  </div>
+
+  <div class="car-card">
+    <div class="car-image-wrap" id="car-image-wrap">
+      <img id="car-photo" alt="My E39">
+      <div class="car-upload-prompt" id="upload-prompt">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>Tap to add a photo</span>
+        <small>Your car, your build</small>
+      </div>
+      <div class="car-image-actions">
+        <button class="car-edit-btn" id="car-edit-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit
+        </button>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <div class="car-badge" id="car-badge">E39 · M54</div>
+          <button class="car-photo-btn" id="change-photo-btn" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Change
+          </button>
+        </div>
+      </div>
+      <input type="file" id="photo-input" accept="image/*">
+    </div>
+    <div class="car-info">
+      <div class="car-name" id="car-name-display">530i Sedan</div>
+      <div class="car-sub" id="car-sub-display">2002 BMW · Titan Silver</div>
+      <div class="car-stats">
+        <div class="stat"><div class="stat-val" id="stat-mods">0</div><div class="stat-label">Mods</div></div>
+        <div class="stat"><div class="stat-val" id="stat-spent">$0</div><div class="stat-label">Invested</div></div>
+        <div class="stat"><div class="stat-val overdue" id="stat-service">–</div><div class="stat-label">Service</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header"><span>Recent Activity</span></div>
+  <div class="entries" id="recent-entries">
+    <div class="empty"><div class="empty-icon">🔧</div><div class="empty-text">No entries yet.<br>Tap + to log your first mod or service.</div></div>
+  </div>
+</div>
+
+<!-- MODS -->
+<div class="screen" id="screen-mods">
+  <div class="header"><div class="header-label">Build List</div><div class="header-title">Mods</div></div>
+  <div class="entries" id="mod-entries"><div class="empty"><div class="empty-icon">⚙️</div><div class="empty-text">No mods logged yet.</div></div></div>
+</div>
+
+<!-- SERVICE -->
+<div class="screen" id="screen-service">
+  <div class="header"><div class="header-label">Maintenance</div><div class="header-title">Service</div></div>
+  <div class="entries" id="service-entries"><div class="empty"><div class="empty-icon">🛠️</div><div class="empty-text">No service records yet.</div></div></div>
+</div>
+
+<!-- SPEND -->
+<div class="screen" id="screen-spend">
+  <div class="header"><div class="header-label">Financial Overview</div><div class="header-title">Spend</div></div>
+  <div class="spend-summary">
+    <div class="spend-label">Total Invested</div>
+    <div class="spend-total" id="total-spend">$0</div>
+    <div class="spend-breakdown">
+      <div class="spend-item"><div class="spend-item-val mod" id="spend-mods">$0</div><div class="spend-item-lbl">Mods</div></div>
+      <div class="spend-item"><div class="spend-item-val service" id="spend-service">$0</div><div class="spend-item-lbl">Service</div></div>
+      <div class="spend-item"><div class="spend-item-val repair" id="spend-repair">$0</div><div class="spend-item-lbl">Repairs</div></div>
+    </div>
+  </div>
+  <div class="section-header"><span>All Transactions</span></div>
+  <div class="entries" id="spend-entries"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nothing spent yet.<br>(Enjoy it while it lasts.)</div></div></div>
+</div>
+
+<!-- SETTINGS / ACCOUNT -->
+<div class="screen" id="screen-settings">
+  <div class="header"><div class="header-label">App</div><div class="header-title">Settings</div></div>
+  <div class="settings-section">
+
+    <div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:600;text-transform:uppercase;padding:0 4px 8px">Data & Backup</div>
+
+    <div class="settings-card">
+      <div class="settings-row" id="btn-export">
+        <div class="settings-icon green">💾</div>
+        <div class="settings-text">
+          <div class="settings-label">Export Backup</div>
+          <div class="settings-sub">Save all entries & car details as a JSON file</div>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="settings-row" id="btn-import">
+        <div class="settings-icon blue">📂</div>
+        <div class="settings-text">
+          <div class="settings-label">Import Backup</div>
+          <div class="settings-sub">Restore entries from a previous backup</div>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:600;text-transform:uppercase;padding:16px 4px 8px">Install</div>
+
+    <div class="settings-card">
+      <div class="settings-row" id="btn-install-help">
+        <div class="settings-icon gold">📲</div>
+        <div class="settings-text">
+          <div class="settings-label">Add to Home Screen</div>
+          <div class="settings-sub">Install as an app on your iPhone</div>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:600;text-transform:uppercase;padding:16px 4px 8px">Danger Zone</div>
+
+    <div class="settings-card">
+      <div class="settings-row" id="btn-clear-data">
+        <div class="settings-icon red">🗑️</div>
+        <div class="settings-text">
+          <div class="settings-label">Clear All Data</div>
+          <div class="settings-sub">Delete all entries — cannot be undone</div>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:24px 0 8px;color:var(--muted);font-size:12px;font-weight:300">
+      E39 Garage · All data stored locally on your device
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab-btn">+</button>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-item active" data-screen="garage">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>Garage
+  </button>
+  <button class="nav-item" data-screen="mods">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>Mods
+  </button>
+  <button class="nav-item" data-screen="service">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>Service
+  </button>
+  <button class="nav-item" data-screen="spend">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Spend
+  </button>
+  <button class="nav-item" data-screen="settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings
+  </button>
+</nav>
+
+<!-- ADD ENTRY MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log Entry</div>
+    <div class="type-selector">
+      <button class="type-btn active mod" data-type="mod"><span>⚙️</span>Mod</button>
+      <button class="type-btn service" data-type="service"><span>🛠️</span>Service</button>
+      <button class="type-btn repair" data-type="repair"><span>🔧</span>Repair</button>
+    </div>
+    <div class="form-group"><label>Item / Description</label><input type="text" id="input-title" placeholder="e.g. Wagner brake pads, oil change…"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Cost (AUD)</label><input type="number" id="input-cost" placeholder="0.00" inputmode="decimal"></div>
+      <div class="form-group"><label>Date</label><input type="date" id="input-date"></div>
+    </div>
+    <div class="form-group"><label>Notes (optional)</label><textarea id="input-notes" placeholder="Part numbers, suppliers, torque specs…"></textarea></div>
+    <button class="btn-primary" id="save-entry-btn">Save Entry</button>
+    <button class="btn-ghost" id="cancel-btn">Cancel</button>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="detail-title"></div>
+    <div id="detail-body"></div>
+    <button class="btn-ghost danger" id="detail-delete-btn" style="margin-top:16px">Delete Entry</button>
+    <button class="btn-ghost" id="detail-close-btn">Close</button>
+  </div>
+</div>
+
+<!-- CAR EDIT MODAL -->
+<div class="modal-overlay" id="car-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Car Details</div>
+    <div class="form-row">
+      <div class="form-group"><label>Year</label><input type="number" id="car-year" placeholder="1996–2004" inputmode="numeric"></div>
+      <div class="form-group"><label>Model</label>
+        <select id="car-model">
+          <option value="520i">520i</option><option value="523i">523i</option><option value="525i">525i</option>
+          <option value="528i">528i</option><option value="530i" selected>530i</option><option value="535i">535i</option>
+          <option value="540i">540i</option><option value="M5">M5</option>
+          <option value="525d">525d</option><option value="530d">530d</option><option value="535d">535d</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Body</label>
+        <select id="car-body"><option value="Sedan" selected>Sedan</option><option value="Touring">Touring</option></select>
+      </div>
+      <div class="form-group"><label>Engine</label>
+        <select id="car-engine">
+          <option value="M52">M52</option><option value="M52TU">M52TU</option><option value="M54" selected>M54</option>
+          <option value="M62">M62</option><option value="S62">S62</option>
+          <option value="M57">M57</option><option value="M57TU">M57TU</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Colour</label><input type="text" id="car-colour" placeholder="e.g. Titan Silver, Cosmos Black…"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Odometer</label><input type="number" id="car-odo" placeholder="e.g. 187430" inputmode="numeric"></div>
+      <div class="form-group"><label>Unit</label>
+        <select id="car-odo-unit"><option value="km" selected>km</option><option value="mi">mi</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Nickname (optional)</label><input type="text" id="car-nickname" placeholder="e.g. The Bimmer, Silver Shark…"></div>
+    <button class="btn-primary" id="save-car-btn">Save Details</button>
+    <button class="btn-ghost" id="cancel-car-btn">Cancel</button>
+  </div>
+</div>
+
+<!-- INSTALL HELP MODAL -->
+<div class="modal-overlay" id="install-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add to Home Screen</div>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">1</div>
+        <div>
+          <div style="font-weight:600;margin-bottom:3px">Open in Safari</div>
+          <div style="font-size:13px;color:var(--muted);font-weight:300">Make sure you're viewing this file in Safari, not another browser.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">2</div>
+        <div>
+          <div style="font-weight:600;margin-bottom:3px">Tap the Share button</div>
+          <div style="font-size:13px;color:var(--muted);font-weight:300">The box-with-arrow icon at the bottom of Safari.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">3</div>
+        <div>
+          <div style="font-weight:600;margin-bottom:3px">Tap "Add to Home Screen"</div>
+          <div style="font-size:13px;color:var(--muted);font-weight:300">Scroll down in the share sheet and tap it. Name it "E39 Garage" and tap Add.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--green);color:#000;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">✓</div>
+        <div>
+          <div style="font-weight:600;margin-bottom:3px">Done — always open from that icon</div>
+          <div style="font-size:13px;color:var(--muted);font-weight:300">Opening from the home screen keeps all your data intact between sessions.</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" id="close-install-modal">Got it</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+<input type="file" id="import-input" accept=".json">
+
+<script>
+// ══════════════════════════════════════════════════════
+// IndexedDB
+// ══════════════════════════════════════════════════════
+const DB_NAME = 'e39garage', DB_VER = 1;
+let db;
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('entries'))
+        d.createObjectStore('entries', { keyPath: 'id' });
+      if (!d.objectStoreNames.contains('kv'))
+        d.createObjectStore('kv');
+    };
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+function dbGetAll(store) {
+  return new Promise((res, rej) => {
+    const tx  = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+function dbPut(store, value, key) {
+  return new Promise((res, rej) => {
+    const tx  = db.transaction(store, 'readwrite');
+    const req = key !== undefined
+      ? tx.objectStore(store).put(value, key)
+      : tx.objectStore(store).put(value);
+    req.onsuccess = () => res();
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+function dbDelete(store, key) {
+  return new Promise((res, rej) => {
+    const tx  = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).delete(key);
+    req.onsuccess = () => res();
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+function dbClear(store) {
+  return new Promise((res, rej) => {
+    const tx  = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).clear();
+    req.onsuccess = () => res();
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+function dbGet(store, key) {
+  return new Promise((res, rej) => {
+    const tx  = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).get(key);
+    req.onsuccess = () => res(req.result);
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// State
+// ══════════════════════════════════════════════════════
+let entries = [];
+let car = {
+  year:'2002', model:'530i', body:'Sedan', engine:'M54',
+  colour:'Titan Silver', odo:'', odoUnit:'km', nickname:''
+};
+let activeType = 'mod';
+let detailId   = null;
+
+async function loadAll() {
+  entries = (await dbGetAll('entries')).sort((a,b) => b.id - a.id);
+  const savedCar = await dbGet('kv', 'car');
+  if (savedCar) car = savedCar;
+}
+
+// ══════════════════════════════════════════════════════
+// Toast
+// ══════════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ══════════════════════════════════════════════════════
+// Photo
+// ══════════════════════════════════════════════════════
+const photoInput     = document.getElementById('photo-input');
+const carPhoto       = document.getElementById('car-photo');
+const uploadPrompt   = document.getElementById('upload-prompt');
+const changePhotoBtn = document.getElementById('change-photo-btn');
+
+async function loadSavedPhoto() {
+  const saved = await dbGet('kv', 'photo');
+  if (saved) applyPhoto(saved);
+}
+function applyPhoto(dataUrl) {
+  carPhoto.src = dataUrl;
+  carPhoto.classList.add('loaded');
+  uploadPrompt.classList.add('hidden');
+  changePhotoBtn.style.display = 'flex';
+}
+
+document.getElementById('car-image-wrap').addEventListener('click', e => {
+  if (e.target.closest('.car-edit-btn') || e.target.closest('.car-photo-btn')) return;
+  if (!carPhoto.classList.contains('loaded')) photoInput.click();
+});
+changePhotoBtn.addEventListener('click', () => photoInput.click());
+
+photoInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = async () => {
+      const canvas = document.createElement('canvas');
+      const maxW = 900, maxH = 500;
+      let w = img.width, h = img.height;
+      if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+      if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.82);
+      await dbPut('kv', compressed, 'photo');
+      applyPhoto(compressed);
+      showToast('Photo saved ✓');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  photoInput.value = '';
+});
+
+// ══════════════════════════════════════════════════════
+// Nav
+// ══════════════════════════════════════════════════════
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('screen-' + btn.dataset.screen).classList.add('active');
+    renderAll();
+  });
+});
+
+// ══════════════════════════════════════════════════════
+// Modals
+// ══════════════════════════════════════════════════════
+const addModal     = document.getElementById('add-modal');
+const detailModal  = document.getElementById('detail-modal');
+const carModal     = document.getElementById('car-modal');
+const installModal = document.getElementById('install-modal');
+const close = m => m.classList.remove('open');
+
+document.getElementById('cancel-btn').onclick      = () => close(addModal);
+document.getElementById('cancel-car-btn').onclick  = () => close(carModal);
+document.getElementById('detail-close-btn').onclick = () => close(detailModal);
+document.getElementById('close-install-modal').onclick = () => close(installModal);
+[addModal, detailModal, carModal, installModal].forEach(m =>
+  m.addEventListener('click', e => { if (e.target === m) close(m); })
+);
+
+// ══════════════════════════════════════════════════════
+// Add Entry
+// ══════════════════════════════════════════════════════
+document.getElementById('fab-btn').onclick = () => {
+  document.getElementById('input-title').value = '';
+  document.getElementById('input-cost').value  = '';
+  document.getElementById('input-notes').value = '';
+  document.getElementById('input-date').value  = today();
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active','mod','service','repair'));
+  document.querySelector('[data-type="mod"]').classList.add('active','mod');
+  activeType = 'mod';
+  addModal.classList.add('open');
+  setTimeout(() => document.getElementById('input-title').focus(), 350);
+};
+
+document.querySelectorAll('.type-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active','mod','service','repair'));
+    btn.classList.add('active', btn.dataset.type);
+    activeType = btn.dataset.type;
+  };
+});
+
+document.getElementById('save-entry-btn').onclick = async () => {
+  const title = document.getElementById('input-title').value.trim();
+  if (!title) { document.getElementById('input-title').focus(); return; }
+  const entry = {
+    id:    Date.now(),
+    type:  activeType,
+    title,
+    cost:  parseFloat(document.getElementById('input-cost').value)  || 0,
+    date:  document.getElementById('input-date').value || today(),
+    notes: document.getElementById('input-notes').value.trim()
+  };
+  await dbPut('entries', entry);
+  entries.unshift(entry);
+  close(addModal);
+  renderAll();
+  showToast('Entry saved ✓');
+};
+
+// ══════════════════════════════════════════════════════
+// Delete Entry
+// ══════════════════════════════════════════════════════
+document.getElementById('detail-delete-btn').onclick = async () => {
+  if (!detailId || !confirm('Delete this entry?')) return;
+  await dbDelete('entries', detailId);
+  entries = entries.filter(e => e.id !== detailId);
+  close(detailModal);
+  renderAll();
+  showToast('Entry deleted');
+};
+
+// ══════════════════════════════════════════════════════
+// Car Edit
+// ══════════════════════════════════════════════════════
+document.getElementById('car-edit-btn').onclick = () => {
+  document.getElementById('car-year').value     = car.year     || '';
+  document.getElementById('car-model').value    = car.model    || '530i';
+  document.getElementById('car-body').value     = car.body     || 'Sedan';
+  document.getElementById('car-engine').value   = car.engine   || 'M54';
+  document.getElementById('car-colour').value   = car.colour   || '';
+  document.getElementById('car-odo').value      = car.odo      || '';
+  document.getElementById('car-odo-unit').value = car.odoUnit  || 'km';
+  document.getElementById('car-nickname').value = car.nickname || '';
+  carModal.classList.add('open');
+};
+
+document.getElementById('save-car-btn').onclick = async () => {
+  car = {
+    year:     document.getElementById('car-year').value.trim(),
+    model:    document.getElementById('car-model').value,
+    body:     document.getElementById('car-body').value,
+    engine:   document.getElementById('car-engine').value,
+    colour:   document.getElementById('car-colour').value.trim(),
+    odo:      document.getElementById('car-odo').value.trim(),
+    odoUnit:  document.getElementById('car-odo-unit').value,
+    nickname: document.getElementById('car-nickname').value.trim(),
+  };
+  await dbPut('kv', car, 'car');
+  close(carModal);
+  renderCarCard();
+  showToast('Car details saved ✓');
+};
+
+// ══════════════════════════════════════════════════════
+// Settings
+// ══════════════════════════════════════════════════════
+
+// Export
+document.getElementById('btn-export').onclick = async () => {
+  const allEntries = await dbGetAll('entries');
+  const photo      = await dbGet('kv', 'photo');
+  const payload = {
+    version: 1,
+    exported: new Date().toISOString(),
+    car,
+    entries: allEntries,
+    photo: photo || null
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `e39-garage-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup exported ✓');
+};
+
+// Import
+document.getElementById('btn-import').onclick = () => {
+  document.getElementById('import-input').click();
+};
+document.getElementById('import-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.entries || !Array.isArray(data.entries)) throw new Error('Invalid backup file');
+      if (!confirm(`Import ${data.entries.length} entries? This will merge with your existing data.`)) return;
+
+      // Merge entries (skip duplicates by id)
+      const existingIds = new Set(entries.map(e => e.id));
+      let added = 0;
+      for (const entry of data.entries) {
+        if (!existingIds.has(entry.id)) {
+          await dbPut('entries', entry);
+          entries.push(entry);
+          added++;
+        }
+      }
+      entries.sort((a,b) => b.id - a.id);
+
+      // Restore car details if present
+      if (data.car) {
+        car = data.car;
+        await dbPut('kv', car, 'car');
+      }
+      // Restore photo if present and none currently set
+      if (data.photo && !carPhoto.classList.contains('loaded')) {
+        await dbPut('kv', data.photo, 'photo');
+        applyPhoto(data.photo);
+      }
+
+      renderAll();
+      showToast(`Imported ${added} entries ✓`);
+    } catch (err) {
+      alert('Could not read backup: ' + err.message);
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+// Install help
+document.getElementById('btn-install-help').onclick = () => installModal.classList.add('open');
+
+// Clear data
+document.getElementById('btn-clear-data').onclick = async () => {
+  if (!confirm('Delete ALL entries? This cannot be undone.\n\nExport a backup first if you want to keep your data.')) return;
+  await dbClear('entries');
+  entries = [];
+  renderAll();
+  showToast('All entries deleted');
+};
+
+// Install banner
+const banner = document.getElementById('install-banner');
+if (localStorage.getItem('e39_banner_dismissed') || window.navigator.standalone) {
+  banner.classList.add('hidden');
+}
+document.getElementById('dismiss-banner').onclick = () => {
+  banner.classList.add('hidden');
+  localStorage.setItem('e39_banner_dismissed', '1');
+};
+
+// ══════════════════════════════════════════════════════
+// Render
+// ══════════════════════════════════════════════════════
+const typeIcons  = { mod:'⚙️', service:'🛠️', repair:'🔧' };
+const typeLabels = { mod:'Mod', service:'Service', repair:'Repair' };
+const fmt     = c => '$' + (c||0).toFixed(0);
+const today   = () => new Date().toISOString().split('T')[0];
+const fmtDate = d => new Date(d+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+
+function renderCarCard() {
+  const { year, model, body, engine, colour, odo, odoUnit, nickname } = car;
+  document.getElementById('car-name-display').textContent = nickname || `${model} ${body}`;
+  const parts = [];
+  if (year)   parts.push(year + ' BMW');
+  if (odo)    parts.push(Number(odo).toLocaleString('en-AU') + ' ' + odoUnit);
+  if (colour) parts.push(colour);
+  document.getElementById('car-sub-display').textContent = parts.join(' · ') || 'BMW E39';
+  document.getElementById('car-badge').textContent = `E39 · ${engine}`;
+}
+
+function makeCard(entry) {
+  const div = document.createElement('div');
+  div.className = `entry-card ${entry.type}`;
+  div.innerHTML = `
+    <div class="entry-icon ${entry.type}">${typeIcons[entry.type]}</div>
+    <div class="entry-content">
+      <div class="entry-title">${entry.title}</div>
+      <div class="entry-meta">${fmtDate(entry.date)}</div>
+      <div class="entry-tags">
+        <span class="tag ${entry.type}">${typeLabels[entry.type]}</span>
+        ${entry.notes ? '<span class="tag done">Notes</span>' : ''}
+      </div>
+    </div>
+    <div class="entry-right"><div class="entry-cost">${fmt(entry.cost)}</div></div>
+  `;
+  div.onclick = () => {
+    detailId = entry.id;
+    document.getElementById('detail-title').textContent = entry.title;
+    document.getElementById('detail-body').innerHTML = `
+      <div class="detail-row"><span class="detail-key">Type</span><span class="tag ${entry.type}">${typeLabels[entry.type]}</span></div>
+      <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${fmtDate(entry.date)}</span></div>
+      <div class="detail-row"><span class="detail-key">Cost</span><span class="detail-val" style="color:var(--accent2);font-size:18px;font-weight:700">${fmt(entry.cost)}</span></div>
+      ${entry.notes ? `<div class="detail-row" style="flex-direction:column;gap:8px;align-items:flex-start"><span class="detail-key">Notes</span><span class="detail-val" style="font-weight:300;line-height:1.6;text-align:left">${entry.notes}</span></div>` : ''}
+    `;
+    detailModal.classList.add('open');
+  };
+  return div;
+}
+
+function renderList(id, filter) {
+  const el   = document.getElementById(id);
+  const list = filter ? entries.filter(e => e.type===filter) : entries;
+  const icons = {'recent-entries':'🔧','mod-entries':'⚙️','service-entries':'🛠️','spend-entries':'💰'};
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">${icons[id]||'🔧'}</div><div class="empty-text">No entries yet.</div></div>`;
+    return;
+  }
+  el.innerHTML = '';
+  list.forEach(e => el.appendChild(makeCard(e)));
+}
+
+function renderStats() {
+  const mod = entries.filter(e=>e.type==='mod');
+  const svc = entries.filter(e=>e.type==='service');
+  const rep = entries.filter(e=>e.type==='repair');
+  const total = entries.reduce((s,e)=>s+e.cost,0);
+  document.getElementById('stat-mods').textContent  = mod.length;
+  document.getElementById('stat-spent').textContent = fmt(total);
+  const lastSvc = [...svc].sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  const el = document.getElementById('stat-service');
+  if (!lastSvc) { el.textContent='None'; el.className='stat-val overdue'; }
+  else {
+    const days = (Date.now()-new Date(lastSvc.date))/86400000;
+    el.textContent = days>180?'Due':'OK';
+    el.className   = 'stat-val '+(days>180?'overdue':'good');
+  }
+  document.getElementById('total-spend').textContent   = fmt(total);
+  document.getElementById('spend-mods').textContent    = fmt(mod.reduce((s,e)=>s+e.cost,0));
+  document.getElementById('spend-service').textContent = fmt(svc.reduce((s,e)=>s+e.cost,0));
+  document.getElementById('spend-repair').textContent  = fmt(rep.reduce((s,e)=>s+e.cost,0));
+}
+
+function renderAll() {
+  renderCarCard(); renderStats();
+  renderList('recent-entries', null);
+  renderList('mod-entries',    'mod');
+  renderList('service-entries','service');
+  renderList('spend-entries',  null);
+}
+
+// ══════════════════════════════════════════════════════
+// Service Worker (offline support)
+// ══════════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {/* sw optional */});
+}
+
+// ══════════════════════════════════════════════════════
+// Boot
+// ══════════════════════════════════════════════════════
+openDB().then(async () => {
+  await loadAll();
+  await loadSavedPhoto();
+  renderAll();
+  document.getElementById('input-date').value = today();
+});
+</script>
+</body>
+</html>
