@@ -1,4 +1,4 @@
-# E39 Garage Tracker — Platform Expansion Brief
+# Car Tracker — Platform Expansion Brief
 
 ## Project Overview
 
@@ -39,17 +39,17 @@ The goal of this project is to evolve the app into a **generalised, multi-platfo
 This is the single most important unlock for a paid product. A user's garage data must follow them across devices and survive a browser wipe.
 
 ### 1.1 — Supabase Project Setup
-- [ ] Initialise a new Supabase project
-- [ ] Define the core database schema (see below)
-- [ ] Enable Row Level Security (RLS) on all tables — users can only read/write their own data
+- [x] Initialise a new Supabase project
+- [x] Define the core database schema (see below)
+- [x] Enable Row Level Security (RLS) on all tables — users can only read/write their own data
 - [ ] Store Supabase `url` and `anon key` in environment variables (`.env.local`, never committed)
 
 ### 1.2 — Authentication
-- [ ] Implement Supabase Auth
-- [ ] Support email/password signup and login to start
-- [ ] Add a simple auth flow: Login page → Dashboard
-- [ ] Protect all app routes — unauthenticated users are redirected to login
-- [ ] Show logged-in user's email in the UI header with a logout option
+- [x] Implement Supabase Auth
+- [x] Support email/password signup and login to start
+- [x] Add a simple auth flow: Login page → Dashboard
+- [x] Protect all app routes — unauthenticated users are redirected to login
+- [x] Show logged-in user's email in the UI header with a logout option
 
 ### 1.3 — Database Schema
 
@@ -130,15 +130,15 @@ create policy "Users can manage their own vehicles"
 ```
 
 ### 1.4 — Data Layer / API Hooks
-- [ ] Replace all IndexedDB reads/writes with Supabase client calls
-- [ ] Create reusable hooks or service functions for each table (e.g. `useVehicles`, `useServiceLogs`)
+- [x] Replace all IndexedDB reads/writes with Supabase client calls
+- [x] Create reusable hooks or service functions for each table (e.g. `useVehicles`, `useServiceLogs`)
 - [ ] Handle loading and error states throughout
 - [ ] Implement **optimistic UI** where appropriate — don't make the user wait for a network round trip on simple adds
 
 ### 1.5 — Multi-Device Behaviour
-- [ ] On login, fetch all data from Supabase — the app should look identical on any device
-- [ ] If a user adds an entry on mobile, it should appear immediately on desktop on next load (no manual sync required)
-- [ ] No offline-first requirement at this stage — online-required is acceptable for v1
+- [x] On login, fetch all data from Supabase — the app should look identical on any device
+- [x] If a user adds an entry on mobile, it should appear immediately on desktop on next load (no manual sync required)
+- [x] No offline-first requirement at this stage — online-required is acceptable for v1
 
 ### 1.6 — Vehicle Selector
 - [ ] A user can have **multiple vehicles** in their garage
