@@ -670,10 +670,12 @@ import { supabase } from './supabase-client.js';
 import {
   loadCurrentVehicle, upsertVehicle, rowToCar,
   loadEntries, addEntry, deleteEntry, clearAllEntries,
+  uploadVehiclePhoto, getVehiclePhotoUrl,
 } from './data.js';
 
 // ══════════════════════════════════════════════════════
-// IndexedDB (photo only — entries/car now live in Supabase)
+// IndexedDB (legacy — photo now lives in Supabase Storage;
+// kept only to migrate existing local photos on next sign-in)
 // ══════════════════════════════════════════════════════
 const DB_NAME = 'e39garage', DB_VER = 1;
 let db;
@@ -706,6 +708,14 @@ function dbGet(store, key) {
     const tx  = db.transaction(store, 'readonly');
     const req = tx.objectStore(store).get(key);
     req.onsuccess = () => res(req.result);
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+function dbDel(store, key) {
+  return new Promise((res, rej) => {
+    const tx  = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).delete(key);
+    req.onsuccess = () => res();
     req.onerror   = e => rej(e.target.error);
   });
 }
@@ -750,12 +760,35 @@ const carPhoto       = document.getElementById('car-photo');
 const uploadPrompt   = document.getElementById('upload-prompt');
 const changePhotoBtn = document.getElementById('change-photo-btn');
 
+// Preferred source: the vehicle row's photo_path → signed URL from Storage.
+// Fallback: a photo still living in IndexedDB from before this migration —
+// migrate it once, then forget about it.
 async function loadSavedPhoto() {
-  const saved = await dbGet('kv', 'photo');
-  if (saved) applyPhoto(saved);
+  if (car.photoPath) {
+    try {
+      const url = await getVehiclePhotoUrl(car.photoPath);
+      if (url) { applyPhoto(url); return; }
+    } catch (err) {
+      console.error('Photo load failed:', err);
+    }
+  }
+
+  const legacy = await dbGet('kv', 'photo');
+  if (!legacy || !vehicleId) return;
+
+  applyPhoto(legacy);
+  try {
+    const blob = await (await fetch(legacy)).blob();
+    const path = await uploadVehiclePhoto(vehicleId, blob);
+    car.photoPath = path;
+    await dbDel('kv', 'photo');
+    showToast('Photo synced to your account ✓');
+  } catch (err) {
+    console.error('Photo migration failed — will retry next sign-in:', err);
+  }
 }
-function applyPhoto(dataUrl) {
-  carPhoto.src = dataUrl;
+function applyPhoto(src) {
+  carPhoto.src = src;
   carPhoto.classList.add('loaded');
   uploadPrompt.classList.add('hidden');
   changePhotoBtn.style.display = 'flex';
@@ -770,10 +803,11 @@ changePhotoBtn.addEventListener('click', () => photoInput.click());
 photoInput.addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
+  if (!vehicleId) { showToast('Vehicle not loaded yet'); photoInput.value = ''; return; }
   const reader = new FileReader();
   reader.onload = ev => {
     const img = new Image();
-    img.onload = async () => {
+    img.onload = () => {
       const canvas = document.createElement('canvas');
       const maxW = 900, maxH = 500;
       let w = img.width, h = img.height;
@@ -781,10 +815,18 @@ photoInput.addEventListener('change', e => {
       if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const compressed = canvas.toDataURL('image/jpeg', 0.82);
-      await dbPut('kv', compressed, 'photo');
-      applyPhoto(compressed);
-      showToast('Photo saved ✓');
+      canvas.toBlob(async blob => {
+        if (!blob) { showToast('Photo processing failed'); return; }
+        try {
+          const path = await uploadVehiclePhoto(vehicleId, blob);
+          car.photoPath = path;
+          const url = await getVehiclePhotoUrl(path);
+          applyPhoto(url);
+          showToast('Photo saved ✓');
+        } catch (err) {
+          showToast('Save failed: ' + (err?.message || 'unknown error'));
+        }
+      }, 'image/jpeg', 0.82);
     };
     img.src = ev.target.result;
   };
@@ -947,7 +989,22 @@ document.getElementById('save-car-btn').onclick = async () => {
 document.getElementById('btn-export').onclick = async () => {
   try {
     const allEntries = vehicleId ? await loadEntries(vehicleId) : [];
-    const photo      = await dbGet('kv', 'photo');
+    // Backups embed the photo as a data URL so they're self-contained.
+    let photo = null;
+    if (car.photoPath) {
+      try {
+        const url  = await getVehiclePhotoUrl(car.photoPath);
+        const blob = await (await fetch(url)).blob();
+        photo = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload  = () => res(r.result);
+          r.onerror = () => rej(r.error);
+          r.readAsDataURL(blob);
+        });
+      } catch (err) {
+        console.error('Photo export failed:', err);
+      }
+    }
     const payload = {
       version: 1,
       exported: new Date().toISOString(),
@@ -1004,10 +1061,18 @@ document.getElementById('import-input').addEventListener('change', e => {
       }
       entries.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
-      // Photo stays in IndexedDB until Phase 2 (Supabase Storage).
-      if (data.photo && !carPhoto.classList.contains('loaded')) {
-        await dbPut('kv', data.photo, 'photo');
-        applyPhoto(data.photo);
+      // Import the embedded photo straight into Supabase Storage so it
+      // follows the account; only do this if the user doesn't already
+      // have a photo set, to avoid clobbering a current one.
+      if (data.photo && vehicleId && !car.photoPath) {
+        try {
+          const blob = await (await fetch(data.photo)).blob();
+          const path = await uploadVehiclePhoto(vehicleId, blob);
+          car.photoPath = path;
+          applyPhoto(data.photo);
+        } catch (err) {
+          console.error('Photo import failed:', err);
+        }
       }
 
       renderAll();
