@@ -11,15 +11,16 @@ import { supabase } from './supabase-client.js';
 export function rowToCar(row) {
   if (!row) return null;
   return {
-    id:       row.id,
-    nickname: row.nickname || '',
-    year:     row.year ? String(row.year) : '',
-    model:    row.model    || '530i',
-    body:     row.body     || 'Sedan',
-    engine:   row.engine   || 'M54',
-    colour:   row.colour   || '',
-    odo:      row.odometer ? String(row.odometer) : '',
-    odoUnit:  row.odometer_unit || 'km',
+    id:        row.id,
+    nickname:  row.nickname || '',
+    year:      row.year ? String(row.year) : '',
+    model:     row.model    || '530i',
+    body:      row.body     || 'Sedan',
+    engine:    row.engine   || 'M54',
+    colour:    row.colour   || '',
+    odo:       row.odometer ? String(row.odometer) : '',
+    odoUnit:   row.odometer_unit || 'km',
+    photoPath: row.photo_path || null,
   };
 }
 
@@ -167,4 +168,46 @@ export async function clearAllEntries(vehicleId) {
   ]);
   if (m.error) throw m.error;
   if (s.error) throw s.error;
+}
+
+// ──────────────────────────────────────────────────────────────────
+// Vehicle photo (Supabase Storage)
+// ──────────────────────────────────────────────────────────────────
+//
+// Bucket: 'car-photos' (private). RLS pins each user to a folder named
+// after their auth.uid(). Path convention: <user_id>/<vehicle_id>.jpg —
+// stable so re-uploads overwrite the same object.
+
+const PHOTO_BUCKET = 'car-photos';
+
+export async function uploadVehiclePhoto(vehicleId, blob) {
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  if (!user) throw new Error('Not signed in');
+  if (!vehicleId) throw new Error('No vehicle to attach photo to');
+
+  const path = `${user.id}/${vehicleId}.jpg`;
+  const { error: upErr } = await supabase.storage
+    .from(PHOTO_BUCKET)
+    .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+  if (upErr) throw upErr;
+
+  const { error: rowErr } = await supabase
+    .from('vehicles')
+    .update({ photo_path: path })
+    .eq('id', vehicleId);
+  if (rowErr) throw rowErr;
+
+  return path;
+}
+
+// Signed URL good for one hour — enough for a single page session. The
+// <img> tag caches the bitmap, so we don't need a long-lived URL.
+export async function getVehiclePhotoUrl(photoPath) {
+  if (!photoPath) return null;
+  const { data, error } = await supabase.storage
+    .from(PHOTO_BUCKET)
+    .createSignedUrl(photoPath, 60 * 60);
+  if (error) throw error;
+  return data.signedUrl;
 }
