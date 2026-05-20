@@ -20,6 +20,13 @@ create table if not exists vehicles (
   created_at  timestamptz not null default now()
 );
 
+-- E39-era UI carries these fields on the car card; kept on the row directly
+-- so we can query/aggregate later. add column if not exists keeps re-runs safe.
+alter table vehicles add column if not exists body           text;
+alter table vehicles add column if not exists engine         text;
+alter table vehicles add column if not exists odometer       integer;
+alter table vehicles add column if not exists odometer_unit  text default 'km';
+
 create table if not exists service_logs (
   id          uuid primary key default gen_random_uuid(),
   vehicle_id  uuid not null references vehicles(id) on delete cascade,
@@ -33,6 +40,15 @@ create table if not exists service_logs (
   workshop    text,
   created_at  timestamptz not null default now()
 );
+
+-- Repairs share the service_logs shape (workshop, odometer, cost); distinguished
+-- by 'kind'. Keeps the UI's mod / service / repair tabs without a third table.
+alter table service_logs add column if not exists kind text not null default 'service';
+
+do $$ begin
+  alter table service_logs
+    add constraint service_logs_kind_check check (kind in ('service','repair'));
+exception when duplicate_object then null; end $$;
 
 create table if not exists mod_logs (
   id           uuid primary key default gen_random_uuid(),

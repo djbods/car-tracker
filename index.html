@@ -269,6 +269,21 @@
 
   /* ── TOAST ── */
   .toast { position: fixed; bottom: calc(110px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 500; padding: 10px 18px; border-radius: 20px; z-index: 300; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; white-space: nowrap; }
+  .boot-overlay {
+    position: fixed; inset: 0; z-index: 950;
+    background: var(--bg);
+    display: none; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    padding: 0 24px; text-align: center;
+  }
+  .boot-overlay.open { display: flex; }
+  .boot-spinner { width: 28px; height: 28px; border: 2px solid rgba(200,168,75,0.2); border-top-color: var(--accent); border-radius: 50%; animation: boot-spin 0.8s linear infinite; }
+  .boot-text { font-size: 13px; letter-spacing: 1px; color: var(--accent2); text-transform: uppercase; font-weight: 600; }
+  .boot-error { display: none; flex-direction: column; align-items: center; gap: 14px; max-width: 320px; }
+  .boot-overlay.error .boot-spinner, .boot-overlay.error .boot-text { display: none; }
+  .boot-overlay.error .boot-error { display: flex; }
+  .boot-error-msg { color: var(--text); font-size: 14px; line-height: 1.5; }
+  .boot-retry { background: var(--accent); color: #000; border: 0; padding: 10px 22px; border-radius: 20px; font-weight: 600; font-size: 13px; cursor: pointer; }
+  @keyframes boot-spin { to { transform: rotate(360deg); } }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* ── INSTALL BANNER ── */
@@ -597,13 +612,26 @@
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
+
+<div class="boot-overlay" id="boot-overlay">
+  <div class="boot-spinner"></div>
+  <div class="boot-text">Loading your garage…</div>
+  <div class="boot-error">
+    <div class="boot-error-msg" id="boot-error-msg"></div>
+    <button class="boot-retry" id="boot-retry">Try again</button>
+  </div>
+</div>
 <input type="file" id="import-input" accept=".json">
 
 <script type="module">
 import { supabase } from './supabase-client.js';
+import {
+  loadCurrentVehicle, upsertVehicle, rowToCar,
+  loadEntries, addEntry, deleteEntry, clearAllEntries,
+} from './data.js';
 
 // ══════════════════════════════════════════════════════
-// IndexedDB
+// IndexedDB (photo only — entries/car now live in Supabase)
 // ══════════════════════════════════════════════════════
 const DB_NAME = 'e39garage', DB_VER = 1;
 let db;
@@ -613,8 +641,6 @@ function openDB() {
     const req = indexedDB.open(DB_NAME, DB_VER);
     req.onupgradeneeded = e => {
       const d = e.target.result;
-      if (!d.objectStoreNames.contains('entries'))
-        d.createObjectStore('entries', { keyPath: 'id' });
       if (!d.objectStoreNames.contains('kv'))
         d.createObjectStore('kv');
     };
@@ -623,36 +649,12 @@ function openDB() {
   });
 }
 
-function dbGetAll(store) {
-  return new Promise((res, rej) => {
-    const tx  = db.transaction(store, 'readonly');
-    const req = tx.objectStore(store).getAll();
-    req.onsuccess = () => res(req.result);
-    req.onerror   = e => rej(e.target.error);
-  });
-}
 function dbPut(store, value, key) {
   return new Promise((res, rej) => {
     const tx  = db.transaction(store, 'readwrite');
     const req = key !== undefined
       ? tx.objectStore(store).put(value, key)
       : tx.objectStore(store).put(value);
-    req.onsuccess = () => res();
-    req.onerror   = e => rej(e.target.error);
-  });
-}
-function dbDelete(store, key) {
-  return new Promise((res, rej) => {
-    const tx  = db.transaction(store, 'readwrite');
-    const req = tx.objectStore(store).delete(key);
-    req.onsuccess = () => res();
-    req.onerror   = e => rej(e.target.error);
-  });
-}
-function dbClear(store) {
-  return new Promise((res, rej) => {
-    const tx  = db.transaction(store, 'readwrite');
-    const req = tx.objectStore(store).clear();
     req.onsuccess = () => res();
     req.onerror   = e => rej(e.target.error);
   });
@@ -674,13 +676,18 @@ let car = {
   year:'2002', model:'530i', body:'Sedan', engine:'M54',
   colour:'Titan Silver', odo:'', odoUnit:'km', nickname:''
 };
+let vehicleId  = null;   // set after first Supabase load/create
 let activeType = 'mod';
 let detailId   = null;
 
+// On first sign-in the user has no vehicle row yet — create one from the
+// in-memory defaults so subsequent entry inserts have a vehicle_id to bind to.
 async function loadAll() {
-  entries = (await dbGetAll('entries')).sort((a,b) => b.id - a.id);
-  const savedCar = await dbGet('kv', 'car');
-  if (savedCar) car = savedCar;
+  let row = await loadCurrentVehicle();
+  if (!row) row = await upsertVehicle(car);
+  car = rowToCar(row);
+  vehicleId = row.id;
+  entries = await loadEntries(vehicleId);
 }
 
 // ══════════════════════════════════════════════════════
@@ -799,19 +806,33 @@ document.querySelectorAll('.type-btn').forEach(btn => {
 document.getElementById('save-entry-btn').onclick = async () => {
   const title = document.getElementById('input-title').value.trim();
   if (!title) { document.getElementById('input-title').focus(); return; }
-  const entry = {
-    id:    Date.now(),
+  if (!vehicleId) { showToast('No vehicle loaded'); return; }
+
+  const draft = {
+    id:    'tmp-' + Date.now(),     // replaced once Supabase returns the real uuid
     type:  activeType,
     title,
     cost:  parseFloat(document.getElementById('input-cost').value)  || 0,
     date:  document.getElementById('input-date').value || today(),
     notes: document.getElementById('input-notes').value.trim()
   };
-  await dbPut('entries', entry);
-  entries.unshift(entry);
+
+  // Optimistic: render immediately, reconcile on success/failure.
+  entries.unshift(draft);
   close(addModal);
   renderAll();
-  showToast('Entry saved ✓');
+
+  try {
+    const saved = await addEntry(vehicleId, draft);
+    const i = entries.findIndex(e => e.id === draft.id);
+    if (i !== -1) entries[i] = saved;
+    renderAll();
+    showToast('Entry saved ✓');
+  } catch (err) {
+    entries = entries.filter(e => e.id !== draft.id);
+    renderAll();
+    showToast('Save failed: ' + (err?.message || 'unknown error'));
+  }
 };
 
 // ══════════════════════════════════════════════════════
@@ -819,11 +840,22 @@ document.getElementById('save-entry-btn').onclick = async () => {
 // ══════════════════════════════════════════════════════
 document.getElementById('detail-delete-btn').onclick = async () => {
   if (!detailId || !confirm('Delete this entry?')) return;
-  await dbDelete('entries', detailId);
+  const target = entries.find(e => e.id === detailId);
+  if (!target) return;
+
+  const removed = entries;
   entries = entries.filter(e => e.id !== detailId);
   close(detailModal);
   renderAll();
-  showToast('Entry deleted');
+
+  try {
+    await deleteEntry(target);
+    showToast('Entry deleted');
+  } catch (err) {
+    entries = removed;
+    renderAll();
+    showToast('Delete failed: ' + (err?.message || 'unknown error'));
+  }
 };
 
 // ══════════════════════════════════════════════════════
@@ -842,7 +874,8 @@ document.getElementById('car-edit-btn').onclick = () => {
 };
 
 document.getElementById('save-car-btn').onclick = async () => {
-  car = {
+  const next = {
+    id:       vehicleId,
     year:     document.getElementById('car-year').value.trim(),
     model:    document.getElementById('car-model').value,
     body:     document.getElementById('car-body').value,
@@ -852,10 +885,16 @@ document.getElementById('save-car-btn').onclick = async () => {
     odoUnit:  document.getElementById('car-odo-unit').value,
     nickname: document.getElementById('car-nickname').value.trim(),
   };
-  await dbPut('kv', car, 'car');
-  close(carModal);
-  renderCarCard();
-  showToast('Car details saved ✓');
+  try {
+    const saved = await upsertVehicle(next);
+    car = rowToCar(saved);
+    vehicleId = saved.id;
+    close(carModal);
+    renderCarCard();
+    showToast('Car details saved ✓');
+  } catch (err) {
+    showToast('Save failed: ' + (err?.message || 'unknown error'));
+  }
 };
 
 // ══════════════════════════════════════════════════════
@@ -864,23 +903,27 @@ document.getElementById('save-car-btn').onclick = async () => {
 
 // Export
 document.getElementById('btn-export').onclick = async () => {
-  const allEntries = await dbGetAll('entries');
-  const photo      = await dbGet('kv', 'photo');
-  const payload = {
-    version: 1,
-    exported: new Date().toISOString(),
-    car,
-    entries: allEntries,
-    photo: photo || null
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `e39-garage-backup-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Backup exported ✓');
+  try {
+    const allEntries = vehicleId ? await loadEntries(vehicleId) : [];
+    const photo      = await dbGet('kv', 'photo');
+    const payload = {
+      version: 1,
+      exported: new Date().toISOString(),
+      car,
+      entries: allEntries,
+      photo: photo || null
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `e39-garage-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Backup exported ✓');
+  } catch (err) {
+    showToast('Export failed: ' + (err?.message || 'unknown error'));
+  }
 };
 
 // Import
@@ -895,26 +938,31 @@ document.getElementById('import-input').addEventListener('change', e => {
     try {
       const data = JSON.parse(ev.target.result);
       if (!data.entries || !Array.isArray(data.entries)) throw new Error('Invalid backup file');
-      if (!confirm(`Import ${data.entries.length} entries? This will merge with your existing data.`)) return;
+      if (!vehicleId) throw new Error('Vehicle not loaded yet — try again in a moment');
+      if (!confirm(`Import ${data.entries.length} entries? This will add to your existing data.`)) return;
 
-      // Merge entries (skip duplicates by id)
-      const existingIds = new Set(entries.map(e => e.id));
+      // Restore car details first so the vehicle row reflects the backup.
+      if (data.car) {
+        const saved = await upsertVehicle({ ...data.car, id: vehicleId });
+        car = rowToCar(saved);
+        vehicleId = saved.id;
+      }
+
+      // Push every entry — Supabase mints new uuids, so we don't try to
+      // dedupe by id (legacy backups use Date.now() numeric ids anyway).
       let added = 0;
       for (const entry of data.entries) {
-        if (!existingIds.has(entry.id)) {
-          await dbPut('entries', entry);
-          entries.push(entry);
+        try {
+          const saved = await addEntry(vehicleId, entry);
+          entries.unshift(saved);
           added++;
+        } catch (err) {
+          console.error('Skipped entry during import:', entry, err);
         }
       }
-      entries.sort((a,b) => b.id - a.id);
+      entries.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
-      // Restore car details if present
-      if (data.car) {
-        car = data.car;
-        await dbPut('kv', car, 'car');
-      }
-      // Restore photo if present and none currently set
+      // Photo stays in IndexedDB until Phase 2 (Supabase Storage).
       if (data.photo && !carPhoto.classList.contains('loaded')) {
         await dbPut('kv', data.photo, 'photo');
         applyPhoto(data.photo);
@@ -936,10 +984,14 @@ document.getElementById('btn-install-help').onclick = () => installModal.classLi
 // Clear data
 document.getElementById('btn-clear-data').onclick = async () => {
   if (!confirm('Delete ALL entries? This cannot be undone.\n\nExport a backup first if you want to keep your data.')) return;
-  await dbClear('entries');
-  entries = [];
-  renderAll();
-  showToast('All entries deleted');
+  try {
+    await clearAllEntries(vehicleId);
+    entries = [];
+    renderAll();
+    showToast('All entries deleted');
+  } catch (err) {
+    showToast('Delete failed: ' + (err?.message || 'unknown error'));
+  }
 };
 
 // Install banner
@@ -1131,17 +1183,49 @@ userBarLogout.addEventListener('click', async () => {
   await supabase.auth.signOut();
 });
 
+const bootOverlay   = document.getElementById('boot-overlay');
+const bootErrorMsg  = document.getElementById('boot-error-msg');
+const bootRetry     = document.getElementById('boot-retry');
+
+function showBootLoading() {
+  bootOverlay.classList.remove('error');
+  bootOverlay.classList.add('open');
+}
+function showBootError(msg) {
+  bootErrorMsg.textContent = msg;
+  bootOverlay.classList.add('error', 'open');
+}
+function hideBoot() { bootOverlay.classList.remove('open', 'error'); }
+
+bootRetry.addEventListener('click', async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    appBooted = false;
+    await bootApp(session);
+  } else {
+    hideBoot();
+    showAuthGate();
+  }
+});
+
 async function bootApp(session) {
   userBarEmail.textContent = session.user.email || '';
   userBar.classList.add('signed-in');
   authOverlay.classList.remove('open');
   if (appBooted) return;
-  appBooted = true;
-  await openDB();
-  await loadAll();
-  await loadSavedPhoto();
-  renderAll();
-  document.getElementById('input-date').value = today();
+  showBootLoading();
+  try {
+    await openDB();
+    await loadAll();
+    await loadSavedPhoto();
+    renderAll();
+    document.getElementById('input-date').value = today();
+    appBooted = true;
+    hideBoot();
+  } catch (err) {
+    console.error('Boot failed:', err);
+    showBootError(err?.message || 'Could not load your garage. Check your connection and try again.');
+  }
 }
 
 function showAuthGate() {
