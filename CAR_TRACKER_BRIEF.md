@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-The E39 Garage Tracker is a mobile-first PWA for logging modifications, service history, and spending on a BMW E39. Currently deployed at [e39-tracker.netlify.app](https://e39-tracker.netlify.app) from the `jackbodsworth/e39-garage` GitHub repo. Storage is currently handled via **IndexedDB** (local, browser-bound).
+The E39 Garage Tracker is a mobile-first PWA for logging modifications, service history, and spending on a BMW E39. Currently deployed at [e39-tracker.netlify.app](https://e39-tracker.netlify.app) from the `jackbodsworth/car-tracker` GitHub repo. Storage is currently handled via **supabase**.
 
 The goal of this project is to evolve the app into a **generalised, multi-platform car tracker SaaS** — with E39 as the first supported platform — capable of supporting paying users across multiple vehicles and platforms in the future.
 
@@ -141,9 +141,9 @@ create policy "Users can manage their own vehicles"
 - [x] No offline-first requirement at this stage — online-required is acceptable for v1
 
 ### 1.6 — Vehicle Selector
-- [ ] A user can have **multiple vehicles** in their garage
-- [ ] The app should have a "My Garage" view listing all their vehicles
-- [ ] All logs (service, mods, expenses) are scoped to the selected vehicle
+- [x] A user can have **multiple vehicles** in their garage
+- [x] The app should have a "My Garage" view listing all their vehicles
+- [x] All logs (service, mods, expenses) are scoped to the selected vehicle
 - [ ] Add vehicle form should capture: nickname, make, model, year, variant, colour (all optional except nickname + make + model)
 
 ---
