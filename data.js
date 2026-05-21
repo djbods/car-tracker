@@ -1,4 +1,4 @@
-// Supabase-backed data access for the E39 Garage Tracker.
+// Supabase-backed data access for the Car Tracker app.
 // Replaces the IndexedDB layer. RLS in supabase/schema.sql scopes every
 // query to auth.uid() — these functions assume an authenticated session.
 import { supabase } from './supabase-client.js';
@@ -8,15 +8,19 @@ import { supabase } from './supabase-client.js';
 // ──────────────────────────────────────────────────────────────────
 
 // Map a vehicles row → the UI's `car` object shape used throughout index.html.
+// `variant` carries the trim/spec text for non-BMW makes; for BMW we store
+// engine code in `engine` and body style in `body` as before.
 export function rowToCar(row) {
   if (!row) return null;
   return {
     id:        row.id,
     nickname:  row.nickname || '',
     year:      row.year ? String(row.year) : '',
-    model:     row.model    || '530i',
-    body:      row.body     || 'Sedan',
-    engine:    row.engine   || 'M54',
+    make:      row.make     || '',
+    model:     row.model    || '',
+    body:      row.body     || '',
+    engine:    row.engine   || '',
+    variant:   row.variant  || '',
     colour:    row.colour   || '',
     odo:       row.odometer ? String(row.odometer) : '',
     odoUnit:   row.odometer_unit || 'km',
@@ -41,18 +45,23 @@ export async function upsertVehicle(vehicle) {
   if (userErr) throw userErr;
   if (!user) throw new Error('Not signed in');
 
-  // nickname/make/model are NOT NULL in the schema — fall back to sensible
-  // defaults so a brand-new user with an empty nickname can still be saved.
+  const make  = (vehicle.make  || '').trim();
+  const model = (vehicle.model || '').trim();
+  if (!make || !model) throw new Error('Make and model are required');
+
+  // nickname is NOT NULL in the schema — derive a default from make/model so
+  // the user can leave it blank without the insert failing.
   const nickname = (vehicle.nickname || '').trim()
-    || [vehicle.model, vehicle.body].filter(Boolean).join(' ').trim()
-    || 'My E39';
+    || [model, vehicle.body].filter(Boolean).join(' ').trim()
+    || `My ${make}`;
 
   const row = {
     user_id:       user.id,
     nickname,
-    make:          (vehicle.make  || '').trim() || 'BMW',
-    model:         (vehicle.model || '').trim() || '530i',
+    make,
+    model,
     year:          vehicle.year ? parseInt(vehicle.year, 10) : null,
+    variant:       (vehicle.variant || '').trim() || null,
     body:          vehicle.body     || null,
     engine:        vehicle.engine   || null,
     colour:        vehicle.colour   || null,
@@ -70,6 +79,31 @@ export async function upsertVehicle(vehicle) {
     .from('vehicles').insert(row).select().single();
   if (error) throw error;
   return data;
+}
+
+// ──────────────────────────────────────────────────────────────────
+// Garage name (per-user setting, stored on auth.users.user_metadata)
+// ──────────────────────────────────────────────────────────────────
+//
+// We avoid a `profiles` table for this single string — Supabase Auth's
+// user_metadata is read on every getSession() so it's already available
+// during boot without an extra query.
+
+export const DEFAULT_GARAGE_NAME = 'Car Tracker';
+
+export async function getGarageName() {
+  const { data: { user } } = await supabase.auth.getUser();
+  const name = (user?.user_metadata?.garage_name || '').trim();
+  return name || DEFAULT_GARAGE_NAME;
+}
+
+export async function setGarageName(name) {
+  const trimmed = (name || '').trim();
+  const { error } = await supabase.auth.updateUser({
+    data: { garage_name: trimmed || null },
+  });
+  if (error) throw error;
+  return trimmed || DEFAULT_GARAGE_NAME;
 }
 
 // ──────────────────────────────────────────────────────────────────
