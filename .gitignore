@@ -3,5 +3,6 @@ yarn.lock
 package-lock.json
 .env
 .env.local
+config.local.js
 .DS_Store
 .claude/
