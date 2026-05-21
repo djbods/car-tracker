@@ -144,7 +144,7 @@ create policy "Users can manage their own vehicles"
 - [x] A user can have **multiple vehicles** in their garage
 - [x] The app should have a "My Garage" view listing all their vehicles
 - [x] All logs (service, mods, expenses) are scoped to the selected vehicle
-- [ ] Add vehicle form should capture: nickname, make, model, year, variant, colour (all optional except nickname + make + model)
+- [x] Add vehicle form should capture: nickname, make, model, year, variant, colour (all optional except nickname + make + model)
 
 ---
 

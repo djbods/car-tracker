@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="E39 Garage">
+<meta name="apple-mobile-web-app-title" content="Car Tracker">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="manifest" href="manifest.json">
 <!-- Apple touch icon (inline SVG as data URI) -->
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230a0a0a'/%3E%3Crect x='12' y='12' width='156' height='156' rx='26' fill='%23141414'/%3E%3Ctext x='90' y='108' font-family='Arial Black' font-size='66' font-weight='900' fill='%23c8a84b' text-anchor='middle'%3EE39%3C/text%3E%3C/svg%3E">
-<title>E39 Garage</title>
+<title>Car Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -87,8 +87,16 @@
   #photo-input { display: none; }
 
   .car-info { padding: 16px 20px; }
+  .car-name-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
   .car-name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px, calc(24px + 1vw), 36px); letter-spacing: 1px; line-height: 1; }
   .car-sub { color: var(--muted); font-size: 13px; margin-top: 3px; font-weight: 300; }
+
+  /* Brand logo — inline SVG injected at runtime; uses currentColor so it
+     inherits the gold accent. Size driven by the modifier class. */
+  .brand-logo { color: var(--accent2); flex-shrink: 0; opacity: 0.85; }
+  .brand-logo svg { width: 100%; height: 100%; display: block; }
+  .brand-logo-lg { width: 44px; height: 44px; }
+  .brand-logo-sm { width: 26px; height: 26px; }
   .car-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--border); margin-top: 16px; border-radius: 10px; overflow: hidden; }
   .stat { background: var(--surface2); padding: 12px 10px; text-align: center; }
   .stat-val { font-size: 17px; font-weight: 600; }
@@ -362,7 +370,7 @@
 <div class="auth-overlay" id="auth-overlay">
   <div class="auth-brand">
     <div class="auth-brand-label">My Build</div>
-    <div class="auth-brand-title">E39 Garage</div>
+    <div class="auth-brand-title" id="auth-brand-title">Car Tracker</div>
   </div>
   <div class="auth-card">
     <div class="auth-tabs">
@@ -389,7 +397,7 @@
 <div class="screen active" id="screen-garage">
   <div class="header">
     <div class="header-label">My Build</div>
-    <div class="header-title">E39 Garage</div>
+    <div class="header-title" id="garage-header-title">Car Tracker</div>
   </div>
 
   <!-- Install banner (shown on first load if not installed) -->
@@ -404,7 +412,7 @@
 
   <div class="car-card">
     <div class="car-image-wrap" id="car-image-wrap">
-      <img id="car-photo" alt="My E39">
+      <img id="car-photo" alt="My car">
       <div class="car-upload-prompt" id="upload-prompt">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
         <span>Tap to add a photo</span>
@@ -432,8 +440,13 @@
       <input type="file" id="photo-input" accept="image/*">
     </div>
     <div class="car-info">
-      <div class="car-name" id="car-name-display">530i Sedan</div>
-      <div class="car-sub" id="car-sub-display">2002 BMW · Titan Silver</div>
+      <div class="car-name-row">
+        <div>
+          <div class="car-name" id="car-name-display">530i Sedan</div>
+          <div class="car-sub" id="car-sub-display">2002 BMW · Titan Silver</div>
+        </div>
+        <div class="brand-logo brand-logo-lg" id="car-brand-logo" aria-hidden="true"></div>
+      </div>
       <div class="car-stats">
         <div class="stat"><div class="stat-val" id="stat-mods">0</div><div class="stat-label">Mods</div></div>
         <div class="stat"><div class="stat-val" id="stat-spent">$0</div><div class="stat-label">Invested</div></div>
@@ -481,7 +494,20 @@
   <div class="header"><div class="header-label">App</div><div class="header-title">Settings</div></div>
   <div class="settings-section">
 
-    <div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:600;text-transform:uppercase;padding:0 4px 8px">Data & Backup</div>
+    <div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:600;text-transform:uppercase;padding:0 4px 8px">Personalise</div>
+
+    <div class="settings-card">
+      <div class="settings-row" id="btn-edit-garage-name">
+        <div class="settings-icon gold">🏷️</div>
+        <div class="settings-text">
+          <div class="settings-label">Garage Name</div>
+          <div class="settings-sub" id="settings-garage-name-sub">Car Tracker</div>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:600;text-transform:uppercase;padding:16px 4px 8px">Data & Backup</div>
 
     <div class="settings-card">
       <div class="settings-row" id="btn-export">
@@ -529,7 +555,7 @@
     </div>
 
     <div style="text-align:center;padding:24px 0 8px;color:var(--muted);font-size:12px;font-weight:300">
-      E39 Garage · All data stored locally on your device
+      <span id="settings-footer-name">Car Tracker</span> · Synced to your account
     </div>
   </div>
 </div>
@@ -594,19 +620,31 @@
     <div class="modal-handle"></div>
     <div class="modal-title">Car Details</div>
     <div class="form-row">
-      <div class="form-group"><label>Year</label><input type="number" id="car-year" placeholder="1996–2004" inputmode="numeric"></div>
-      <div class="form-group"><label>Model</label>
-        <select id="car-model">
-          <option value="520i">520i</option><option value="523i">523i</option><option value="525i">525i</option>
-          <option value="528i">528i</option><option value="530i" selected>530i</option><option value="535i">535i</option>
-          <option value="540i">540i</option><option value="M5">M5</option>
-          <option value="525d">525d</option><option value="530d">530d</option><option value="535d">535d</option>
-        </select>
+      <div class="form-group"><label>Year</label><input type="number" id="car-year" placeholder="e.g. 2002" inputmode="numeric"></div>
+      <div class="form-group"><label>Make</label>
+        <input type="text" id="car-make" list="car-make-options" placeholder="e.g. BMW, Toyota, Ford…" autocomplete="off">
+        <datalist id="car-make-options">
+          <option value="BMW"><option value="Mercedes-Benz"><option value="Audi"><option value="Porsche"><option value="Volkswagen">
+          <option value="Toyota"><option value="Mazda"><option value="Ford"><option value="Honda"><option value="Hyundai">
+          <option value="Kia"><option value="Subaru"><option value="Nissan"><option value="Mitsubishi"><option value="Tesla">
+        </datalist>
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label>Body</label>
-        <select id="car-body"><option value="Sedan" selected>Sedan</option><option value="Touring">Touring</option></select>
+
+    <!-- BMW-only: chassis-style dropdowns. Shown when make = BMW. -->
+    <div id="car-bmw-fields">
+      <div class="form-row">
+        <div class="form-group"><label>Model</label>
+          <select id="car-model">
+            <option value="520i">520i</option><option value="523i">523i</option><option value="525i">525i</option>
+            <option value="528i">528i</option><option value="530i" selected>530i</option><option value="535i">535i</option>
+            <option value="540i">540i</option><option value="M5">M5</option>
+            <option value="525d">525d</option><option value="530d">530d</option><option value="535d">535d</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Body</label>
+          <select id="car-body"><option value="Sedan" selected>Sedan</option><option value="Touring">Touring</option></select>
+        </div>
       </div>
       <div class="form-group"><label>Engine</label>
         <select id="car-engine">
@@ -616,6 +654,15 @@
         </select>
       </div>
     </div>
+
+    <!-- Generic: plain Model + Variant text inputs. Shown when make != BMW. -->
+    <div id="car-generic-fields">
+      <div class="form-row">
+        <div class="form-group"><label>Model</label><input type="text" id="car-model-text" placeholder="e.g. Camry, Mustang, Golf…"></div>
+        <div class="form-group"><label>Variant / Trim</label><input type="text" id="car-variant-text" placeholder="e.g. GTI, Sport, RS…"></div>
+      </div>
+    </div>
+
     <div class="form-group"><label>Colour</label><input type="text" id="car-colour" placeholder="e.g. Titan Silver, Cosmos Black…"></div>
     <div class="form-row">
       <div class="form-group"><label>Odometer</label><input type="number" id="car-odo" placeholder="e.g. 187430" inputmode="numeric"></div>
@@ -626,6 +673,20 @@
     <div class="form-group"><label>Nickname (optional)</label><input type="text" id="car-nickname" placeholder="e.g. The Bimmer, Silver Shark…"></div>
     <button class="btn-primary" id="save-car-btn">Save Details</button>
     <button class="btn-ghost" id="cancel-car-btn">Cancel</button>
+  </div>
+</div>
+
+<!-- GARAGE NAME MODAL -->
+<div class="modal-overlay" id="garage-name-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Garage Name</div>
+    <div class="form-group">
+      <label>What should we call your garage?</label>
+      <input type="text" id="garage-name-input" maxlength="40" placeholder="e.g. Jack's Garage, The Stable, Car Tracker…">
+    </div>
+    <button class="btn-primary" id="save-garage-name-btn">Save</button>
+    <button class="btn-ghost" id="cancel-garage-name-btn">Cancel</button>
   </div>
 </div>
 
@@ -664,7 +725,7 @@
         <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">3</div>
         <div>
           <div style="font-weight:600;margin-bottom:3px">Tap "Add to Home Screen"</div>
-          <div style="font-size:13px;color:var(--muted);font-weight:300">Scroll down in the share sheet and tap it. Name it "E39 Garage" and tap Add.</div>
+          <div style="font-size:13px;color:var(--muted);font-weight:300">Scroll down in the share sheet and tap it. Name it however you like and tap Add.</div>
         </div>
       </div>
       <div style="display:flex;gap:14px;align-items:flex-start">
@@ -698,7 +759,14 @@ import {
   loadVehicles, upsertVehicle, rowToCar,
   loadEntries, addEntry, deleteEntry, clearAllEntries,
   uploadVehiclePhoto, getVehiclePhotoUrl,
+  getGarageName, setGarageName, DEFAULT_GARAGE_NAME,
 } from './data.js';
+import { renderBrandLogo } from './logos.js';
+
+// BMW is the only make with bespoke chassis/body/engine UI — everywhere else
+// we fall back to plain text inputs. Centralised here so the form, badge,
+// and renderCarCard all agree on what "BMW mode" means.
+const isBMW = make => (make || '').trim().toLowerCase() === 'bmw';
 
 // ══════════════════════════════════════════════════════
 // IndexedDB (legacy — photo now lives in Supabase Storage;
@@ -754,28 +822,44 @@ const ACTIVE_VEHICLE_KEY = 'activeVehicleId';
 
 let entries  = [];
 let vehicles = [];                          // every vehicle in the user's garage
+// Empty defaults — the Add Vehicle form is the only path to a populated row,
+// so no make is pre-selected. Keeps onboarding brand-neutral.
 let car = {
-  year:'2002', model:'530i', body:'Sedan', engine:'M54',
-  colour:'Titan Silver', odo:'', odoUnit:'km', nickname:''
+  year:'', make:'', model:'', body:'', engine:'', variant:'',
+  colour:'', odo:'', odoUnit:'km', nickname:''
 };
-let vehicleId  = null;   // active vehicle id — kept in sync with localStorage
-let activeType = 'mod';
-let detailId   = null;
+let vehicleId   = null;   // active vehicle id — kept in sync with localStorage
+let activeType  = 'mod';
+let detailId    = null;
+let garageName  = DEFAULT_GARAGE_NAME;
 
-// On first sign-in the user has no vehicle row yet — create one from the
-// in-memory defaults so subsequent entry inserts have a vehicle_id to bind to.
-// On every later sign-in we hydrate from Supabase and pick the last-active
-// vehicle (or fall back to the oldest) so the user lands where they left off.
+// Hydrate from Supabase and pick the last-active vehicle (or oldest) so the
+// user lands where they left off. First-time users land with no vehicle —
+// renderAll() draws an empty state and bootApp() prompts them to add one.
 async function loadAll() {
   vehicles = await loadVehicles();
   if (!vehicles.length) {
-    const created = await upsertVehicle(car);
-    vehicles = [created];
+    vehicleId = null;
+    car = { year:'', make:'', model:'', body:'', engine:'', variant:'',
+            colour:'', odo:'', odoUnit:'km', nickname:'' };
+    entries = [];
+    return;
   }
   const stored = localStorage.getItem(ACTIVE_VEHICLE_KEY);
   const active = vehicles.find(v => v.id === stored) || vehicles[0];
   setActiveVehicle(active);
   entries = await loadEntries(vehicleId);
+}
+
+// Apply the saved garage name (or the default) to every place it appears.
+// Called once on boot and again whenever the user edits it in Settings.
+function applyGarageName(name) {
+  garageName = (name || '').trim() || DEFAULT_GARAGE_NAME;
+  document.title = garageName;
+  const ids = ['garage-header-title', 'auth-brand-title', 'settings-footer-name'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = garageName; });
+  const sub = document.getElementById('settings-garage-name-sub');
+  if (sub) sub.textContent = garageName;
 }
 
 function setActiveVehicle(row) {
@@ -864,6 +948,8 @@ function resetPhoto() {
 
 document.getElementById('car-image-wrap').addEventListener('click', e => {
   if (e.target.closest('.car-edit-btn') || e.target.closest('.car-photo-btn')) return;
+  // No vehicle yet → the photo tap doubles as the Add Vehicle prompt.
+  if (!vehicleId) { openCarModal('add'); return; }
   if (!carPhoto.classList.contains('loaded')) photoInput.click();
 });
 changePhotoBtn.addEventListener('click', () => photoInput.click());
@@ -918,26 +1004,48 @@ document.querySelectorAll('.nav-item').forEach(btn => {
 // ══════════════════════════════════════════════════════
 // Modals
 // ══════════════════════════════════════════════════════
-const addModal     = document.getElementById('add-modal');
-const detailModal  = document.getElementById('detail-modal');
-const carModal     = document.getElementById('car-modal');
-const garageModal  = document.getElementById('garage-modal');
-const installModal = document.getElementById('install-modal');
+const addModal        = document.getElementById('add-modal');
+const detailModal     = document.getElementById('detail-modal');
+const carModal        = document.getElementById('car-modal');
+const garageModal     = document.getElementById('garage-modal');
+const installModal    = document.getElementById('install-modal');
+const garageNameModal = document.getElementById('garage-name-modal');
 const close = m => m.classList.remove('open');
 
-document.getElementById('cancel-btn').onclick         = () => close(addModal);
-document.getElementById('cancel-car-btn').onclick     = () => close(carModal);
-document.getElementById('detail-close-btn').onclick   = () => close(detailModal);
-document.getElementById('close-garage-btn').onclick   = () => close(garageModal);
-document.getElementById('close-install-modal').onclick = () => close(installModal);
-[addModal, detailModal, carModal, garageModal, installModal].forEach(m =>
+document.getElementById('cancel-btn').onclick               = () => close(addModal);
+document.getElementById('cancel-car-btn').onclick           = () => close(carModal);
+document.getElementById('detail-close-btn').onclick         = () => close(detailModal);
+document.getElementById('close-garage-btn').onclick         = () => close(garageModal);
+document.getElementById('close-install-modal').onclick      = () => close(installModal);
+document.getElementById('cancel-garage-name-btn').onclick   = () => close(garageNameModal);
+[addModal, detailModal, carModal, garageModal, installModal, garageNameModal].forEach(m =>
   m.addEventListener('click', e => { if (e.target === m) close(m); })
 );
+
+// Garage Name editor — opened from Settings, persisted to Supabase Auth's
+// user_metadata so it follows the user across devices without a schema bump.
+document.getElementById('btn-edit-garage-name').onclick = () => {
+  document.getElementById('garage-name-input').value = garageName === DEFAULT_GARAGE_NAME ? '' : garageName;
+  garageNameModal.classList.add('open');
+};
+document.getElementById('save-garage-name-btn').onclick = async () => {
+  try {
+    const saved = await setGarageName(document.getElementById('garage-name-input').value);
+    applyGarageName(saved);
+    close(garageNameModal);
+    showToast('Garage name saved ✓');
+  } catch (err) {
+    showToast('Save failed: ' + (err?.message || 'unknown error'));
+  }
+};
 
 // ══════════════════════════════════════════════════════
 // Add Entry
 // ══════════════════════════════════════════════════════
 document.getElementById('fab-btn').onclick = () => {
+  // Entries are scoped to a vehicle — bounce the user to Add Vehicle if they
+  // haven't created one yet rather than opening a modal that can't save.
+  if (!vehicleId) { openCarModal('add'); return; }
   document.getElementById('input-title').value = '';
   document.getElementById('input-cost').value  = '';
   document.getElementById('input-notes').value = '';
@@ -1022,22 +1130,42 @@ let editingVehicleId = null;
 const carModalTitle = document.querySelector('#car-modal .modal-title');
 const saveCarBtn    = document.getElementById('save-car-btn');
 
+const carBmwFields     = document.getElementById('car-bmw-fields');
+const carGenericFields = document.getElementById('car-generic-fields');
+const carMakeInput     = document.getElementById('car-make');
+
+// Show the chassis/body/engine dropdowns for BMW, plain text inputs for
+// everything else. Driven by the Make field's current value.
+function applyMakeMode() {
+  const bmw = isBMW(carMakeInput.value);
+  carBmwFields.style.display     = bmw ? '' : 'none';
+  carGenericFields.style.display = bmw ? 'none' : '';
+}
+carMakeInput.addEventListener('input', applyMakeMode);
+
 function openCarModal(mode) {
   const isEdit = mode === 'edit';
   editingVehicleId = isEdit ? vehicleId : null;
 
-  // Edit pre-fills from the active car; add starts from sensible E39 defaults
-  // so the user only has to change what's different.
-  const src = isEdit ? car : { model:'530i', body:'Sedan', engine:'M54', odoUnit:'km' };
+  // Edit pre-fills from the active car. Add starts blank — no make is
+  // pre-selected so we don't bias new users toward any particular brand.
+  const src = isEdit ? car : { odoUnit:'km' };
   document.getElementById('car-year').value     = src.year     || '';
+  carMakeInput.value                            = src.make     || '';
+  // BMW dropdowns: keep their current select option if the saved value matches,
+  // otherwise let the select default to its first <option>.
   document.getElementById('car-model').value    = src.model    || '530i';
   document.getElementById('car-body').value     = src.body     || 'Sedan';
   document.getElementById('car-engine').value   = src.engine   || 'M54';
+  // Generic text inputs share the same column but use different state fields.
+  document.getElementById('car-model-text').value   = isBMW(src.make) ? '' : (src.model   || '');
+  document.getElementById('car-variant-text').value = src.variant || '';
   document.getElementById('car-colour').value   = src.colour   || '';
   document.getElementById('car-odo').value      = src.odo      || '';
   document.getElementById('car-odo-unit').value = src.odoUnit  || 'km';
   document.getElementById('car-nickname').value = src.nickname || '';
 
+  applyMakeMode();
   carModalTitle.textContent = isEdit ? 'Car Details' : 'Add Vehicle';
   saveCarBtn.textContent    = isEdit ? 'Save Details' : 'Add Vehicle';
   carModal.classList.add('open');
@@ -1046,12 +1174,24 @@ function openCarModal(mode) {
 document.getElementById('car-edit-btn').onclick = () => openCarModal('edit');
 
 saveCarBtn.onclick = async () => {
+  const make = carMakeInput.value.trim();
+  if (!make) { showToast('Make is required'); return; }
+
+  const bmw = isBMW(make);
+  const model = bmw
+    ? document.getElementById('car-model').value
+    : document.getElementById('car-model-text').value.trim();
+  if (!model) { showToast('Model is required'); return; }
+
   const next = {
     id:       editingVehicleId,    // null on create — upsertVehicle inserts
     year:     document.getElementById('car-year').value.trim(),
-    model:    document.getElementById('car-model').value,
-    body:     document.getElementById('car-body').value,
-    engine:   document.getElementById('car-engine').value,
+    make,
+    model,
+    // BMW preserves chassis/body/engine; other makes carry a free-text variant.
+    body:     bmw ? document.getElementById('car-body').value   : null,
+    engine:   bmw ? document.getElementById('car-engine').value : null,
+    variant:  bmw ? '' : document.getElementById('car-variant-text').value.trim(),
     colour:   document.getElementById('car-colour').value.trim(),
     odo:      document.getElementById('car-odo').value.trim(),
     odoUnit:  document.getElementById('car-odo-unit').value,
@@ -1092,20 +1232,25 @@ function renderGarageList() {
   vehicles.forEach(v => {
     const c = rowToCar(v);
     const isActive = v.id === vehicleId;
+    const bmw = isBMW(c.make);
+    const trailing = bmw ? c.body : c.variant;
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'garage-item' + (isActive ? ' active' : '');
     const subParts = [];
     if (c.year) subParts.push(c.year);
-    subParts.push(`${c.model} ${c.body}`.trim());
+    if (c.make) subParts.push(c.make);
     if (c.colour) subParts.push(c.colour);
+    const titleParts = [c.model, trailing].filter(Boolean).join(' ').trim();
     btn.innerHTML = `
+      <div class="brand-logo brand-logo-sm" aria-hidden="true"></div>
       <div class="garage-item-info">
-        <div class="garage-item-name">${c.nickname || `${c.model} ${c.body}`.trim()}</div>
+        <div class="garage-item-name">${c.nickname || titleParts || c.make || 'Vehicle'}</div>
         <div class="garage-item-sub">${subParts.filter(Boolean).join(' · ')}</div>
       </div>
       ${isActive ? '<span class="garage-item-active-pill">Active</span>' : ''}
     `;
+    renderBrandLogo(btn.querySelector('.brand-logo'), c.make);
     btn.onclick = async () => {
       close(garageModal);
       await switchVehicle(v.id);
@@ -1264,14 +1409,40 @@ const today   = () => new Date().toISOString().split('T')[0];
 const fmtDate = d => new Date(d+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
 
 function renderCarCard() {
-  const { year, model, body, engine, colour, odo, odoUnit, nickname } = car;
-  document.getElementById('car-name-display').textContent = nickname || `${model} ${body}`;
+  const { year, make, model, body, engine, variant, colour, odo, odoUnit, nickname } = car;
+  const bmw = isBMW(make);
+
+  // Name: nickname > "Model Body" (BMW) or "Model Variant" (other) > Model
+  const displayName = nickname
+    || (bmw ? [model, body].filter(Boolean).join(' ').trim()
+            : [model, variant].filter(Boolean).join(' ').trim())
+    || model
+    || 'Add your first vehicle';
+  document.getElementById('car-name-display').textContent = displayName;
+
+  // Sub: "<year> <make> · <odo> · <colour>" — make is dynamic now.
   const parts = [];
-  if (year)   parts.push(year + ' BMW');
+  if (year && make) parts.push(`${year} ${make}`);
+  else if (make)    parts.push(make);
+  else if (year)    parts.push(year);
   if (odo)    parts.push(Number(odo).toLocaleString('en-AU') + ' ' + odoUnit);
   if (colour) parts.push(colour);
-  document.getElementById('car-sub-display').textContent = parts.join(' · ') || 'BMW E39';
-  document.getElementById('car-badge').textContent = `E39 · ${engine}`;
+  document.getElementById('car-sub-display').textContent = parts.join(' · ') || '';
+
+  // Badge: BMW preserves the chassis · engine easter egg; everyone else gets
+  // a generic MAKE · MODEL badge in the same spot.
+  const badge = document.getElementById('car-badge');
+  if (bmw && engine) {
+    badge.textContent = `E39 · ${engine}`;
+    badge.style.display = '';
+  } else if (make && model) {
+    badge.textContent = `${make} · ${model}`.toUpperCase();
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  renderBrandLogo(document.getElementById('car-brand-logo'), make);
 }
 
 function makeCard(entry) {
@@ -1466,12 +1637,16 @@ async function bootApp(session) {
   showBootLoading();
   try {
     await openDB();
+    applyGarageName(await getGarageName());
     await loadAll();
     await loadSavedPhoto();
     renderAll();
     document.getElementById('input-date').value = today();
     appBooted = true;
     hideBoot();
+    // First-time users: bounce them straight to Add Vehicle so the empty
+    // garage isn't just a dead end.
+    if (!vehicleId) openCarModal('add');
   } catch (err) {
     console.error('Boot failed:', err);
     showBootError(err?.message || 'Could not load your garage. Check your connection and try again.');
