@@ -24,17 +24,15 @@ export function rowToCar(row) {
   };
 }
 
-// Returns the user's first vehicle row, or null if they have none yet.
-// Single-vehicle assumption holds until §1.6 (My Garage view).
-export async function loadCurrentVehicle() {
+// All of the signed-in user's vehicles, oldest first. RLS keeps each
+// user pinned to their own rows.
+export async function loadVehicles() {
   const { data, error } = await supabase
     .from('vehicles')
     .select('*')
-    .order('created_at', { ascending: true })
-    .limit(1)
-    .maybeSingle();
+    .order('created_at', { ascending: true });
   if (error) throw error;
-  return data;
+  return data || [];
 }
 
 // Insert if no id, otherwise update. Returns the saved row.
