@@ -178,14 +178,59 @@ Turns the Spend tab from a static lifetime total into an actively useful, visual
 - [x] "Biggest mod" callout card (single most expensive mod entry in scope)
 - [x] Garage-card lifetime stats (mods count, total invested) stay all-time — scope only affects the Spend screen
 
-**Deferred to v2:** monthly trend chart, cost-per-km, cross-vehicle comparison, CSV/PDF export of the current scope (rolled into the broader PDF Export item below).
+**Deferred to v2:** monthly trend chart, cost-per-km, cross-vehicle comparison, CSV/PDF export of the current scope (rolled into the broader Export item below).
+
+### 2.3 — Schema hardening
+
+Small foundational migration. Ship first — unblocks every section below.
+
+- [ ] `vehicles`: add `status` (`'active' | 'sold' | 'archived'`, default `'active'`), `sold_date` (date, nullable), `sold_price` (numeric, nullable), `combined_cycle_consumption` (numeric, L/100km, nullable — manufacturer claim used to anchor the fuel gauge in 2.4)
+- [ ] Sold vehicles remain visible in My Garage, visually distinct and read-only — preserves full ownership history
+- [ ] `expenses.category`: convert from free-text to a controlled vocabulary — Insurance, Registration, Tyres, Parking, Toll, Cleaning, Roadside, Detailing, Other (Fuel moves to its own table in 2.4)
+- [ ] Data migration: map existing free-text values where possible, dump the rest to `Other` with the original text preserved in `description`
+
+### 2.4 — Fuel log + economy gauge
+
+The headline visual feature. Daily-use driver, screenshot-worthy.
+
+- [ ] New `fuel_logs` table: `vehicle_id`, `user_id`, `date`, `odometer`, `litres`, `total_cost`, `currency`, `station` (nullable), `is_full_tank` (bool default true), `notes`
+- [ ] L/100km computed between consecutive full-tank entries — partial fills counted in spend but skipped from economy calc
+- [ ] Tacho-style gauge on the vehicle dashboard — needle sweeping an amber → green → red gradient, analog feel
+- [ ] **Default anchor:** user's own rolling average across the last 10 full tanks (zero setup, works on any car)
+- [ ] **Override anchor:** if `vehicles.combined_cycle_consumption` is set, anchor the green band to the manufacturer claim — answers "am I beating spec?"
+- [ ] Fuel entries feed the Spend tab automatically (subsume the current Fuel expense category)
+
+### 2.5 — Document vault
+
+Supersedes the original "Photo attachments" bullet — broader and more valuable.
+
+- [ ] Supabase Storage bucket with per-user RLS scoping
+- [ ] New `documents` table: `vehicle_id`, `user_id`, `type` (Insurance / Registration / Roadworthy / Warranty / Manual / Receipt / Other), `title`, `file_path`, `expiry_date` (date, nullable), `notes`, `created_at`
+- [ ] Per-vehicle Documents tab — upload, inline preview (image + PDF), download
+- [ ] `expiry_date` feeds the reminder surface in 2.6 — "Insurance expires in 14 days"
+- [ ] Photo attachments on service / mod logs remain in scope but reuse the same storage bucket
+
+### 2.6 — Service intervals + reminders
+
+User-defined intervals to start. Per-platform defaults are deferred to Phase 3 alongside the curated brand list (same curation burden, ship together).
+
+- [ ] New `service_intervals` table: `vehicle_id`, `user_id`, `title` (e.g. "Engine oil"), `interval_km` (nullable), `interval_months` (nullable — either or both can be set), `last_done_at` (date), `last_done_odometer` (auto-updates when a matching `service_log` is added)
+- [ ] User adds intervals manually — no platform-specific defaults at this stage
+- [ ] Dashboard "Up next" card: "Engine oil — due in 820 km" / "Roadworthy — overdue by 2 months"
+- [ ] Date-based reminders also surfaced from `documents.expiry_date`
+- [ ] PWA push notifications deferred — in-app bell + dashboard card to start
+
+### 2.7 — Data export
+
+- [ ] **Excel export (headline):** multi-sheet `.xlsx` — Summary, Vehicles, Service, Mods, Expenses, Fuel, Documents (link list). Generated client-side (SheetJS or exceljs, no backend cost)
+- [ ] **JSON export:** full structured dump of the user's data, designed for future round-trip import — positioned as the "back up / move providers" feature
+- [ ] Scoped to the currently selected vehicle by default, with an "All vehicles" option
+- [ ] **PDF export** (the original pre-sale handover report) remains in scope but is now downstream of the Excel work — same data pipeline, different layout
 
 ### Other Phase 2 items (not yet scheduled)
 
-- **Photo attachments** — attach images to service logs and mod entries (Supabase Storage)
-- **PDF export** — generate a full service/mod history report (key feature for pre-sale use)
-- **Reminders** — service interval reminders, rego/insurance due dates
-- **Stripe payments** — free tier (1 vehicle, no export) vs paid tier (unlimited vehicles, PDF export, reminders)
+- **Stripe payments** — free tier (1 vehicle, no export, no document vault) vs paid tier (unlimited vehicles, Excel/JSON/PDF export, document vault, reminders)
+- *(Photo attachments rolled into 2.5; PDF export rolled into 2.7; Reminders rolled into 2.6.)*
 
 ---
 
@@ -193,8 +238,8 @@ Turns the Spend tab from a static lifetime total into an actively useful, visual
 
 - **Multi-platform expansion** — onboarding flow that lets users specify any make/model, not just E39
 - **Community layer** — public build profiles, browse other users' builds
-- **Platform-specific defaults** — pre-populated common service intervals and mod categories per model
-- **Curated brand lists per platform** — once platform-awareness lands, layer curated popular-brand suggestions on top of the organic autocomplete from Phase 2.1 (deferred from Dad's original suggestion; doing it sooner would mean per-platform curation + maintenance burden)
+- **Platform-specific defaults** — pre-populated common service intervals (auto-fill "engine oil every 10,000 km" when a BMW is added — the smart layer on top of user-defined intervals from 2.6) and mod categories per model
+- **Curated brand lists per platform** — once platform-awareness lands, layer curated popular-brand suggestions on top of the organic autocomplete from Phase 2.1 (deferred from Dad's original suggestion; doing it sooner would mean per-platform curation + maintenance burden). Ship together with platform-specific service-interval defaults — same curation work
 
 ---
 
