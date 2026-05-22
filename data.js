@@ -13,18 +13,24 @@ import { supabase } from './supabase-client.js';
 export function rowToCar(row) {
   if (!row) return null;
   return {
-    id:        row.id,
-    nickname:  row.nickname || '',
-    year:      row.year ? String(row.year) : '',
-    make:      row.make     || '',
-    model:     row.model    || '',
-    body:      row.body     || '',
-    engine:    row.engine   || '',
-    variant:   row.variant  || '',
-    colour:    row.colour   || '',
-    odo:       row.odometer ? String(row.odometer) : '',
-    odoUnit:   row.odometer_unit || 'km',
-    photoPath: row.photo_path || null,
+    id:                       row.id,
+    nickname:                 row.nickname || '',
+    year:                     row.year ? String(row.year) : '',
+    make:                     row.make     || '',
+    model:                    row.model    || '',
+    body:                     row.body     || '',
+    engine:                   row.engine   || '',
+    variant:                  row.variant  || '',
+    colour:                   row.colour   || '',
+    odo:                      row.odometer ? String(row.odometer) : '',
+    odoUnit:                  row.odometer_unit || 'km',
+    photoPath:                row.photo_path || null,
+    status:                   row.status || 'active',
+    soldDate:                 row.sold_date || '',
+    soldPrice:                row.sold_price != null ? String(row.sold_price) : '',
+    combinedCycleConsumption: row.combined_cycle_consumption != null
+      ? String(row.combined_cycle_consumption)
+      : '',
   };
 }
 
@@ -55,18 +61,31 @@ export async function upsertVehicle(vehicle) {
     || [model, vehicle.body].filter(Boolean).join(' ').trim()
     || `My ${make}`;
 
+  // Status drives whether sold_date / sold_price are persisted. When the user
+  // flips back to 'active' we wipe both fields so stale handover data doesn't
+  // resurface if they ever re-mark the car as sold.
+  const status = vehicle.status === 'sold' || vehicle.status === 'archived'
+    ? vehicle.status
+    : 'active';
+  const soldPrice = parseFloat(vehicle.soldPrice);
+  const ccConsumption = parseFloat(vehicle.combinedCycleConsumption);
+
   const row = {
-    user_id:       user.id,
+    user_id:                     user.id,
     nickname,
     make,
     model,
-    year:          vehicle.year ? parseInt(vehicle.year, 10) : null,
-    variant:       (vehicle.variant || '').trim() || null,
-    body:          vehicle.body     || null,
-    engine:        vehicle.engine   || null,
-    colour:        vehicle.colour   || null,
-    odometer:      vehicle.odo ? parseInt(vehicle.odo, 10) : null,
-    odometer_unit: vehicle.odoUnit  || 'km',
+    year:                        vehicle.year ? parseInt(vehicle.year, 10) : null,
+    variant:                     (vehicle.variant || '').trim() || null,
+    body:                        vehicle.body     || null,
+    engine:                      vehicle.engine   || null,
+    colour:                      vehicle.colour   || null,
+    odometer:                    vehicle.odo ? parseInt(vehicle.odo, 10) : null,
+    odometer_unit:               vehicle.odoUnit  || 'km',
+    status,
+    sold_date:                   status === 'sold' && vehicle.soldDate ? vehicle.soldDate : null,
+    sold_price:                  status === 'sold' && Number.isFinite(soldPrice) ? soldPrice : null,
+    combined_cycle_consumption:  Number.isFinite(ccConsumption) ? ccConsumption : null,
   };
 
   if (vehicle.id) {

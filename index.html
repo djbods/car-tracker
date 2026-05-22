@@ -343,6 +343,16 @@
   .garage-item-name { font-weight: 600; font-size: 15px; }
   .garage-item-sub { color: var(--muted); font-size: 12px; margin-top: 2px; font-weight: 300; }
   .garage-item-active-pill { font-size: 10px; font-weight: 600; letter-spacing: 1px; color: var(--accent2); text-transform: uppercase; flex-shrink: 0; }
+  .garage-item-sold-pill { font-size: 10px; font-weight: 600; letter-spacing: 1px; color: rgba(255,255,255,0.55); text-transform: uppercase; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.18); padding: 2px 8px; border-radius: 10px; }
+  .garage-item-archived-pill { font-size: 10px; font-weight: 600; letter-spacing: 1px; color: rgba(255,255,255,0.4); text-transform: uppercase; flex-shrink: 0; border: 1px dashed rgba(255,255,255,0.18); padding: 2px 8px; border-radius: 10px; }
+  .garage-item.sold, .garage-item.archived { opacity: 0.62; }
+  .sold-pill { font-size: 11px; font-weight: 600; letter-spacing: 1px; color: rgba(255,255,255,0.7); text-transform: uppercase; border: 1px solid rgba(255,255,255,0.22); padding: 3px 9px; border-radius: 999px; display: inline-block; }
+  .sold-banner { display: none; align-items: center; justify-content: space-between; gap: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); color: rgba(255,255,255,0.78); padding: 10px 14px; border-radius: 12px; margin: 0 16px 12px; font-size: 13px; }
+  .sold-banner.open { display: flex; }
+  .sold-banner-title { font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; font-size: 11px; color: rgba(255,255,255,0.55); }
+  .sold-banner-detail { color: rgba(255,255,255,0.88); }
+  .form-hint { display: block; color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.4; }
+  body.car-sold .fab { opacity: 0.35; pointer-events: none; }
 
   /* ── TOAST ── */
   .toast { position: fixed; bottom: calc(110px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 500; padding: 10px 18px; border-radius: 20px; z-index: 300; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; white-space: nowrap; }
@@ -505,6 +515,12 @@
           <div class="car-sub" id="car-sub-display">2002 BMW · Titan Silver</div>
         </div>
         <div class="brand-logo brand-logo-lg" id="car-brand-logo" aria-hidden="true"></div>
+      </div>
+      <div class="sold-banner" id="sold-banner" role="status">
+        <div>
+          <div class="sold-banner-title">Read-only history</div>
+          <div class="sold-banner-detail" id="sold-banner-detail">Sold</div>
+        </div>
       </div>
       <div class="car-stats">
         <div class="stat"><div class="stat-val" id="stat-mods">0</div><div class="stat-label">Mods</div></div>
@@ -780,6 +796,28 @@
       </div>
     </div>
     <div class="form-group"><label>Nickname (optional)</label><input type="text" id="car-nickname" placeholder="e.g. The Bimmer, Silver Shark…"></div>
+
+    <div class="form-group">
+      <label>Combined fuel consumption — manufacturer claim (optional)</label>
+      <input type="number" id="car-cc-consumption" step="0.1" min="0" placeholder="e.g. 11.4" inputmode="decimal">
+      <small class="form-hint">L/100km from the brochure. Anchors the fuel-economy gauge — leave blank to use your own rolling average.</small>
+    </div>
+
+    <div class="form-group">
+      <label>Status</label>
+      <select id="car-status">
+        <option value="active" selected>Active — currently own</option>
+        <option value="sold">Sold</option>
+        <option value="archived">Archived</option>
+      </select>
+    </div>
+    <div id="car-sold-fields" style="display:none">
+      <div class="form-row">
+        <div class="form-group"><label>Sold date</label><input type="date" id="car-sold-date"></div>
+        <div class="form-group"><label>Sold price (AUD)</label><input type="number" id="car-sold-price" step="0.01" min="0" inputmode="decimal"></div>
+      </div>
+    </div>
+
     <button class="btn-primary" id="save-car-btn">Save Details</button>
     <button class="btn-ghost" id="cancel-car-btn">Cancel</button>
   </div>
@@ -1211,6 +1249,13 @@ document.getElementById('fab-btn').onclick = async () => {
   // Entries are scoped to a vehicle — bounce the user to Add Vehicle if they
   // haven't created one yet rather than opening a modal that can't save.
   if (!vehicleId) { openCarModal('add'); return; }
+  // Sold / archived cars are read-only. Belt-and-braces: the FAB is also
+  // visually disabled via body.car-sold, but a click could still slip through
+  // on some browsers if the pointer-events rule is overridden.
+  if (car.status === 'sold' || car.status === 'archived') {
+    showToast('This vehicle is read-only — change status to Active to add entries');
+    return;
+  }
   document.getElementById('input-title').value = '';
   document.getElementById('input-cost').value  = '';
   document.getElementById('input-notes').value = '';
@@ -1374,12 +1419,25 @@ function openCarModal(mode) {
   document.getElementById('car-odo').value      = src.odo      || '';
   document.getElementById('car-odo-unit').value = src.odoUnit  || 'km';
   document.getElementById('car-nickname').value = src.nickname || '';
+  document.getElementById('car-cc-consumption').value = src.combinedCycleConsumption || '';
+  document.getElementById('car-status').value     = src.status   || 'active';
+  document.getElementById('car-sold-date').value  = src.soldDate || '';
+  document.getElementById('car-sold-price').value = src.soldPrice || '';
+  applyStatusMode();
 
   applyMakeMode();
   carModalTitle.textContent = isEdit ? 'Car Details' : 'Add Vehicle';
   saveCarBtn.textContent    = isEdit ? 'Save Details' : 'Add Vehicle';
   carModal.classList.add('open');
 }
+
+// Reveal Sold date/price inputs only when status = sold; keeps the form
+// uncluttered for the 99% case where the user is editing a car they still own.
+function applyStatusMode() {
+  const sold = document.getElementById('car-status').value === 'sold';
+  document.getElementById('car-sold-fields').style.display = sold ? '' : 'none';
+}
+document.getElementById('car-status').addEventListener('change', applyStatusMode);
 
 document.getElementById('car-edit-btn').onclick = () => openCarModal('edit');
 
@@ -1406,6 +1464,10 @@ saveCarBtn.onclick = async () => {
     odo:      document.getElementById('car-odo').value.trim(),
     odoUnit:  document.getElementById('car-odo-unit').value,
     nickname: document.getElementById('car-nickname').value.trim(),
+    status:                   document.getElementById('car-status').value,
+    soldDate:                 document.getElementById('car-sold-date').value,
+    soldPrice:                document.getElementById('car-sold-price').value.trim(),
+    combinedCycleConsumption: document.getElementById('car-cc-consumption').value.trim(),
   };
 
   // Optimistic save: mutate the in-memory state and close the modal before
@@ -1421,6 +1483,9 @@ saveCarBtn.onclick = async () => {
     : (prevVehicles.find(v => v.id === editingVehicleId)?.photo_path || null);
 
   const tmpId = isNew ? 'tmp-' + Date.now() : editingVehicleId;
+  const draftStatus = next.status === 'sold' || next.status === 'archived' ? next.status : 'active';
+  const draftSoldPrice = parseFloat(next.soldPrice);
+  const draftCcConsumption = parseFloat(next.combinedCycleConsumption);
   const draftRow = {
     id:            tmpId,
     nickname:      next.nickname
@@ -1436,6 +1501,10 @@ saveCarBtn.onclick = async () => {
     odometer:      next.odo ? parseInt(next.odo, 10) : null,
     odometer_unit: next.odoUnit || 'km',
     photo_path:    existingPath,
+    status:        draftStatus,
+    sold_date:     draftStatus === 'sold' && next.soldDate ? next.soldDate : null,
+    sold_price:    draftStatus === 'sold' && Number.isFinite(draftSoldPrice) ? draftSoldPrice : null,
+    combined_cycle_consumption: Number.isFinite(draftCcConsumption) ? draftCcConsumption : null,
   };
 
   if (isNew) {
@@ -1487,11 +1556,18 @@ function renderGarageList() {
     const trailing = bmw ? c.body : c.variant;
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'garage-item' + (isActive ? ' active' : '');
+    const lifecycleClass = c.status === 'sold' ? ' sold' : c.status === 'archived' ? ' archived' : '';
+    btn.className = 'garage-item' + (isActive ? ' active' : '') + lifecycleClass;
     const subParts = [];
     if (c.year) subParts.push(c.year);
     if (c.make) subParts.push(c.make);
     if (c.colour) subParts.push(c.colour);
+    // Active pill wins when it's the current car; otherwise show the lifecycle
+    // state so the user can spot sold/archived vehicles at a glance.
+    let pill = '';
+    if (isActive)                      pill = '<span class="garage-item-active-pill">Active</span>';
+    else if (c.status === 'sold')      pill = '<span class="garage-item-sold-pill">Sold</span>';
+    else if (c.status === 'archived')  pill = '<span class="garage-item-archived-pill">Archived</span>';
     const titleParts = [c.model, trailing].filter(Boolean).join(' ').trim();
     btn.innerHTML = `
       <div class="brand-logo brand-logo-sm" aria-hidden="true"></div>
@@ -1499,7 +1575,7 @@ function renderGarageList() {
         <div class="garage-item-name">${c.nickname || titleParts || c.make || 'Vehicle'}</div>
         <div class="garage-item-sub">${subParts.filter(Boolean).join(' · ')}</div>
       </div>
-      ${isActive ? '<span class="garage-item-active-pill">Active</span>' : ''}
+      ${pill}
     `;
     renderBrandLogo(btn.querySelector('.brand-logo'), c.make);
     btn.onclick = async () => {
@@ -1660,7 +1736,7 @@ const today   = () => new Date().toISOString().split('T')[0];
 const fmtDate = d => new Date(d+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
 
 function renderCarCard() {
-  const { year, make, model, body, engine, variant, colour, odo, odoUnit, nickname } = car;
+  const { year, make, model, body, engine, variant, colour, odo, odoUnit, nickname, combinedCycleConsumption } = car;
   const bmw = isBMW(make);
 
   // Name: nickname > "Model Body" (BMW) or "Model Variant" (other) > Model
@@ -1678,6 +1754,10 @@ function renderCarCard() {
   else if (year)    parts.push(year);
   if (odo)    parts.push(Number(odo).toLocaleString('en-AU') + ' ' + odoUnit);
   if (colour) parts.push(colour);
+  // Stored for 2.4's fuel gauge — surface here so the saved value is visible
+  // before the gauge lands. parseFloat keeps "11.4" but drops empty strings.
+  const cc = parseFloat(combinedCycleConsumption);
+  if (Number.isFinite(cc) && cc > 0) parts.push(`${cc} L/100km claimed`);
   document.getElementById('car-sub-display').textContent = parts.join(' · ') || '';
 
   // Badge: BMW preserves the chassis · engine easter egg; everyone else gets
@@ -1694,6 +1774,26 @@ function renderCarCard() {
   }
 
   renderBrandLogo(document.getElementById('car-brand-logo'), make);
+
+  // Lifecycle: when the active car is sold or archived, show a read-only
+  // banner and dim the add-entry FAB (via body.car-sold). Edit + photo remain
+  // available so the user can correct details or flip the status back.
+  const banner = document.getElementById('sold-banner');
+  if (car.status === 'sold') {
+    const bits = [];
+    if (car.soldDate)  bits.push(`Sold ${fmtDate(car.soldDate)}`);
+    if (car.soldPrice) bits.push(`for $${Number(car.soldPrice).toLocaleString('en-AU')}`);
+    document.getElementById('sold-banner-detail').textContent = bits.join(' ') || 'Sold';
+    banner.classList.add('open');
+    document.body.classList.add('car-sold');
+  } else if (car.status === 'archived') {
+    document.getElementById('sold-banner-detail').textContent = 'Archived';
+    banner.classList.add('open');
+    document.body.classList.add('car-sold');
+  } else {
+    banner.classList.remove('open');
+    document.body.classList.remove('car-sold');
+  }
 }
 
 function makeCard(entry) {
