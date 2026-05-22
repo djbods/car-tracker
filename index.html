@@ -37,11 +37,11 @@
     max-width: min(100vw, var(--col-max));
     margin: 0 auto;
     /* Pre-paint fallback only — `syncNavClearance()` below the body
-       measures the nav's actual rendered height on load and overrides
-       this with `nav.offsetHeight + 32px`. The flat value here just
-       prevents an unstyled flash of clipped content before JS runs. */
-    padding-bottom: 120px;
-    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+       measures the actual nav height on load and overrides this with
+       Math.max(nav.offsetHeight + 48, 160). The fallback here is set
+       to match the JS floor so the first paint isn't clipped. */
+    padding-bottom: 160px;
+    padding-bottom: calc(160px + env(safe-area-inset-bottom));
   }
 
   /* ── NAV ── */
@@ -1697,21 +1697,23 @@ function renderAll() {
 // ══════════════════════════════════════════════════════
 // Bottom-nav clearance
 // ══════════════════════════════════════════════════════
-// The fixed bottom nav can render at a few different heights depending on
-// device (iPhone home indicator, safe-area inset, font scaling) and on
-// whether iOS Safari's URL bar is showing — a fixed CSS padding can't
-// reliably cover all cases. Instead, measure the nav's actual rendered
-// height at runtime and set body padding-bottom to clear it with a
-// comfortable 32px buffer. Runs once on script execution, then re-syncs
-// on resize, orientation change, and any direct nav size change.
+// The fixed bottom nav renders at different heights depending on device
+// (iPhone home indicator, safe-area inset, font scaling). Measure the
+// nav's actual height at runtime and add a generous buffer so the last
+// list item never sits behind the nav. The Math.max floor is a safety
+// net: even on platforms where the nav reports a small offsetHeight
+// (e.g. Chrome's responsive mode with no safe-area inset), we never go
+// below 160px — comfortably more than the CSS pre-paint fallback.
 function syncNavClearance() {
   const nav = document.querySelector('.nav');
   if (!nav) return;
-  // nav.offsetHeight already includes the safe-area-inset-bottom because
-  // .nav itself has padding-bottom: calc(8px + env(safe-area-inset-bottom)).
-  document.body.style.paddingBottom = (nav.offsetHeight + 32) + 'px';
+  // nav.offsetHeight already includes safe-area-inset-bottom because the
+  // nav itself uses calc(8px + env(safe-area-inset-bottom)) for padding.
+  const measured = nav.offsetHeight + 48;
+  document.body.style.paddingBottom = Math.max(measured, 160) + 'px';
 }
 syncNavClearance();
+window.addEventListener('load', syncNavClearance);
 window.addEventListener('resize', syncNavClearance);
 window.addEventListener('orientationchange', syncNavClearance);
 if (typeof ResizeObserver !== 'undefined') {
