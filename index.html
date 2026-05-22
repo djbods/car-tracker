@@ -1507,6 +1507,7 @@ function makeCard(entry) {
       <div class="entry-meta">${fmtDate(entry.date)}</div>
       <div class="entry-tags">
         <span class="tag ${entry.type}">${typeLabels[entry.type]}</span>
+        ${entry.type === 'mod' && entry.category ? `<span class="tag mod">${entry.category}</span>` : ''}
         ${entry.notes ? '<span class="tag done">Notes</span>' : ''}
       </div>
     </div>
