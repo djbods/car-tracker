@@ -42,7 +42,7 @@ This is the single most important unlock for a paid product. A user's garage dat
 - [x] Initialise a new Supabase project
 - [x] Define the core database schema (see below)
 - [x] Enable Row Level Security (RLS) on all tables — users can only read/write their own data
-- [ ] Store Supabase `url` and `anon key` in environment variables (`.env.local`, never committed)
+- [x] Store Supabase `url` and `anon key` in environment variables (`.env.local`, never committed)
 
 ### 1.2 — Authentication
 - [x] Implement Supabase Auth
