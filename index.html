@@ -263,6 +263,44 @@
   .spend-item-val.repair { color: var(--red); }
   .spend-item-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
 
+  /* Segmented control — drives the time scope on the spend screen */
+  .scope-toggle { display: flex; gap: 4px; margin: 0 16px 16px; padding: 4px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; }
+  .scope-btn { flex: 1; background: transparent; border: none; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 9px 6px; border-radius: 9px; cursor: pointer; transition: background 0.18s, color 0.18s; letter-spacing: 0.3px; }
+  .scope-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.35); }
+  .scope-btn:not(.active):active { color: var(--text); }
+
+  /* Stacked horizontal bar showing the proportion of mods / service /
+     repair within the current scope. flex-grow == cost so segment widths
+     scale linearly without a single % calculation. */
+  .spend-stack { display: flex; height: 8px; margin: 18px 0 0; border-radius: 4px; overflow: hidden; background: var(--surface2); }
+  .spend-stack-seg { transition: flex-grow 0.3s ease; min-width: 0; }
+  .spend-stack-seg.mod { background: var(--accent); }
+  .spend-stack-seg.service { background: var(--blue); }
+  .spend-stack-seg.repair { background: var(--red); }
+
+  /* Biggest-mod highlight — single-card "interesting fact" the user
+     didn't have to compute. Reuses surface treatment from spend-summary. */
+  .biggest-card { margin: 0 16px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+  .biggest-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
+  .biggest-label span { color: var(--accent2); font-weight: 600; text-transform: none; letter-spacing: 0; }
+  .biggest-row { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; }
+  .biggest-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.5px; line-height: 1.1; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .biggest-cost { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--accent2); letter-spacing: 0.5px; line-height: 1; flex-shrink: 0; }
+  .biggest-meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  /* Category breakdown — horizontal-bar rows showing where mod spend
+     actually went. Bar fill is scaled to the largest category in the
+     current scope so the leader always hits 100%. */
+  .category-breakdown { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .category-breakdown .empty { padding: 24px 16px; }
+  .category-row { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .category-row-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+  .category-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .category-name .muted { color: var(--muted); font-weight: 400; margin-left: 6px; font-size: 11px; }
+  .category-amount { font-size: 13px; font-weight: 600; color: var(--accent2); }
+  .category-bar-track { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .category-bar-fill { height: 100%; background: var(--accent); transition: width 0.35s ease; border-radius: 3px; }
+
   /* ── ACCOUNT / SETTINGS ── */
   .settings-section { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
   .settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
@@ -341,6 +379,9 @@
     .car-card { margin: 0 24px 28px; }
     .car-info { padding: 20px 24px; }
     .spend-summary { margin: 0 24px 24px; }
+    .scope-toggle { margin: 0 24px 16px; }
+    .biggest-card { margin: 0 24px 24px; }
+    .category-breakdown { padding: 0 24px; }
     .settings-section { padding: 0 24px; }
     .install-banner { margin: 0 24px 16px; }
     .section-header { padding: 12px 24px 14px; }
@@ -489,16 +530,32 @@
 <!-- SPEND -->
 <div class="screen" id="screen-spend">
   <div class="header"><div class="header-label">Financial Overview</div><div class="header-title">Spend</div></div>
+  <div class="scope-toggle" id="scope-toggle" role="tablist" aria-label="Time scope">
+    <button class="scope-btn active" data-scope="year" role="tab" aria-selected="true">This year</button>
+    <button class="scope-btn" data-scope="30d" role="tab" aria-selected="false">Last 30 days</button>
+    <button class="scope-btn" data-scope="all" role="tab" aria-selected="false">All time</button>
+  </div>
   <div class="spend-summary">
-    <div class="spend-label">Total Invested</div>
+    <div class="spend-label" id="spend-scope-label">This year</div>
     <div class="spend-total" id="total-spend">$0</div>
+    <div class="spend-stack" id="spend-stack" aria-hidden="true"></div>
     <div class="spend-breakdown">
       <div class="spend-item"><div class="spend-item-val mod" id="spend-mods">$0</div><div class="spend-item-lbl">Mods</div></div>
       <div class="spend-item"><div class="spend-item-val service" id="spend-service">$0</div><div class="spend-item-lbl">Service</div></div>
       <div class="spend-item"><div class="spend-item-val repair" id="spend-repair">$0</div><div class="spend-item-lbl">Repairs</div></div>
     </div>
   </div>
-  <div class="section-header"><span>All Transactions</span></div>
+  <div class="biggest-card" id="biggest-mod-card" style="display:none">
+    <div class="biggest-label">Biggest mod <span id="biggest-mod-scope"></span></div>
+    <div class="biggest-row">
+      <div class="biggest-title" id="biggest-mod-title"></div>
+      <div class="biggest-cost" id="biggest-mod-cost"></div>
+    </div>
+    <div class="biggest-meta" id="biggest-mod-meta"></div>
+  </div>
+  <div class="section-header"><span>Mods by Category</span></div>
+  <div class="category-breakdown" id="category-breakdown"><div class="empty"><div class="empty-text">No mods in this period.</div></div></div>
+  <div class="section-header"><span>Transactions</span></div>
   <div class="entries" id="spend-entries"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nothing spent yet.<br>(Enjoy it while it lasts.)</div></div></div>
 </div>
 
@@ -879,6 +936,10 @@ let car = {
 let vehicleId   = null;   // active vehicle id — kept in sync with localStorage
 let activeType  = 'mod';
 let detailId    = null;
+// Time scope for the Spend screen. Default to 'year' so the hero number is
+// the immediately-useful "spent on this car this year" rather than lifetime.
+let spendScope  = 'year'; // 'year' | '30d' | 'all'
+const SCOPE_LABELS = { year: 'This year', '30d': 'Last 30 days', all: 'All time' };
 // Cache of every mod {title, category} the user has logged across all their
 // vehicles. Powers the brand-autocomplete datalist. Refreshed on modal open
 // and patched in-place after a successful save so the next open sees the
@@ -1184,6 +1245,21 @@ document.querySelectorAll('.type-btn').forEach(btn => {
 // under that category.
 document.getElementById('input-category').addEventListener('change', e => {
   renderBrandDatalist(e.target.value || null);
+});
+
+// Spend-screen time-scope toggle. Click a segment → update state, sync the
+// active class + aria-selected, re-render the whole screen.
+document.getElementById('scope-toggle').addEventListener('click', e => {
+  const btn = e.target.closest('.scope-btn');
+  if (!btn || !btn.dataset.scope) return;
+  if (btn.dataset.scope === spendScope) return;
+  spendScope = btn.dataset.scope;
+  document.querySelectorAll('.scope-btn').forEach(b => {
+    const active = b === btn;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  renderSpendScreen();
 });
 
 document.getElementById('save-entry-btn').onclick = async () => {
@@ -1662,10 +1738,12 @@ function renderList(id, filter) {
   list.forEach(e => el.appendChild(makeCard(e)));
 }
 
+// Garage-card stats — lifetime numbers for "this car so far," independent
+// of the Spend tab's time scope. Keeping these all-time matches user
+// intuition that the badge on your garage card represents the whole car.
 function renderStats() {
   const mod = entries.filter(e=>e.type==='mod');
   const svc = entries.filter(e=>e.type==='service');
-  const rep = entries.filter(e=>e.type==='repair');
   const total = entries.reduce((s,e)=>s+e.cost,0);
   document.getElementById('stat-mods').textContent  = mod.length;
   document.getElementById('stat-spent').textContent = fmt(total);
@@ -1677,10 +1755,125 @@ function renderStats() {
     el.textContent = days>180?'Due':'OK';
     el.className   = 'stat-val '+(days>180?'overdue':'good');
   }
+}
+
+// Filter the in-memory entries array down to the active spend scope.
+// 'all' returns everything; 'year' is from Jan 1 of the current year;
+// '30d' is the trailing 30 days from local midnight today.
+function entriesInScope() {
+  if (spendScope === 'all') return entries;
+  const now = new Date();
+  let cutoff;
+  if (spendScope === 'year') {
+    cutoff = new Date(now.getFullYear(), 0, 1);
+  } else {
+    cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+    cutoff.setHours(0, 0, 0, 0);
+  }
+  return entries.filter(e => new Date(e.date) >= cutoff);
+}
+
+// Renders every visual on the Spend screen against the active scope:
+// hero total, stacked bar, type breakdown, biggest-mod callout, category
+// bars, and the scope-filtered transactions list.
+function renderSpendScreen() {
+  const scoped = entriesInScope();
+  const mod = scoped.filter(e => e.type === 'mod');
+  const svc = scoped.filter(e => e.type === 'service');
+  const rep = scoped.filter(e => e.type === 'repair');
+  const modTotal = mod.reduce((s,e) => s + e.cost, 0);
+  const svcTotal = svc.reduce((s,e) => s + e.cost, 0);
+  const repTotal = rep.reduce((s,e) => s + e.cost, 0);
+  const total    = modTotal + svcTotal + repTotal;
+
+  // Hero numbers + scope label
+  document.getElementById('spend-scope-label').textContent = SCOPE_LABELS[spendScope];
   document.getElementById('total-spend').textContent   = fmt(total);
-  document.getElementById('spend-mods').textContent    = fmt(mod.reduce((s,e)=>s+e.cost,0));
-  document.getElementById('spend-service').textContent = fmt(svc.reduce((s,e)=>s+e.cost,0));
-  document.getElementById('spend-repair').textContent  = fmt(rep.reduce((s,e)=>s+e.cost,0));
+  document.getElementById('spend-mods').textContent    = fmt(modTotal);
+  document.getElementById('spend-service').textContent = fmt(svcTotal);
+  document.getElementById('spend-repair').textContent  = fmt(repTotal);
+
+  // Stacked proportion bar — only render segments that have spend.
+  const stack = document.getElementById('spend-stack');
+  stack.replaceChildren();
+  if (total > 0) {
+    [
+      { type: 'mod', val: modTotal },
+      { type: 'service', val: svcTotal },
+      { type: 'repair', val: repTotal },
+    ].filter(s => s.val > 0).forEach(s => {
+      const seg = document.createElement('div');
+      seg.className = `spend-stack-seg ${s.type}`;
+      seg.style.flexGrow = String(s.val);
+      stack.appendChild(seg);
+    });
+  }
+
+  // Biggest mod callout — single most expensive mod in scope, if any.
+  const card = document.getElementById('biggest-mod-card');
+  if (mod.length) {
+    const biggest = [...mod].sort((a,b) => b.cost - a.cost)[0];
+    card.style.display = '';
+    document.getElementById('biggest-mod-title').textContent = biggest.title;
+    document.getElementById('biggest-mod-cost').textContent  = fmt(biggest.cost);
+    const meta = [];
+    if (biggest.category) meta.push(biggest.category);
+    meta.push(fmtDate(biggest.date));
+    document.getElementById('biggest-mod-meta').textContent  = meta.join(' · ');
+    document.getElementById('biggest-mod-scope').textContent = `(${SCOPE_LABELS[spendScope].toLowerCase()})`;
+  } else {
+    card.style.display = 'none';
+  }
+
+  // Category breakdown — sums mod cost by category, sorted desc. Bar fill
+  // is scaled to the leading category so the top row always reads 100%.
+  const catTotals = mod.reduce((acc, e) => {
+    const key = e.category || 'Uncategorised';
+    acc[key] = (acc[key] || 0) + e.cost;
+    return acc;
+  }, {});
+  const catRows = Object.entries(catTotals).sort((a,b) => b[1] - a[1]);
+  const catEl = document.getElementById('category-breakdown');
+  catEl.replaceChildren();
+  if (!catRows.length) {
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.innerHTML = '<div class="empty-text">No mods in this period.</div>';
+    catEl.appendChild(empty);
+  } else {
+    const leader = catRows[0][1];
+    for (const [name, amount] of catRows) {
+      const pctOfMods = modTotal > 0 ? Math.round((amount / modTotal) * 100) : 0;
+      const fillPct   = leader   > 0 ? Math.round((amount / leader)   * 100) : 0;
+      const row = document.createElement('div');
+      row.className = 'category-row';
+      row.innerHTML = `
+        <div class="category-row-top">
+          <div class="category-name"><span class="name-text"></span> <span class="muted">${pctOfMods}%</span></div>
+          <div class="category-amount">${fmt(amount)}</div>
+        </div>
+        <div class="category-bar-track"><div class="category-bar-fill" style="width: ${fillPct}%"></div></div>
+      `;
+      row.querySelector('.name-text').textContent = name;
+      catEl.appendChild(row);
+    }
+  }
+
+  // Transactions list — scope-aware. renderList's existing path handles
+  // loading/empty states, but it always reads from `entries`. Re-render
+  // by hand here so the spend list respects the time filter.
+  const txEl = document.getElementById('spend-entries');
+  if (!scoped.length) {
+    if (isLoadingEntries) {
+      txEl.innerHTML = `<div class="empty"><div class="list-spinner"></div><div class="empty-text">Loading…</div></div>`;
+    } else {
+      txEl.innerHTML = `<div class="empty"><div class="empty-icon">💰</div><div class="empty-text">No spend in this period.</div></div>`;
+    }
+  } else {
+    txEl.replaceChildren();
+    scoped.forEach(e => txEl.appendChild(makeCard(e)));
+  }
 }
 
 function renderAll() {
@@ -1688,7 +1881,7 @@ function renderAll() {
   renderList('recent-entries', null);
   renderList('mod-entries',    'mod');
   renderList('service-entries','service');
-  renderList('spend-entries',  null);
+  renderSpendScreen();
 }
 
 // ══════════════════════════════════════════════════════
