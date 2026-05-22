@@ -36,9 +36,13 @@
        between body and viewport at intermediate widths. */
     max-width: min(100vw, var(--col-max));
     margin: 0 auto;
-    padding-bottom: 90px;
+    /* Bottom padding clears the fixed nav (~62px content + 16px vertical
+       padding ≈ 78px) plus a comfortable 32px gap so the last list item
+       doesn't slip behind the nav — especially in iOS Safari where the
+       URL bar shortens the visual viewport below 100vh. */
+    padding-bottom: 110px;
     /* Safe area for iPhone notch/home indicator */
-    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+    padding-bottom: calc(110px + env(safe-area-inset-bottom));
   }
 
   /* ── NAV ── */
