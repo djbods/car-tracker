@@ -606,6 +606,21 @@
       <button class="type-btn repair" data-type="repair"><span>🔧</span>Repair</button>
     </div>
     <div class="form-group"><label>Item / Description</label><input type="text" id="input-title" placeholder="e.g. Wagner brake pads, oil change…"></div>
+    <div class="form-group" id="mod-category-group"><label>Category</label>
+      <select id="input-category">
+        <option value="">— Select category —</option>
+        <option value="Suspension">Suspension</option>
+        <option value="Exhaust">Exhaust</option>
+        <option value="Wheels &amp; Tyres">Wheels &amp; Tyres</option>
+        <option value="Interior">Interior</option>
+        <option value="Engine">Engine</option>
+        <option value="Brakes">Brakes</option>
+        <option value="Drivetrain">Drivetrain</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Cosmetic / Exterior">Cosmetic / Exterior</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
     <div class="form-row">
       <div class="form-group"><label>Cost (AUD)</label><input type="number" id="input-cost" placeholder="0.00" inputmode="decimal"></div>
       <div class="form-group"><label>Date</label><input type="date" id="input-date"></div>
@@ -1095,9 +1110,11 @@ document.getElementById('fab-btn').onclick = () => {
   document.getElementById('input-cost').value  = '';
   document.getElementById('input-notes').value = '';
   document.getElementById('input-date').value  = today();
+  document.getElementById('input-category').value = '';
   document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active','mod','service','repair'));
   document.querySelector('[data-type="mod"]').classList.add('active','mod');
   activeType = 'mod';
+  document.getElementById('mod-category-group').style.display = '';
   addModal.classList.add('open');
   setTimeout(() => document.getElementById('input-title').focus(), 350);
 };
@@ -1107,6 +1124,7 @@ document.querySelectorAll('.type-btn').forEach(btn => {
     document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active','mod','service','repair'));
     btn.classList.add('active', btn.dataset.type);
     activeType = btn.dataset.type;
+    document.getElementById('mod-category-group').style.display = activeType === 'mod' ? '' : 'none';
   };
 });
 
@@ -1121,7 +1139,10 @@ document.getElementById('save-entry-btn').onclick = async () => {
     title,
     cost:  parseFloat(document.getElementById('input-cost').value)  || 0,
     date:  document.getElementById('input-date').value || today(),
-    notes: document.getElementById('input-notes').value.trim()
+    notes: document.getElementById('input-notes').value.trim(),
+    category: activeType === 'mod'
+      ? (document.getElementById('input-category').value || null)
+      : null,
   };
 
   // Optimistic: render immediately, reconcile on success/failure.
@@ -1541,6 +1562,7 @@ function makeCard(entry) {
       <div class="entry-meta">${fmtDate(entry.date)}</div>
       <div class="entry-tags">
         <span class="tag ${entry.type}">${typeLabels[entry.type]}</span>
+        ${entry.type === 'mod' && entry.category ? `<span class="tag mod">${entry.category}</span>` : ''}
         ${entry.notes ? '<span class="tag done">Notes</span>' : ''}
       </div>
     </div>
@@ -1551,6 +1573,7 @@ function makeCard(entry) {
     document.getElementById('detail-title').textContent = entry.title;
     document.getElementById('detail-body').innerHTML = `
       <div class="detail-row"><span class="detail-key">Type</span><span class="tag ${entry.type}">${typeLabels[entry.type]}</span></div>
+      ${entry.type === 'mod' && entry.category ? `<div class="detail-row"><span class="detail-key">Category</span><span class="detail-val">${entry.category}</span></div>` : ''}
       <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${fmtDate(entry.date)}</span></div>
       <div class="detail-row"><span class="detail-key">Cost</span><span class="detail-val" style="color:var(--accent2);font-size:18px;font-weight:700">${fmt(entry.cost)}</span></div>
       ${entry.notes ? `<div class="detail-row" style="flex-direction:column;gap:8px;align-items:flex-start"><span class="detail-key">Notes</span><span class="detail-val" style="font-weight:300;line-height:1.6;text-align:left">${entry.notes}</span></div>` : ''}
