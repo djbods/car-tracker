@@ -36,13 +36,12 @@
        between body and viewport at intermediate widths. */
     max-width: min(100vw, var(--col-max));
     margin: 0 auto;
-    /* Bottom padding clears the fixed nav (~62px content + 16px vertical
-       padding ≈ 78px) plus a comfortable 32px gap so the last list item
-       doesn't slip behind the nav — especially in iOS Safari where the
-       URL bar shortens the visual viewport below 100vh. */
-    padding-bottom: 110px;
-    /* Safe area for iPhone notch/home indicator */
-    padding-bottom: calc(110px + env(safe-area-inset-bottom));
+    /* Pre-paint fallback only — `syncNavClearance()` below the body
+       measures the nav's actual rendered height on load and overrides
+       this with `nav.offsetHeight + 32px`. The flat value here just
+       prevents an unstyled flash of clipped content before JS runs. */
+    padding-bottom: 120px;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
   }
 
   /* ── NAV ── */
@@ -1693,6 +1692,31 @@ function renderAll() {
   renderList('mod-entries',    'mod');
   renderList('service-entries','service');
   renderList('spend-entries',  null);
+}
+
+// ══════════════════════════════════════════════════════
+// Bottom-nav clearance
+// ══════════════════════════════════════════════════════
+// The fixed bottom nav can render at a few different heights depending on
+// device (iPhone home indicator, safe-area inset, font scaling) and on
+// whether iOS Safari's URL bar is showing — a fixed CSS padding can't
+// reliably cover all cases. Instead, measure the nav's actual rendered
+// height at runtime and set body padding-bottom to clear it with a
+// comfortable 32px buffer. Runs once on script execution, then re-syncs
+// on resize, orientation change, and any direct nav size change.
+function syncNavClearance() {
+  const nav = document.querySelector('.nav');
+  if (!nav) return;
+  // nav.offsetHeight already includes the safe-area-inset-bottom because
+  // .nav itself has padding-bottom: calc(8px + env(safe-area-inset-bottom)).
+  document.body.style.paddingBottom = (nav.offsetHeight + 32) + 'px';
+}
+syncNavClearance();
+window.addEventListener('resize', syncNavClearance);
+window.addEventListener('orientationchange', syncNavClearance);
+if (typeof ResizeObserver !== 'undefined') {
+  const nav = document.querySelector('.nav');
+  if (nav) new ResizeObserver(syncNavClearance).observe(nav);
 }
 
 // ══════════════════════════════════════════════════════
