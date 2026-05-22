@@ -167,12 +167,24 @@ Driven by user feedback: free-text mod titles are friction, but strict curated d
 - [x] Free-text entry always accepted ("Other / custom" never blocks save)
 - [x] No curated brand list, no scraping, no external API — suggestions grow organically from usage
 
+### 2.2 — Spend analytics (v1)
+
+Turns the Spend tab from a static lifetime total into an actively useful, visual view. Direct payoff for the category work shipped in 2.1 — finally answers "where is the money actually going."
+
+- [x] Time-scope segmented control: This year (default) / Last 30 days / All time
+- [x] All spend numbers, breakdowns, charts and the transactions list react to scope
+- [x] Stacked horizontal bar visualising the Mods / Service / Repairs proportion (existing accent colours)
+- [x] Per-category breakdown for mods — sorted by spend desc, with percentage of mod total and a bar scaled to the leading category
+- [x] "Biggest mod" callout card (single most expensive mod entry in scope)
+- [x] Garage-card lifetime stats (mods count, total invested) stay all-time — scope only affects the Spend screen
+
+**Deferred to v2:** monthly trend chart, cost-per-km, cross-vehicle comparison, CSV/PDF export of the current scope (rolled into the broader PDF Export item below).
+
 ### Other Phase 2 items (not yet scheduled)
 
 - **Photo attachments** — attach images to service logs and mod entries (Supabase Storage)
 - **PDF export** — generate a full service/mod history report (key feature for pre-sale use)
 - **Reminders** — service interval reminders, rego/insurance due dates
-- **Spend analytics** — cost over time, by category, per vehicle
 - **Stripe payments** — free tier (1 vehicle, no export) vs paid tier (unlimited vehicles, PDF export, reminders)
 
 ---
