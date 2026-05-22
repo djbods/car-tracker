@@ -148,9 +148,26 @@ create policy "Users can manage their own vehicles"
 
 ---
 
-## Phase 2 Goals (Next Sprint — do not build yet)
+## Phase 2 Goals (Next Sprint)
 
-Listed here for architectural awareness — do not implement, but don't make decisions in Phase 1 that would make these harder.
+### 2.1 — Structured mod entry (UX compromise)
+
+Driven by user feedback: free-text mod titles are friction, but strict curated dropdowns slow down the enthusiast audience and pull Phase 3 platform-awareness forward. The middle path is structured **category** (fixed list) + **smart-suggest brand** (autocomplete that learns from prior entries, free-text fallback always available).
+
+**Branch A — `feature/mod-category-dropdown`**
+- [ ] Add `category` `<select>` to the add-entry modal, visible only when type = `mod`
+- [ ] Category options: Suspension, Exhaust, Wheels & Tyres, Interior, Engine, Brakes, Drivetrain, Electronics, Cosmetic / Exterior, Other
+- [ ] Persist `category` to `mod_logs.category` (column already exists in schema)
+- [ ] Surface category on the entry detail modal for mods
+- [ ] Default to empty (no forced pick) so it stays optional
+
+**Branch B — `feature/mod-brand-autocomplete`**
+- [ ] Combobox component for brand/product on mod entries (datalist-based or custom)
+- [ ] Suggest values from the user's own prior `mod_logs.title` entries, scoped per category
+- [ ] Free-text entry always accepted ("Other / custom" never blocks save)
+- [ ] No curated brand list, no scraping, no external API — suggestions grow organically from usage
+
+### Other Phase 2 items (not yet scheduled)
 
 - **Photo attachments** — attach images to service logs and mod entries (Supabase Storage)
 - **PDF export** — generate a full service/mod history report (key feature for pre-sale use)
@@ -165,6 +182,7 @@ Listed here for architectural awareness — do not implement, but don't make dec
 - **Multi-platform expansion** — onboarding flow that lets users specify any make/model, not just E39
 - **Community layer** — public build profiles, browse other users' builds
 - **Platform-specific defaults** — pre-populated common service intervals and mod categories per model
+- **Curated brand lists per platform** — once platform-awareness lands, layer curated popular-brand suggestions on top of the organic autocomplete from Phase 2.1 (deferred from Dad's original suggestion; doing it sooner would mean per-platform curation + maintenance burden)
 
 ---
 

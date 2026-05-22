@@ -119,12 +119,13 @@ export async function setGarageName(name) {
 
 function modRowToEntry(r) {
   return {
-    id:    r.id,
-    type:  'mod',
-    title: r.title,
-    cost:  Number(r.cost) || 0,
-    date:  r.date,
-    notes: r.description || '',
+    id:       r.id,
+    type:     'mod',
+    title:    r.title,
+    cost:     Number(r.cost) || 0,
+    date:     r.date,
+    notes:    r.description || '',
+    category: r.category || null,
   };
 }
 function serviceRowToEntry(r) {
@@ -168,6 +169,7 @@ export async function addEntry(vehicleId, entry) {
       title:       entry.title,
       description: entry.notes || null,
       cost:        entry.cost || 0,
+      category:    entry.category || null,
     }).select().single();
     if (error) throw error;
     return modRowToEntry(data);
