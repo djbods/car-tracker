@@ -155,17 +155,17 @@ create policy "Users can manage their own vehicles"
 Driven by user feedback: free-text mod titles are friction, but strict curated dropdowns slow down the enthusiast audience and pull Phase 3 platform-awareness forward. The middle path is structured **category** (fixed list) + **smart-suggest brand** (autocomplete that learns from prior entries, free-text fallback always available).
 
 **Branch A — `feature/mod-category-dropdown`**
-- [ ] Add `category` `<select>` to the add-entry modal, visible only when type = `mod`
-- [ ] Category options: Suspension, Exhaust, Wheels & Tyres, Interior, Engine, Brakes, Drivetrain, Electronics, Cosmetic / Exterior, Other
-- [ ] Persist `category` to `mod_logs.category` (column already exists in schema)
-- [ ] Surface category on the entry detail modal for mods
-- [ ] Default to empty (no forced pick) so it stays optional
+- [x] Add `category` `<select>` to the add-entry modal, visible only when type = `mod`
+- [x] Category options: Suspension, Exhaust, Wheels & Tyres, Interior, Engine, Brakes, Drivetrain, Electronics, Cosmetic / Exterior, Other
+- [x] Persist `category` to `mod_logs.category` (column already exists in schema)
+- [x] Surface category on the entry detail modal for mods
+- [x] Default to empty (no forced pick) so it stays optional
 
 **Branch B — `feature/mod-brand-autocomplete`**
-- [ ] Combobox component for brand/product on mod entries (datalist-based or custom)
-- [ ] Suggest values from the user's own prior `mod_logs.title` entries, scoped per category
-- [ ] Free-text entry always accepted ("Other / custom" never blocks save)
-- [ ] No curated brand list, no scraping, no external API — suggestions grow organically from usage
+- [x] Combobox component for brand/product on mod entries (datalist-based or custom)
+- [x] Suggest values from the user's own prior `mod_logs.title` entries, scoped per category
+- [x] Free-text entry always accepted ("Other / custom" never blocks save)
+- [x] No curated brand list, no scraping, no external API — suggestions grow organically from usage
 
 ### Other Phase 2 items (not yet scheduled)
 

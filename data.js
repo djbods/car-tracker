@@ -188,6 +188,20 @@ export async function addEntry(vehicleId, entry) {
   return serviceRowToEntry(data);
 }
 
+// Returns every {title, category} pair from the current user's mods across
+// all vehicles. Used to power the brand-autocomplete datalist on the entry
+// modal. RLS scopes the rows to the signed-in user, so no manual user_id
+// filter is needed.
+export async function loadModTitleSuggestions() {
+  const { data, error } = await supabase
+    .from('mod_logs')
+    .select('title, category');
+  if (error) throw error;
+  return (data || [])
+    .filter(r => r.title)
+    .map(r => ({ title: r.title, category: r.category || null }));
+}
+
 export async function deleteEntry(entry) {
   const table = entry.type === 'mod' ? 'mod_logs' : 'service_logs';
   const { error } = await supabase.from(table).delete().eq('id', entry.id);

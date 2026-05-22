@@ -605,7 +605,7 @@
       <button class="type-btn service" data-type="service"><span>🛠️</span>Service</button>
       <button class="type-btn repair" data-type="repair"><span>🔧</span>Repair</button>
     </div>
-    <div class="form-group"><label>Item / Description</label><input type="text" id="input-title" placeholder="e.g. Wagner brake pads, oil change…"></div>
+    <div class="form-group"><label>Item / Description</label><input type="text" id="input-title" list="brand-suggestions" autocomplete="off" placeholder="e.g. Wagner brake pads, oil change…"><datalist id="brand-suggestions"></datalist></div>
     <div class="form-group" id="mod-category-group"><label>Category</label>
       <select id="input-category">
         <option value="">— Select category —</option>
@@ -805,6 +805,7 @@ import { supabase } from './supabase-client.js';
 import {
   loadVehicles, upsertVehicle, rowToCar,
   loadEntries, addEntry, deleteEntry, clearAllEntries,
+  loadModTitleSuggestions,
   uploadVehiclePhoto, getVehiclePhotoUrl,
   getGarageName, setGarageName, DEFAULT_GARAGE_NAME,
 } from './data.js';
@@ -878,6 +879,11 @@ let car = {
 let vehicleId   = null;   // active vehicle id — kept in sync with localStorage
 let activeType  = 'mod';
 let detailId    = null;
+// Cache of every mod {title, category} the user has logged across all their
+// vehicles. Powers the brand-autocomplete datalist. Refreshed on modal open
+// and patched in-place after a successful save so the next open sees the
+// new title without another round-trip.
+let modTitleSuggestions = [];
 let garageName  = DEFAULT_GARAGE_NAME;
 // True while we're fetching this vehicle's entries from Supabase. renderList
 // reads this to swap the "No entries yet." empty state for a spinner so the
@@ -1102,7 +1108,40 @@ document.getElementById('save-garage-name-btn').onclick = async () => {
 // ══════════════════════════════════════════════════════
 // Add Entry
 // ══════════════════════════════════════════════════════
-document.getElementById('fab-btn').onclick = () => {
+
+// Rebuild the brand-autocomplete <datalist> from the cached suggestions,
+// optionally narrowed to a single category. Uses createElement rather than
+// innerHTML so user-entered titles don't need manual HTML escaping.
+function renderBrandDatalist(category) {
+  const datalist = document.getElementById('brand-suggestions');
+  const pool = category
+    ? modTitleSuggestions.filter(s => s.category === category)
+    : modTitleSuggestions;
+  const seen = new Set();
+  const distinct = [];
+  for (const { title } of pool) {
+    const key = title.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    distinct.push(title);
+  }
+  distinct.sort((a, b) => a.localeCompare(b));
+  datalist.replaceChildren(...distinct.map(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    return opt;
+  }));
+}
+
+// Sync the title input's `list` attribute with the active type — we only
+// want brand suggestions surfacing on mod entries, not service/repair.
+function syncTitleListAttribute() {
+  const input = document.getElementById('input-title');
+  if (activeType === 'mod') input.setAttribute('list', 'brand-suggestions');
+  else input.removeAttribute('list');
+}
+
+document.getElementById('fab-btn').onclick = async () => {
   // Entries are scoped to a vehicle — bounce the user to Add Vehicle if they
   // haven't created one yet rather than opening a modal that can't save.
   if (!vehicleId) { openCarModal('add'); return; }
@@ -1115,8 +1154,19 @@ document.getElementById('fab-btn').onclick = () => {
   document.querySelector('[data-type="mod"]').classList.add('active','mod');
   activeType = 'mod';
   document.getElementById('mod-category-group').style.display = '';
+  syncTitleListAttribute();
+  // Show the modal immediately — suggestions can fill in once the fetch
+  // returns. Empty datalist behaves like a normal text input in the meantime.
+  renderBrandDatalist(null);
   addModal.classList.add('open');
   setTimeout(() => document.getElementById('input-title').focus(), 350);
+  try {
+    modTitleSuggestions = await loadModTitleSuggestions();
+    renderBrandDatalist(null);
+  } catch (err) {
+    // Non-fatal — suggestions are a nice-to-have, fall back to free-text only.
+    console.warn('Brand suggestions unavailable:', err?.message || err);
+  }
 };
 
 document.querySelectorAll('.type-btn').forEach(btn => {
@@ -1125,7 +1175,15 @@ document.querySelectorAll('.type-btn').forEach(btn => {
     btn.classList.add('active', btn.dataset.type);
     activeType = btn.dataset.type;
     document.getElementById('mod-category-group').style.display = activeType === 'mod' ? '' : 'none';
+    syncTitleListAttribute();
   };
+});
+
+// Re-narrow the datalist when the user picks (or clears) a category. Empty
+// value means "show everything"; otherwise show titles previously logged
+// under that category.
+document.getElementById('input-category').addEventListener('change', e => {
+  renderBrandDatalist(e.target.value || null);
 });
 
 document.getElementById('save-entry-btn').onclick = async () => {
@@ -1154,6 +1212,11 @@ document.getElementById('save-entry-btn').onclick = async () => {
     const saved = await addEntry(vehicleId, draft);
     const i = entries.findIndex(e => e.id === draft.id);
     if (i !== -1) entries[i] = saved;
+    // Patch the autocomplete cache in-place so the next modal open
+    // suggests this brand without re-hitting Supabase.
+    if (saved.type === 'mod' && saved.title) {
+      modTitleSuggestions.push({ title: saved.title, category: saved.category || null });
+    }
     renderAll();
     showToast('Entry saved ✓');
   } catch (err) {
