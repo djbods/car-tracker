@@ -283,6 +283,7 @@
   .empty { text-align: center; padding: 48px 32px; color: var(--muted); }
   .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
   .empty-text { font-size: 15px; font-weight: 300; line-height: 1.6; }
+  .list-spinner { width: 24px; height: 24px; margin: 12px auto; border: 2px solid rgba(200,168,75,0.2); border-top-color: var(--accent); border-radius: 50%; animation: boot-spin 0.8s linear infinite; }
 
   /* ── DETAIL ── */
   .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border); }
@@ -878,6 +879,10 @@ let vehicleId   = null;   // active vehicle id — kept in sync with localStorag
 let activeType  = 'mod';
 let detailId    = null;
 let garageName  = DEFAULT_GARAGE_NAME;
+// True while we're fetching this vehicle's entries from Supabase. renderList
+// reads this to swap the "No entries yet." empty state for a spinner so the
+// UI doesn't lie about an empty list mid-fetch (e.g. right after a switch).
+let isLoadingEntries = false;
 
 // Hydrate from Supabase and pick the last-active vehicle (or oldest) so the
 // user lands where they left off. First-time users land with no vehicle —
@@ -921,14 +926,22 @@ async function switchVehicle(id) {
   const row = vehicles.find(v => v.id === id);
   if (!row) return;
   setActiveVehicle(row);
+  // Clear stale entries + show a per-list spinner while the new vehicle's
+  // entries load, so the lists don't briefly read "No entries yet." for a
+  // vehicle that actually has entries.
+  entries = [];
+  isLoadingEntries = true;
+  resetPhoto();
+  renderAll();
   try {
     entries = await loadEntries(vehicleId);
-    resetPhoto();
     await loadSavedPhoto();
-    renderAll();
     showToast(`Switched to ${car.nickname || car.model}`);
   } catch (err) {
     showToast('Switch failed: ' + (err?.message || 'unknown error'));
+  } finally {
+    isLoadingEntries = false;
+    renderAll();
   }
 }
 
@@ -960,6 +973,7 @@ async function loadSavedPhoto() {
       if (url) { applyPhoto(url); return; }
     } catch (err) {
       console.error('Photo load failed:', err);
+      showToast('Photo failed to load');
     }
   }
 
@@ -1249,27 +1263,68 @@ saveCarBtn.onclick = async () => {
     odoUnit:  document.getElementById('car-odo-unit').value,
     nickname: document.getElementById('car-nickname').value.trim(),
   };
+
+  // Optimistic save: mutate the in-memory state and close the modal before
+  // the network call returns, then reconcile (or roll back) once it does.
+  // close() doesn't clear the form, so on failure we re-open the modal with
+  // the user's data still in place and let them retry.
+  const isNew = !editingVehicleId;
+  const prevVehicles  = vehicles.slice();
+  const prevCar       = { ...car };
+  const prevVehicleId = vehicleId;
+  const prevEntries   = entries.slice();
+  const existingPath  = isNew ? null
+    : (prevVehicles.find(v => v.id === editingVehicleId)?.photo_path || null);
+
+  const tmpId = isNew ? 'tmp-' + Date.now() : editingVehicleId;
+  const draftRow = {
+    id:            tmpId,
+    nickname:      next.nickname
+      || [next.model, next.body].filter(Boolean).join(' ').trim()
+      || `My ${next.make}`,
+    make:          next.make,
+    model:         next.model,
+    year:          next.year ? parseInt(next.year, 10) : null,
+    variant:       next.variant || null,
+    body:          next.body   || null,
+    engine:        next.engine || null,
+    colour:        next.colour || null,
+    odometer:      next.odo ? parseInt(next.odo, 10) : null,
+    odometer_unit: next.odoUnit || 'km',
+    photo_path:    existingPath,
+  };
+
+  if (isNew) {
+    vehicles.push(draftRow);
+    setActiveVehicle(draftRow);
+    entries = [];
+    resetPhoto();
+  } else {
+    const i = vehicles.findIndex(v => v.id === editingVehicleId);
+    if (i !== -1) vehicles[i] = draftRow;
+    car = rowToCar(draftRow);
+  }
+  close(carModal);
+  renderAll();
+
   try {
-    const saved   = await upsertVehicle(next);
-    const isNew   = !editingVehicleId;
-    if (isNew) {
-      // Add to the in-memory garage and immediately make it active so the
-      // user can start logging entries on it without an extra tap.
-      vehicles.push(saved);
-      setActiveVehicle(saved);
-      entries = [];
-      resetPhoto();
-    } else {
-      // Keep the cached vehicles list in sync with the edit so the garage
-      // sheet shows fresh labels next time it opens.
-      const i = vehicles.findIndex(v => v.id === saved.id);
-      if (i !== -1) vehicles[i] = saved;
-      car = rowToCar(saved);
-    }
-    close(carModal);
+    const saved = await upsertVehicle(next);
+    const i = vehicles.findIndex(v => v.id === tmpId);
+    if (i !== -1) vehicles[i] = saved;
+    if (isNew)        setActiveVehicle(saved);
+    else if (saved.id === vehicleId) car = rowToCar(saved);
     renderAll();
     showToast(isNew ? 'Vehicle added ✓' : 'Car details saved ✓');
   } catch (err) {
+    // Roll back to the pre-save snapshot and re-open the modal so the user
+    // can fix whatever went wrong without losing their input.
+    vehicles  = prevVehicles;
+    car       = prevCar;
+    vehicleId = prevVehicleId;
+    entries   = prevEntries;
+    if (prevVehicleId) localStorage.setItem(ACTIVE_VEHICLE_KEY, prevVehicleId);
+    renderAll();
+    carModal.classList.add('open');
     showToast('Save failed: ' + (err?.message || 'unknown error'));
   }
 };
@@ -1533,7 +1588,11 @@ function renderList(id, filter) {
   const list = filter ? entries.filter(e => e.type===filter) : entries;
   const icons = {'recent-entries':'🔧','mod-entries':'⚙️','service-entries':'🛠️','spend-entries':'💰'};
   if (!list.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">${icons[id]||'🔧'}</div><div class="empty-text">No entries yet.</div></div>`;
+    if (isLoadingEntries) {
+      el.innerHTML = `<div class="empty"><div class="list-spinner"></div><div class="empty-text">Loading…</div></div>`;
+    } else {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">${icons[id]||'🔧'}</div><div class="empty-text">No entries yet.</div></div>`;
+    }
     return;
   }
   el.innerHTML = '';

@@ -132,8 +132,8 @@ create policy "Users can manage their own vehicles"
 ### 1.4 — Data Layer / API Hooks
 - [x] Replace all IndexedDB reads/writes with Supabase client calls
 - [x] Create reusable hooks or service functions for each table (e.g. `useVehicles`, `useServiceLogs`)
-- [ ] Handle loading and error states throughout
-- [ ] Implement **optimistic UI** where appropriate — don't make the user wait for a network round trip on simple adds
+- [x] Handle loading and error states throughout
+- [x] Implement **optimistic UI** where appropriate — don't make the user wait for a network round trip on simple adds
 
 ### 1.5 — Multi-Device Behaviour
 - [x] On login, fetch all data from Supabase — the app should look identical on any device
