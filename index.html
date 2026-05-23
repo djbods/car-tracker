@@ -347,10 +347,15 @@
   .garage-item-archived-pill { font-size: 10px; font-weight: 600; letter-spacing: 1px; color: rgba(255,255,255,0.4); text-transform: uppercase; flex-shrink: 0; border: 1px dashed rgba(255,255,255,0.18); padding: 2px 8px; border-radius: 10px; }
   .garage-item.sold, .garage-item.archived { opacity: 0.62; }
   .sold-pill { font-size: 11px; font-weight: 600; letter-spacing: 1px; color: rgba(255,255,255,0.7); text-transform: uppercase; border: 1px solid rgba(255,255,255,0.22); padding: 3px 9px; border-radius: 999px; display: inline-block; }
-  .sold-banner { display: none; align-items: center; justify-content: space-between; gap: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); color: rgba(255,255,255,0.78); padding: 10px 14px; border-radius: 12px; margin: 0 16px 12px; font-size: 13px; }
+  /* Sold = closed chapter: red ribbon, matches the existing --red token used
+     on repair tags and the overdue service stat. Archived = paused: neutral
+     grey ribbon so it reads as "stored" rather than "ended". */
+  .sold-banner { display: none; align-items: center; justify-content: space-between; gap: 12px; background: rgba(224, 82, 82, 0.10); border: 1px solid rgba(224, 82, 82, 0.28); border-left: 3px solid rgba(224, 82, 82, 0.78); color: rgba(255,255,255,0.85); padding: 12px 14px; border-radius: 10px; margin-top: 14px; font-size: 13px; }
   .sold-banner.open { display: flex; }
-  .sold-banner-title { font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; font-size: 11px; color: rgba(255,255,255,0.55); }
-  .sold-banner-detail { color: rgba(255,255,255,0.88); }
+  .sold-banner-title { font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; font-size: 10px; color: var(--red); margin-bottom: 3px; }
+  .sold-banner-detail { color: rgba(255,255,255,0.95); font-weight: 500; }
+  .sold-banner.archived { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.10); border-left-color: rgba(255,255,255,0.45); }
+  .sold-banner.archived .sold-banner-title { color: rgba(255,255,255,0.6); }
   .form-hint { display: block; color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.4; }
   body.car-sold .fab { opacity: 0.35; pointer-events: none; }
 
@@ -518,8 +523,8 @@
       </div>
       <div class="sold-banner" id="sold-banner" role="status">
         <div>
-          <div class="sold-banner-title">Read-only history</div>
-          <div class="sold-banner-detail" id="sold-banner-detail">Sold</div>
+          <div class="sold-banner-title" id="sold-banner-title">Sold</div>
+          <div class="sold-banner-detail" id="sold-banner-detail"></div>
         </div>
       </div>
       <div class="car-stats">
@@ -1778,20 +1783,28 @@ function renderCarCard() {
   // Lifecycle: when the active car is sold or archived, show a read-only
   // banner and dim the add-entry FAB (via body.car-sold). Edit + photo remain
   // available so the user can correct details or flip the status back.
-  const banner = document.getElementById('sold-banner');
+  // Title carries the state name (in --red for sold, muted for archived);
+  // detail line carries the handover info.
+  const banner      = document.getElementById('sold-banner');
+  const bannerTitle = document.getElementById('sold-banner-title');
+  const bannerInfo  = document.getElementById('sold-banner-detail');
   if (car.status === 'sold') {
     const bits = [];
-    if (car.soldDate)  bits.push(`Sold ${fmtDate(car.soldDate)}`);
-    if (car.soldPrice) bits.push(`for $${Number(car.soldPrice).toLocaleString('en-AU')}`);
-    document.getElementById('sold-banner-detail').textContent = bits.join(' ') || 'Sold';
+    if (car.soldDate)  bits.push(fmtDate(car.soldDate));
+    if (car.soldPrice) bits.push(`$${Number(car.soldPrice).toLocaleString('en-AU')}`);
+    bits.push('read-only history');
+    bannerTitle.textContent = 'Sold';
+    bannerInfo.textContent  = bits.join(' · ');
     banner.classList.add('open');
+    banner.classList.remove('archived');
     document.body.classList.add('car-sold');
   } else if (car.status === 'archived') {
-    document.getElementById('sold-banner-detail').textContent = 'Archived';
-    banner.classList.add('open');
+    bannerTitle.textContent = 'Archived';
+    bannerInfo.textContent  = 'Read-only history';
+    banner.classList.add('open', 'archived');
     document.body.classList.add('car-sold');
   } else {
-    banner.classList.remove('open');
+    banner.classList.remove('open', 'archived');
     document.body.classList.remove('car-sold');
   }
 }
