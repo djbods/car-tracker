@@ -229,12 +229,119 @@ export async function deleteEntry(entry) {
 
 export async function clearAllEntries(vehicleId) {
   if (!vehicleId) return;
-  const [m, s] = await Promise.all([
+  const [m, s, f] = await Promise.all([
     supabase.from('mod_logs').delete().eq('vehicle_id', vehicleId),
     supabase.from('service_logs').delete().eq('vehicle_id', vehicleId),
+    supabase.from('fuel_logs').delete().eq('vehicle_id', vehicleId),
   ]);
   if (m.error) throw m.error;
   if (s.error) throw s.error;
+  if (f.error) throw f.error;
+}
+
+// ──────────────────────────────────────────────────────────────────
+// Fuel logs
+// ──────────────────────────────────────────────────────────────────
+//
+// Stored shape mirrors the table; the UI never touches snake_case so we
+// normalise on read. is_full_tank flags whether the entry closes a tank
+// cycle — partial fills count toward spend but are skipped as boundaries
+// in the L/100km calc.
+
+function fuelRowToEntry(r) {
+  return {
+    id:          r.id,
+    date:        r.date,
+    odometer:    r.odometer,
+    litres:      Number(r.litres) || 0,
+    totalCost:   r.total_cost != null ? Number(r.total_cost) : 0,
+    station:     r.station || '',
+    isFullTank:  r.is_full_tank !== false,
+    notes:       r.notes || '',
+  };
+}
+
+export async function loadFuelLogs(vehicleId) {
+  if (!vehicleId) return [];
+  const { data, error } = await supabase
+    .from('fuel_logs')
+    .select('*')
+    .eq('vehicle_id', vehicleId)
+    .order('date', { ascending: false });
+  if (error) throw error;
+  return (data || []).map(fuelRowToEntry);
+}
+
+export async function addFuelLog(vehicleId, fuel) {
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  if (!user) throw new Error('Not signed in');
+  if (!vehicleId) throw new Error('No vehicle selected');
+
+  const { data, error } = await supabase.from('fuel_logs').insert({
+    vehicle_id:   vehicleId,
+    user_id:      user.id,
+    date:         fuel.date,
+    odometer:     fuel.odometer,
+    litres:       fuel.litres,
+    total_cost:   Number.isFinite(fuel.totalCost) ? fuel.totalCost : null,
+    station:      fuel.station || null,
+    is_full_tank: fuel.isFullTank !== false,
+    notes:        fuel.notes || null,
+  }).select().single();
+  if (error) throw error;
+  return fuelRowToEntry(data);
+}
+
+export async function deleteFuelLog(id) {
+  const { error } = await supabase.from('fuel_logs').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// Walk fuel entries in odometer order and compute L/100km between each pair
+// of consecutive full-tank entries. The standard "tank-to-tank" method:
+// litres burnt over a distance = everything pumped AFTER the first full tank
+// up to AND INCLUDING the next full tank (partials in between count, since
+// that fuel was consumed over the same distance). Entries with missing or
+// zero odometer are skipped.
+//
+// Returns { samples: [{from, to, distance, litres, l100}], rolling: number|null }
+// where `rolling` is the mean of the last `windowSize` samples (default 10).
+export function computeFuelEconomy(fuelEntries, windowSize = 10) {
+  const sorted = [...fuelEntries]
+    .filter(f => f.odometer > 0 && f.litres > 0)
+    .sort((a, b) => a.odometer - b.odometer);
+  const samples = [];
+  let lastFullIdx = -1;
+  let litresSinceLastFull = 0;
+  for (let i = 0; i < sorted.length; i++) {
+    const e = sorted[i];
+    if (lastFullIdx === -1) {
+      if (e.isFullTank) lastFullIdx = i;
+      continue;
+    }
+    litresSinceLastFull += e.litres;
+    if (e.isFullTank) {
+      const prev = sorted[lastFullIdx];
+      const distance = e.odometer - prev.odometer;
+      if (distance > 0) {
+        samples.push({
+          from:     prev.date,
+          to:       e.date,
+          distance,
+          litres:   litresSinceLastFull,
+          l100:     (litresSinceLastFull / distance) * 100,
+        });
+      }
+      lastFullIdx = i;
+      litresSinceLastFull = 0;
+    }
+  }
+  const window = samples.slice(-windowSize);
+  const rolling = window.length
+    ? window.reduce((s, x) => s + x.l100, 0) / window.length
+    : null;
+  return { samples, rolling };
 }
 
 // ──────────────────────────────────────────────────────────────────
