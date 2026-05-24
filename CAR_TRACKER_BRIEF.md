@@ -184,21 +184,21 @@ Turns the Spend tab from a static lifetime total into an actively useful, visual
 
 Small foundational migration. Ship first — unblocks every section below.
 
-- [ ] `vehicles`: add `status` (`'active' | 'sold' | 'archived'`, default `'active'`), `sold_date` (date, nullable), `sold_price` (numeric, nullable), `combined_cycle_consumption` (numeric, L/100km, nullable — manufacturer claim used to anchor the fuel gauge in 2.4)
-- [ ] Sold vehicles remain visible in My Garage, visually distinct and read-only — preserves full ownership history
-- [ ] `expenses.category`: convert from free-text to a controlled vocabulary — Insurance, Registration, Tyres, Parking, Toll, Cleaning, Roadside, Detailing, Other (Fuel moves to its own table in 2.4)
-- [ ] Data migration: map existing free-text values where possible, dump the rest to `Other` with the original text preserved in `description`
+- [x] `vehicles`: add `status` (`'active' | 'sold' | 'archived'`, default `'active'`), `sold_date` (date, nullable), `sold_price` (numeric, nullable), `combined_cycle_consumption` (numeric, L/100km, nullable — manufacturer claim used to anchor the fuel gauge in 2.4)
+- [x] Sold vehicles remain visible in My Garage, visually distinct and read-only — preserves full ownership history
+- [x] `expenses.category`: convert from free-text to a controlled vocabulary — Insurance, Registration, Tyres, Parking, Toll, Cleaning, Roadside, Detailing, Other (Fuel moves to its own table in 2.4)
+- [x] Data migration: map existing free-text values where possible, dump the rest to `Other` with the original text preserved in `description`
 
 ### 2.4 — Fuel log + economy gauge
 
 The headline visual feature. Daily-use driver, screenshot-worthy.
 
-- [ ] New `fuel_logs` table: `vehicle_id`, `user_id`, `date`, `odometer`, `litres`, `total_cost`, `currency`, `station` (nullable), `is_full_tank` (bool default true), `notes`
-- [ ] L/100km computed between consecutive full-tank entries — partial fills counted in spend but skipped from economy calc
-- [ ] Tacho-style gauge on the vehicle dashboard — needle sweeping an amber → green → red gradient, analog feel
-- [ ] **Default anchor:** user's own rolling average across the last 10 full tanks (zero setup, works on any car)
-- [ ] **Override anchor:** if `vehicles.combined_cycle_consumption` is set, anchor the green band to the manufacturer claim — answers "am I beating spec?"
-- [ ] Fuel entries feed the Spend tab automatically (subsume the current Fuel expense category)
+- [x] New `fuel_logs` table: `vehicle_id`, `user_id`, `date`, `odometer`, `litres`, `total_cost`, `currency`, `station` (nullable), `is_full_tank` (bool default true), `notes`
+- [x] L/100km computed between consecutive full-tank entries — partial fills counted in spend but skipped from economy calc
+- [x] Tacho-style gauge on the vehicle dashboard — needle sweeping an amber → green → red gradient, analog feel
+- [x] **Default anchor:** user's own rolling average across the last 10 full tanks (zero setup, works on any car)
+- [x] **Override anchor:** if `vehicles.combined_cycle_consumption` is set, anchor the green band to the manufacturer claim — answers "am I beating spec?"
+- [x] Fuel entries feed the Spend tab automatically (subsume the current Fuel expense category)
 
 ### 2.5 — Document vault
 

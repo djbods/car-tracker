@@ -130,6 +130,7 @@
   .entry-card.mod::before { background: var(--accent); }
   .entry-card.service::before { background: var(--blue); }
   .entry-card.repair::before { background: var(--red); }
+  .entry-card.fuel::before { background: var(--green); }
   .entry-card:active { background: var(--surface2); }
   .entry-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
   .entry-icon.mod { background: rgba(200,168,75,0.12); }
@@ -143,6 +144,7 @@
   .tag.mod { background: rgba(200,168,75,0.12); color: var(--accent2); }
   .tag.service { background: rgba(82,148,224,0.12); color: var(--blue); }
   .tag.repair { background: rgba(224,82,82,0.12); color: var(--red); }
+  .tag.fuel { background: rgba(82,183,136,0.12); color: var(--green); }
   .tag.done { background: rgba(82,183,136,0.12); color: var(--green); }
   .entry-right { text-align: right; flex-shrink: 0; }
   .entry-cost { font-size: 16px; font-weight: 600; }
@@ -260,12 +262,17 @@
   .spend-summary { margin: 0 16px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
   .spend-total { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 1px; color: var(--accent2); line-height: 1; }
   .spend-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
-  .spend-breakdown { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 18px; }
+  /* 2x2 grid so Fuel can join Mods / Service / Repair without crushing the
+     numbers on mobile. The 3-column layout fit fine at 343px, the 4-column
+     one wouldn't — the values are the headline content here, they need room
+     to read at a glance. */
+  .spend-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
   .spend-item { text-align: center; padding: 12px 8px; background: var(--surface2); border-radius: 10px; }
   .spend-item-val { font-size: 18px; font-weight: 600; }
   .spend-item-val.mod { color: var(--accent); }
   .spend-item-val.service { color: var(--blue); }
   .spend-item-val.repair { color: var(--red); }
+  .spend-item-val.fuel { color: var(--green); }
   .spend-item-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
 
   /* Segmented control — drives the time scope on the spend screen */
@@ -282,6 +289,7 @@
   .spend-stack-seg.mod { background: var(--accent); }
   .spend-stack-seg.service { background: var(--blue); }
   .spend-stack-seg.repair { background: var(--red); }
+  .spend-stack-seg.fuel { background: var(--green); }
 
   /* Biggest-mod highlight — single-card "interesting fact" the user
      didn't have to compute. Reuses surface treatment from spend-summary. */
@@ -292,6 +300,48 @@
   .biggest-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.5px; line-height: 1.1; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .biggest-cost { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--accent2); letter-spacing: 0.5px; line-height: 1; flex-shrink: 0; }
   .biggest-meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  /* ── FUEL ECONOMY GAUGE ──
+     Lives on the garage dashboard below the car card. Tacho-style semicircle
+     with green / amber / red zones anchored to either the manufacturer claim
+     (vehicles.combined_cycle_consumption) or the user's rolling average. */
+  .fuel-card { margin: 0 16px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+  .fuel-card-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; gap: 12px; }
+  .fuel-card-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  .fuel-card-anchor { font-size: 11px; color: var(--muted); font-weight: 500; text-align: right; }
+  .fuel-card-anchor strong { color: var(--text); font-weight: 600; }
+  .fuel-gauge-wrap { position: relative; display: flex; flex-direction: column; align-items: center; padding: 8px 0 0; }
+  .fuel-gauge-svg { width: 100%; max-width: 260px; height: auto; display: block; overflow: visible; }
+  .fuel-gauge-arc { fill: none; stroke-width: 14; stroke-linecap: butt; opacity: 0.85; }
+  .fuel-gauge-arc.green { stroke: var(--green); }
+  .fuel-gauge-arc.amber { stroke: var(--accent); }
+  .fuel-gauge-arc.red   { stroke: var(--red); }
+  .fuel-gauge-arc.idle  { stroke: var(--surface2); opacity: 1; }
+  .fuel-gauge-needle { stroke: var(--text); stroke-width: 3; stroke-linecap: round;
+    transform-origin: 110px 120px;
+    transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .fuel-gauge-hub { fill: var(--text); }
+  .fuel-gauge-readout { display: flex; flex-direction: column; align-items: center; }
+  .fuel-gauge-value { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: var(--accent2); letter-spacing: 1px; line-height: 1; }
+  .fuel-gauge-value.muted { color: var(--muted); }
+  .fuel-gauge-unit { font-size: 10px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 4px; }
+  .fuel-gauge-empty { text-align: center; color: var(--muted); padding: 16px 8px 4px; font-size: 13px; font-weight: 300; line-height: 1.5; }
+  .fuel-gauge-empty strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 14px; font-weight: 600; }
+  .fuel-card-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--border); margin-top: 18px; border-radius: 10px; overflow: hidden; }
+  .fuel-card-stat { background: var(--surface2); padding: 11px 6px; text-align: center; }
+  .fuel-card-stat-val { font-size: 15px; font-weight: 600; }
+  .fuel-card-stat-lbl { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 3px; }
+  .fuel-card-cta { width: 100%; margin-top: 16px; background: var(--accent); color: #000; border: none; border-radius: 12px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.3px; cursor: pointer; transition: background 0.15s; }
+  .fuel-card-cta:active { background: var(--accent2); }
+  /* Sold / archived vehicles are read-only — keep the gauge visible but
+     dim the log button so the user can't add to a car they don't own. */
+  body.car-sold .fuel-card-cta { opacity: 0.35; pointer-events: none; }
+
+  /* Inline checkbox row used in the fuel modal. Matches the form spacing
+     elsewhere but inlines label + control rather than stacking them. */
+  .form-check { display: flex; align-items: center; gap: 10px; padding: 4px 2px 8px; }
+  .form-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+  .form-check label { margin: 0; font-size: 13px; color: var(--text); font-weight: 500; cursor: pointer; letter-spacing: 0; text-transform: none; }
 
   /* Category breakdown — horizontal-bar rows showing where mod spend
      actually went. Bar fill is scaled to the largest category in the
@@ -535,6 +585,39 @@
     </div>
   </div>
 
+  <!-- Fuel economy gauge — populated by renderFuelCard().
+       The SVG arc paths are static (180° sweep from 10,120 → 210,120 over
+       radius 100). The needle's rotation and the zone boundaries are set
+       in JS based on the active anchor (manufacturer claim or rolling avg).
+       When there's no data, the empty/partial state replaces the readout. -->
+  <div class="fuel-card" id="fuel-card">
+    <div class="fuel-card-header">
+      <div class="fuel-card-label">Fuel Economy</div>
+      <div class="fuel-card-anchor" id="fuel-anchor-label"></div>
+    </div>
+    <div class="fuel-gauge-wrap">
+      <svg class="fuel-gauge-svg" id="fuel-gauge-svg" viewBox="0 0 220 140" aria-hidden="true">
+        <path id="fuel-zone-green" class="fuel-gauge-arc green" d=""/>
+        <path id="fuel-zone-amber" class="fuel-gauge-arc amber" d=""/>
+        <path id="fuel-zone-red"   class="fuel-gauge-arc red"   d=""/>
+        <path id="fuel-zone-idle"  class="fuel-gauge-arc idle"  d="" style="display:none"/>
+        <line id="fuel-needle" class="fuel-gauge-needle" x1="110" y1="120" x2="110" y2="40"/>
+        <circle class="fuel-gauge-hub" cx="110" cy="120" r="5"/>
+      </svg>
+      <div class="fuel-gauge-readout" id="fuel-gauge-readout">
+        <div class="fuel-gauge-value" id="fuel-gauge-value">—</div>
+        <div class="fuel-gauge-unit">L/100km</div>
+      </div>
+    </div>
+    <div class="fuel-gauge-empty" id="fuel-gauge-empty" style="display:none"></div>
+    <div class="fuel-card-stats" id="fuel-card-stats" style="display:none">
+      <div class="fuel-card-stat"><div class="fuel-card-stat-val" id="fuel-stat-last">—</div><div class="fuel-card-stat-lbl">Last fill</div></div>
+      <div class="fuel-card-stat"><div class="fuel-card-stat-val" id="fuel-stat-tanks">0</div><div class="fuel-card-stat-lbl">Tanks</div></div>
+      <div class="fuel-card-stat"><div class="fuel-card-stat-val" id="fuel-stat-cost">$0</div><div class="fuel-card-stat-lbl">Avg / fill</div></div>
+    </div>
+    <button class="fuel-card-cta" id="fuel-log-btn" type="button">+ Log fill-up</button>
+  </div>
+
   <div class="section-header"><span>Recent Activity</span></div>
   <div class="entries" id="recent-entries">
     <div class="empty"><div class="empty-icon">🔧</div><div class="empty-text">No entries yet.<br>Tap + to log your first mod or service.</div></div>
@@ -569,6 +652,7 @@
       <div class="spend-item"><div class="spend-item-val mod" id="spend-mods">$0</div><div class="spend-item-lbl">Mods</div></div>
       <div class="spend-item"><div class="spend-item-val service" id="spend-service">$0</div><div class="spend-item-lbl">Service</div></div>
       <div class="spend-item"><div class="spend-item-val repair" id="spend-repair">$0</div><div class="spend-item-lbl">Repairs</div></div>
+      <div class="spend-item"><div class="spend-item-val fuel" id="spend-fuel">$0</div><div class="spend-item-lbl">Fuel</div></div>
     </div>
   </div>
   <div class="biggest-card" id="biggest-mod-card" style="display:none">
@@ -828,6 +912,30 @@
   </div>
 </div>
 
+<!-- ADD FUEL MODAL -->
+<div class="modal-overlay" id="fuel-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log Fill-up</div>
+    <div class="form-row">
+      <div class="form-group"><label>Odometer (km)</label><input type="number" id="fuel-input-odo" placeholder="e.g. 187430" inputmode="numeric"></div>
+      <div class="form-group"><label>Date</label><input type="date" id="fuel-input-date"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Litres</label><input type="number" id="fuel-input-litres" step="0.01" min="0" placeholder="e.g. 52.30" inputmode="decimal"></div>
+      <div class="form-group"><label>Total cost (AUD)</label><input type="number" id="fuel-input-cost" step="0.01" min="0" placeholder="e.g. 96.40" inputmode="decimal"></div>
+    </div>
+    <div class="form-group"><label>Station (optional)</label><input type="text" id="fuel-input-station" placeholder="e.g. United, Shell V-Power…"></div>
+    <div class="form-check">
+      <input type="checkbox" id="fuel-input-fulltank" checked>
+      <label for="fuel-input-fulltank">Filled to full — use this fill-up for L/100km</label>
+    </div>
+    <div class="form-group"><label>Notes (optional)</label><textarea id="fuel-input-notes" placeholder="Octane, additives, anything worth remembering…"></textarea></div>
+    <button class="btn-primary" id="save-fuel-btn">Save Fill-up</button>
+    <button class="btn-ghost" id="cancel-fuel-btn">Cancel</button>
+  </div>
+</div>
+
 <!-- GARAGE NAME MODAL -->
 <div class="modal-overlay" id="garage-name-modal">
   <div class="modal">
@@ -911,6 +1019,7 @@ import {
   loadVehicles, upsertVehicle, rowToCar,
   loadEntries, addEntry, deleteEntry, clearAllEntries,
   loadModTitleSuggestions,
+  loadFuelLogs, addFuelLog, deleteFuelLog, computeFuelEconomy,
   uploadVehiclePhoto, getVehiclePhotoUrl,
   getGarageName, setGarageName, DEFAULT_GARAGE_NAME,
 } from './data.js';
@@ -974,6 +1083,7 @@ function dbDel(store, key) {
 const ACTIVE_VEHICLE_KEY = 'activeVehicleId';
 
 let entries  = [];
+let fuelLogs = [];                          // fuel-only entries — kept separate from entries because they carry odometer + litres
 let vehicles = [];                          // every vehicle in the user's garage
 // Empty defaults — the Add Vehicle form is the only path to a populated row,
 // so no make is pre-selected. Keeps onboarding brand-neutral.
@@ -1009,12 +1119,16 @@ async function loadAll() {
     car = { year:'', make:'', model:'', body:'', engine:'', variant:'',
             colour:'', odo:'', odoUnit:'km', nickname:'' };
     entries = [];
+    fuelLogs = [];
     return;
   }
   const stored = localStorage.getItem(ACTIVE_VEHICLE_KEY);
   const active = vehicles.find(v => v.id === stored) || vehicles[0];
   setActiveVehicle(active);
-  entries = await loadEntries(vehicleId);
+  [entries, fuelLogs] = await Promise.all([
+    loadEntries(vehicleId),
+    loadFuelLogs(vehicleId),
+  ]);
 }
 
 // Apply the saved garage name (or the default) to every place it appears.
@@ -1045,11 +1159,15 @@ async function switchVehicle(id) {
   // entries load, so the lists don't briefly read "No entries yet." for a
   // vehicle that actually has entries.
   entries = [];
+  fuelLogs = [];
   isLoadingEntries = true;
   resetPhoto();
   renderAll();
   try {
-    entries = await loadEntries(vehicleId);
+    [entries, fuelLogs] = await Promise.all([
+      loadEntries(vehicleId),
+      loadFuelLogs(vehicleId),
+    ]);
     await loadSavedPhoto();
     showToast(`Switched to ${car.nickname || car.model}`);
   } catch (err) {
@@ -1185,6 +1303,7 @@ const carModal        = document.getElementById('car-modal');
 const garageModal     = document.getElementById('garage-modal');
 const installModal    = document.getElementById('install-modal');
 const garageNameModal = document.getElementById('garage-name-modal');
+const fuelModal       = document.getElementById('fuel-modal');
 const close = m => m.classList.remove('open');
 
 document.getElementById('cancel-btn').onclick               = () => close(addModal);
@@ -1193,7 +1312,8 @@ document.getElementById('detail-close-btn').onclick         = () => close(detail
 document.getElementById('close-garage-btn').onclick         = () => close(garageModal);
 document.getElementById('close-install-modal').onclick      = () => close(installModal);
 document.getElementById('cancel-garage-name-btn').onclick   = () => close(garageNameModal);
-[addModal, detailModal, carModal, garageModal, installModal, garageNameModal].forEach(m =>
+document.getElementById('cancel-fuel-btn').onclick          = () => close(fuelModal);
+[addModal, detailModal, carModal, garageModal, installModal, garageNameModal, fuelModal].forEach(m =>
   m.addEventListener('click', e => { if (e.target === m) close(m); })
 );
 
@@ -1361,6 +1481,28 @@ document.getElementById('save-entry-btn').onclick = async () => {
 // Delete Entry
 // ══════════════════════════════════════════════════════
 document.getElementById('detail-delete-btn').onclick = async () => {
+  // Fuel and regular entries share the detail modal — fuelDetailId is set
+  // only when openFuelDetail() opened the modal, so it's the source of truth.
+  if (fuelDetailId) {
+    if (!confirm('Delete this fill-up?')) return;
+    const target = fuelLogs.find(f => f.id === fuelDetailId);
+    if (!target) return;
+    const removed = fuelLogs;
+    fuelLogs = fuelLogs.filter(f => f.id !== fuelDetailId);
+    close(detailModal);
+    fuelDetailId = null;
+    renderAll();
+    try {
+      await deleteFuelLog(target.id);
+      showToast('Fill-up deleted');
+    } catch (err) {
+      fuelLogs = removed;
+      renderAll();
+      showToast('Delete failed: ' + (err?.message || 'unknown error'));
+    }
+    return;
+  }
+
   if (!detailId || !confirm('Delete this entry?')) return;
   const target = entries.find(e => e.id === detailId);
   if (!target) return;
@@ -1377,6 +1519,83 @@ document.getElementById('detail-delete-btn').onclick = async () => {
     entries = removed;
     renderAll();
     showToast('Delete failed: ' + (err?.message || 'unknown error'));
+  }
+};
+
+// ══════════════════════════════════════════════════════
+// Fuel
+// ══════════════════════════════════════════════════════
+
+document.getElementById('fuel-log-btn').onclick = () => {
+  if (!vehicleId) { openCarModal('add'); return; }
+  if (car.status === 'sold' || car.status === 'archived') {
+    showToast('This vehicle is read-only — change status to Active to log fuel');
+    return;
+  }
+  // Pre-fill odometer with the car's last known reading — most fills happen
+  // within ~700km of the previous one, so even the rough number is closer
+  // than a blank field.
+  document.getElementById('fuel-input-odo').value     = car.odo || '';
+  document.getElementById('fuel-input-date').value    = today();
+  document.getElementById('fuel-input-litres').value  = '';
+  document.getElementById('fuel-input-cost').value    = '';
+  document.getElementById('fuel-input-station').value = '';
+  document.getElementById('fuel-input-notes').value   = '';
+  document.getElementById('fuel-input-fulltank').checked = true;
+  fuelModal.classList.add('open');
+  setTimeout(() => document.getElementById('fuel-input-odo').focus(), 350);
+};
+
+document.getElementById('save-fuel-btn').onclick = async () => {
+  const odo    = parseInt(document.getElementById('fuel-input-odo').value, 10);
+  const litres = parseFloat(document.getElementById('fuel-input-litres').value);
+  if (!Number.isFinite(odo) || odo <= 0) {
+    document.getElementById('fuel-input-odo').focus();
+    showToast('Enter the current odometer reading');
+    return;
+  }
+  if (!Number.isFinite(litres) || litres <= 0) {
+    document.getElementById('fuel-input-litres').focus();
+    showToast('Enter how many litres you put in');
+    return;
+  }
+  if (!vehicleId) { showToast('No vehicle loaded'); return; }
+
+  const costRaw = parseFloat(document.getElementById('fuel-input-cost').value);
+  const draft = {
+    id:         'tmp-' + Date.now(),
+    date:       document.getElementById('fuel-input-date').value || today(),
+    odometer:   odo,
+    litres,
+    totalCost:  Number.isFinite(costRaw) ? costRaw : 0,
+    station:    document.getElementById('fuel-input-station').value.trim(),
+    isFullTank: document.getElementById('fuel-input-fulltank').checked,
+    notes:      document.getElementById('fuel-input-notes').value.trim(),
+  };
+
+  // Optimistic: insert at the front (loadFuelLogs returns date-desc), close
+  // the modal, render, then reconcile with the saved row.
+  fuelLogs.unshift(draft);
+  close(fuelModal);
+  renderAll();
+
+  try {
+    const saved = await addFuelLog(vehicleId, draft);
+    const i = fuelLogs.findIndex(f => f.id === draft.id);
+    if (i !== -1) fuelLogs[i] = saved;
+    // Keep the new fill's odometer in the car row so the next prefill is
+    // accurate. Only bump forward — a fill-up with a lower odo than the
+    // current reading is almost certainly a user typo; don't regress.
+    const currentOdo = parseInt(car.odo, 10);
+    if (!Number.isFinite(currentOdo) || saved.odometer > currentOdo) {
+      car.odo = String(saved.odometer);
+    }
+    renderAll();
+    showToast('Fill-up saved ✓');
+  } catch (err) {
+    fuelLogs = fuelLogs.filter(f => f.id !== draft.id);
+    renderAll();
+    showToast('Save failed: ' + (err?.message || 'unknown error'));
   }
 };
 
@@ -1608,7 +1827,9 @@ document.getElementById('add-vehicle-btn').onclick = () => {
 // Export
 document.getElementById('btn-export').onclick = async () => {
   try {
-    const allEntries = vehicleId ? await loadEntries(vehicleId) : [];
+    const [allEntries, allFuel] = vehicleId
+      ? await Promise.all([loadEntries(vehicleId), loadFuelLogs(vehicleId)])
+      : [[], []];
     // Backups embed the photo as a data URL so they're self-contained.
     let photo = null;
     if (car.photoPath) {
@@ -1626,10 +1847,11 @@ document.getElementById('btn-export').onclick = async () => {
       }
     }
     const payload = {
-      version: 1,
+      version: 2,
       exported: new Date().toISOString(),
       car,
       entries: allEntries,
+      fuelLogs: allFuel,
       photo: photo || null
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -1681,6 +1903,21 @@ document.getElementById('import-input').addEventListener('change', e => {
       }
       entries.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
+      // v2+ backups carry fuel logs separately. Older backups omit the
+      // field entirely, so guard against it before iterating.
+      if (Array.isArray(data.fuelLogs)) {
+        for (const fuel of data.fuelLogs) {
+          try {
+            const saved = await addFuelLog(vehicleId, fuel);
+            fuelLogs.unshift(saved);
+            added++;
+          } catch (err) {
+            console.error('Skipped fuel log during import:', fuel, err);
+          }
+        }
+        fuelLogs.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+      }
+
       // Import the embedded photo straight into Supabase Storage so it
       // follows the account; only do this if the user doesn't already
       // have a photo set, to avoid clobbering a current one.
@@ -1714,6 +1951,7 @@ document.getElementById('btn-clear-data').onclick = async () => {
   try {
     await clearAllEntries(vehicleId);
     entries = [];
+    fuelLogs = [];
     renderAll();
     showToast('All entries deleted');
   } catch (err) {
@@ -1734,8 +1972,8 @@ document.getElementById('dismiss-banner').onclick = () => {
 // ══════════════════════════════════════════════════════
 // Render
 // ══════════════════════════════════════════════════════
-const typeIcons  = { mod:'⚙️', service:'🛠️', repair:'🔧' };
-const typeLabels = { mod:'Mod', service:'Service', repair:'Repair' };
+const typeIcons  = { mod:'⚙️', service:'🛠️', repair:'🔧', fuel:'⛽' };
+const typeLabels = { mod:'Mod', service:'Service', repair:'Repair', fuel:'Fuel' };
 const fmt     = c => '$' + (c||0).toFixed(0);
 const today   = () => new Date().toISOString().split('T')[0];
 const fmtDate = d => new Date(d+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
@@ -1826,6 +2064,9 @@ function makeCard(entry) {
     <div class="entry-right"><div class="entry-cost">${fmt(entry.cost)}</div></div>
   `;
   div.onclick = () => {
+    // The detail modal is shared with fuel entries — clear fuelDetailId so
+    // the delete handler routes to deleteEntry, not deleteFuelLog.
+    fuelDetailId = null;
     detailId = entry.id;
     document.getElementById('detail-title').textContent = entry.title;
     document.getElementById('detail-body').innerHTML = `
@@ -1839,6 +2080,53 @@ function makeCard(entry) {
   };
   return div;
 }
+
+// Fuel rows look like regular entries on the Spend tab, but carry odometer
+// + litres on the detail view. Built as a dedicated card so the detail
+// modal can show fuel-specific fields without forking makeCard's signature.
+function makeFuelCard(fuel) {
+  const div = document.createElement('div');
+  div.className = 'entry-card fuel';
+  const title = fuel.station ? `Fuel — ${fuel.station}` : 'Fuel';
+  div.innerHTML = `
+    <div class="entry-icon fuel">⛽</div>
+    <div class="entry-content">
+      <div class="entry-title">${title}</div>
+      <div class="entry-meta">${fmtDate(fuel.date)} · ${fuel.litres.toFixed(2)} L · ${fuel.odometer.toLocaleString('en-AU')} km</div>
+      <div class="entry-tags">
+        <span class="tag fuel">Fuel</span>
+        ${fuel.isFullTank ? '' : '<span class="tag">Partial</span>'}
+        ${fuel.notes ? '<span class="tag done">Notes</span>' : ''}
+      </div>
+    </div>
+    <div class="entry-right"><div class="entry-cost">${fmt(fuel.totalCost)}</div></div>
+  `;
+  div.onclick = () => openFuelDetail(fuel);
+  return div;
+}
+
+function openFuelDetail(fuel) {
+  fuelDetailId = fuel.id;
+  detailId = null;  // fuel + entry detail share the modal — disambiguate via fuelDetailId
+  const title = fuel.station ? `Fuel — ${fuel.station}` : 'Fuel';
+  document.getElementById('detail-title').textContent = title;
+  const lp100 = fuel.litres > 0 && fuel.totalCost > 0 ? (fuel.totalCost / fuel.litres) : null;
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-row"><span class="detail-key">Type</span><span class="tag fuel">Fuel${fuel.isFullTank ? '' : ' (partial)'}</span></div>
+    <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${fmtDate(fuel.date)}</span></div>
+    <div class="detail-row"><span class="detail-key">Odometer</span><span class="detail-val">${fuel.odometer.toLocaleString('en-AU')} km</span></div>
+    <div class="detail-row"><span class="detail-key">Litres</span><span class="detail-val">${fuel.litres.toFixed(2)} L</span></div>
+    <div class="detail-row"><span class="detail-key">Cost</span><span class="detail-val" style="color:var(--accent2);font-size:18px;font-weight:700">${fmt(fuel.totalCost)}</span></div>
+    ${lp100 ? `<div class="detail-row"><span class="detail-key">Price / L</span><span class="detail-val">$${lp100.toFixed(2)}</span></div>` : ''}
+    ${fuel.notes ? `<div class="detail-row" style="flex-direction:column;gap:8px;align-items:flex-start"><span class="detail-key">Notes</span><span class="detail-val" style="font-weight:300;line-height:1.6;text-align:left">${fuel.notes}</span></div>` : ''}
+  `;
+  detailModal.classList.add('open');
+}
+
+// Tracks which fuel entry is open in the shared detail modal. Cleared
+// whenever a regular entry opens the modal so the delete button knows
+// which table to hit.
+let fuelDetailId = null;
 
 function renderList(id, filter) {
   const el   = document.getElementById(id);
@@ -1875,21 +2163,29 @@ function renderStats() {
   }
 }
 
-// Filter the in-memory entries array down to the active spend scope.
-// 'all' returns everything; 'year' is from Jan 1 of the current year;
-// '30d' is the trailing 30 days from local midnight today.
-function entriesInScope() {
-  if (spendScope === 'all') return entries;
+// Return the inclusive date cutoff for the active spend scope, or null if
+// the scope is 'all'. Shared between entriesInScope() and fuel filtering
+// so they always agree on what "in scope" means.
+function scopeCutoff() {
+  if (spendScope === 'all') return null;
   const now = new Date();
-  let cutoff;
-  if (spendScope === 'year') {
-    cutoff = new Date(now.getFullYear(), 0, 1);
-  } else {
-    cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - 30);
-    cutoff.setHours(0, 0, 0, 0);
-  }
+  if (spendScope === 'year') return new Date(now.getFullYear(), 0, 1);
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  cutoff.setHours(0, 0, 0, 0);
+  return cutoff;
+}
+
+function entriesInScope() {
+  const cutoff = scopeCutoff();
+  if (!cutoff) return entries;
   return entries.filter(e => new Date(e.date) >= cutoff);
+}
+
+function fuelInScope() {
+  const cutoff = scopeCutoff();
+  if (!cutoff) return fuelLogs;
+  return fuelLogs.filter(f => new Date(f.date) >= cutoff);
 }
 
 // Renders every visual on the Spend screen against the active scope:
@@ -1897,13 +2193,15 @@ function entriesInScope() {
 // bars, and the scope-filtered transactions list.
 function renderSpendScreen() {
   const scoped = entriesInScope();
+  const fuelScoped = fuelInScope();
   const mod = scoped.filter(e => e.type === 'mod');
   const svc = scoped.filter(e => e.type === 'service');
   const rep = scoped.filter(e => e.type === 'repair');
-  const modTotal = mod.reduce((s,e) => s + e.cost, 0);
-  const svcTotal = svc.reduce((s,e) => s + e.cost, 0);
-  const repTotal = rep.reduce((s,e) => s + e.cost, 0);
-  const total    = modTotal + svcTotal + repTotal;
+  const modTotal  = mod.reduce((s,e) => s + e.cost, 0);
+  const svcTotal  = svc.reduce((s,e) => s + e.cost, 0);
+  const repTotal  = rep.reduce((s,e) => s + e.cost, 0);
+  const fuelTotal = fuelScoped.reduce((s,f) => s + (f.totalCost || 0), 0);
+  const total     = modTotal + svcTotal + repTotal + fuelTotal;
 
   // Hero numbers + scope label
   document.getElementById('spend-scope-label').textContent = SCOPE_LABELS[spendScope];
@@ -1911,6 +2209,7 @@ function renderSpendScreen() {
   document.getElementById('spend-mods').textContent    = fmt(modTotal);
   document.getElementById('spend-service').textContent = fmt(svcTotal);
   document.getElementById('spend-repair').textContent  = fmt(repTotal);
+  document.getElementById('spend-fuel').textContent    = fmt(fuelTotal);
 
   // Stacked proportion bar — only render segments that have spend.
   const stack = document.getElementById('spend-stack');
@@ -1920,6 +2219,7 @@ function renderSpendScreen() {
       { type: 'mod', val: modTotal },
       { type: 'service', val: svcTotal },
       { type: 'repair', val: repTotal },
+      { type: 'fuel', val: fuelTotal },
     ].filter(s => s.val > 0).forEach(s => {
       const seg = document.createElement('div');
       seg.className = `spend-stack-seg ${s.type}`;
@@ -1978,11 +2278,14 @@ function renderSpendScreen() {
     }
   }
 
-  // Transactions list — scope-aware. renderList's existing path handles
-  // loading/empty states, but it always reads from `entries`. Re-render
-  // by hand here so the spend list respects the time filter.
+  // Transactions list — scope-aware. Merge entry + fuel rows by date so
+  // they interleave in the order they happened, not bunched by type.
   const txEl = document.getElementById('spend-entries');
-  if (!scoped.length) {
+  const merged = [
+    ...scoped.map(e => ({ kind: 'entry', date: e.date, payload: e })),
+    ...fuelScoped.map(f => ({ kind: 'fuel',  date: f.date, payload: f })),
+  ].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  if (!merged.length) {
     if (isLoadingEntries) {
       txEl.innerHTML = `<div class="empty"><div class="list-spinner"></div><div class="empty-text">Loading…</div></div>`;
     } else {
@@ -1990,12 +2293,165 @@ function renderSpendScreen() {
     }
   } else {
     txEl.replaceChildren();
-    scoped.forEach(e => txEl.appendChild(makeCard(e)));
+    merged.forEach(row => {
+      txEl.appendChild(row.kind === 'fuel' ? makeFuelCard(row.payload) : makeCard(row.payload));
+    });
   }
+}
+
+// ══════════════════════════════════════════════════════
+// Fuel economy gauge
+// ══════════════════════════════════════════════════════
+// SVG arcs sweep 180° from (10,120) on the left, over (110,20) at the top,
+// to (210,120) on the right — radius 100, centre (110,120). A fraction f
+// (0..1) of the L/100km range maps to angle θ = (f − 0.5) × π, with the
+// arc point at (110 + 100·sin θ, 120 − 100·cos θ). The needle uses the
+// same θ but applied via SVG rotation around the centre.
+function gaugeArcPoint(f) {
+  const theta = (f - 0.5) * Math.PI;
+  return {
+    x: 110 + 100 * Math.sin(theta),
+    y: 120 - 100 * Math.cos(theta),
+  };
+}
+
+function gaugeArcPath(fStart, fEnd) {
+  if (fEnd <= fStart) return '';
+  const a = gaugeArcPoint(fStart);
+  const b = gaugeArcPoint(fEnd);
+  // large-arc=0 (always < 180° since fEnd−fStart ≤ 1), sweep=1 (clockwise,
+  // which traces the top semicircle from left to right).
+  return `M ${a.x.toFixed(2)} ${a.y.toFixed(2)} A 100 100 0 0 1 ${b.x.toFixed(2)} ${b.y.toFixed(2)}`;
+}
+
+function renderFuelCard() {
+  const valueEl    = document.getElementById('fuel-gauge-value');
+  const readoutEl  = document.getElementById('fuel-gauge-readout');
+  const emptyEl    = document.getElementById('fuel-gauge-empty');
+  const statsEl    = document.getElementById('fuel-card-stats');
+  const anchorEl   = document.getElementById('fuel-anchor-label');
+  const greenArc   = document.getElementById('fuel-zone-green');
+  const amberArc   = document.getElementById('fuel-zone-amber');
+  const redArc     = document.getElementById('fuel-zone-red');
+  const idleArc    = document.getElementById('fuel-zone-idle');
+  const needle     = document.getElementById('fuel-needle');
+
+  // No vehicle yet → hide the card entirely. renderCarCard does the same
+  // for the rest of the dashboard.
+  const card = document.getElementById('fuel-card');
+  if (!vehicleId) { card.style.display = 'none'; return; }
+  card.style.display = '';
+
+  const { samples, rolling } = computeFuelEconomy(fuelLogs);
+  const claim = parseFloat(car.combinedCycleConsumption);
+  const hasClaim = Number.isFinite(claim) && claim > 0;
+  const anchor = hasClaim ? claim : rolling;
+
+  // Empty / partial states — replace the readout text but still draw a
+  // muted arc so the card has visual presence on day one.
+  if (!fuelLogs.length) {
+    valueEl.textContent = '—';
+    valueEl.classList.add('muted');
+    readoutEl.style.display = 'none';
+    statsEl.style.display = 'none';
+    emptyEl.style.display = '';
+    emptyEl.innerHTML = `<strong>No fill-ups yet</strong>Log your first fuel-up to start tracking L/100km.`;
+    anchorEl.innerHTML = hasClaim ? `Spec: <strong>${claim.toFixed(1)}</strong> L/100km` : '';
+    // Draw an idle arc and reset the needle to the centre.
+    greenArc.setAttribute('d', '');
+    amberArc.setAttribute('d', '');
+    redArc.setAttribute('d', '');
+    idleArc.setAttribute('d', gaugeArcPath(0, 1));
+    idleArc.style.display = '';
+    needle.style.transform = 'rotate(0deg)';
+    return;
+  }
+
+  // ≥1 fill but no complete tank-to-tank pair → encourage another full tank.
+  if (!samples.length && !hasClaim) {
+    valueEl.textContent = '—';
+    valueEl.classList.add('muted');
+    readoutEl.style.display = 'none';
+    statsEl.style.display = '';
+    emptyEl.style.display = '';
+    emptyEl.innerHTML = `<strong>One more full tank to go</strong>L/100km needs two consecutive full tank-ups to compute.`;
+    anchorEl.textContent = '';
+    greenArc.setAttribute('d', '');
+    amberArc.setAttribute('d', '');
+    redArc.setAttribute('d', '');
+    idleArc.setAttribute('d', gaugeArcPath(0, 1));
+    idleArc.style.display = '';
+    needle.style.transform = 'rotate(0deg)';
+    renderFuelStats(samples, rolling);
+    return;
+  }
+
+  // Full computation: anchor exists (claim or rolling), gauge is "live".
+  // Pick a max for the dial: keep room above both the current rolling avg
+  // and the anchor's red zone so the needle is never pegged. Floor at 15
+  // so small-car gauges still feel proportional.
+  const needleValue = rolling != null ? rolling : anchor;
+  const max = Math.max(needleValue * 1.4, anchor * 1.8, 15);
+
+  // Zone boundaries: green up to anchor (meeting or beating it), amber from
+  // anchor to +20%, red above. Anchor-as-green-edge means hitting spec
+  // visually reads as a win — the brief frames the gauge as "am I beating
+  // spec?", not "am I within ±20% of spec?"
+  const greenEnd = Math.min(anchor / max, 1);
+  const amberEnd = Math.min(anchor * 1.2 / max, 1);
+  greenArc.setAttribute('d', gaugeArcPath(0, greenEnd));
+  amberArc.setAttribute('d', gaugeArcPath(greenEnd, amberEnd));
+  redArc.setAttribute('d', gaugeArcPath(amberEnd, 1));
+  idleArc.style.display = 'none';
+
+  // Needle: clamp inside the dial so an extreme reading still points
+  // at the red end rather than swinging off-screen.
+  const f = Math.max(0, Math.min(1, needleValue / max));
+  const angleDeg = (f - 0.5) * 180;
+  needle.style.transform = `rotate(${angleDeg.toFixed(2)}deg)`;
+
+  if (rolling != null) {
+    valueEl.textContent = rolling.toFixed(1);
+    valueEl.classList.remove('muted');
+    readoutEl.style.display = '';
+    emptyEl.style.display = 'none';
+  } else {
+    // Claim-anchored but no rolling avg yet (single full tank logged).
+    valueEl.textContent = '—';
+    valueEl.classList.add('muted');
+    readoutEl.style.display = 'none';
+    emptyEl.style.display = '';
+    emptyEl.innerHTML = `<strong>One more full tank to go</strong>L/100km needs two consecutive full tank-ups to compute.`;
+  }
+
+  anchorEl.innerHTML = hasClaim
+    ? `Spec: <strong>${claim.toFixed(1)}</strong> L/100km`
+    : `<strong>Your rolling avg</strong>`;
+
+  statsEl.style.display = '';
+  renderFuelStats(samples, rolling);
+}
+
+function renderFuelStats(samples, rolling) {
+  const lastEl  = document.getElementById('fuel-stat-last');
+  const tanksEl = document.getElementById('fuel-stat-tanks');
+  const costEl  = document.getElementById('fuel-stat-cost');
+  const sortedByDate = [...fuelLogs].sort((a, b) => (a.date < b.date ? 1 : -1));
+  const latest = sortedByDate[0];
+  if (latest) {
+    const days = Math.floor((Date.now() - new Date(latest.date + 'T00:00:00')) / 86400000);
+    lastEl.textContent = days === 0 ? 'Today' : days === 1 ? '1 day' : `${days} days`;
+  } else {
+    lastEl.textContent = '—';
+  }
+  tanksEl.textContent = String(fuelLogs.length);
+  const totalCost = fuelLogs.reduce((s, f) => s + (f.totalCost || 0), 0);
+  costEl.textContent = fuelLogs.length ? fmt(totalCost / fuelLogs.length) : '$0';
 }
 
 function renderAll() {
   renderCarCard(); renderStats();
+  renderFuelCard();
   renderList('recent-entries', null);
   renderList('mod-entries',    'mod');
   renderList('service-entries','service');
