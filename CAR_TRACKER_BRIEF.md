@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-The E39 Garage Tracker is a mobile-first PWA for logging modifications, service history, and spending on a BMW E39. Currently deployed at [e39-tracker.netlify.app](https://e39-tracker.netlify.app) from the `jackbodsworth/car-tracker` GitHub repo. Storage is currently handled via **supabase**.
+The E39 Garage Tracker is a mobile-first PWA for logging modifications, service history, and spending on a BMW E39. Currently deployed at [e39-tracker.netlify.app](https://e39-tracker.netlify.app) from the `djbods/car-tracker` GitHub repo. Storage is currently handled via **supabase**.
 
 The goal of this project is to evolve the app into a **generalised, multi-platform car tracker SaaS** — with E39 as the first supported platform — capable of supporting paying users across multiple vehicles and platforms in the future.
 
