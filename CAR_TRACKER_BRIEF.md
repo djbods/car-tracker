@@ -193,12 +193,12 @@ Small foundational migration. Ship first — unblocks every section below.
 
 The headline visual feature. Daily-use driver, screenshot-worthy.
 
-- [ ] New `fuel_logs` table: `vehicle_id`, `user_id`, `date`, `odometer`, `litres`, `total_cost`, `currency`, `station` (nullable), `is_full_tank` (bool default true), `notes`
-- [ ] L/100km computed between consecutive full-tank entries — partial fills counted in spend but skipped from economy calc
-- [ ] Tacho-style gauge on the vehicle dashboard — needle sweeping an amber → green → red gradient, analog feel
-- [ ] **Default anchor:** user's own rolling average across the last 10 full tanks (zero setup, works on any car)
-- [ ] **Override anchor:** if `vehicles.combined_cycle_consumption` is set, anchor the green band to the manufacturer claim — answers "am I beating spec?"
-- [ ] Fuel entries feed the Spend tab automatically (subsume the current Fuel expense category)
+- [x] New `fuel_logs` table: `vehicle_id`, `user_id`, `date`, `odometer`, `litres`, `total_cost`, `currency`, `station` (nullable), `is_full_tank` (bool default true), `notes`
+- [x] L/100km computed between consecutive full-tank entries — partial fills counted in spend but skipped from economy calc
+- [x] Tacho-style gauge on the vehicle dashboard — needle sweeping an amber → green → red gradient, analog feel
+- [x] **Default anchor:** user's own rolling average across the last 10 full tanks (zero setup, works on any car)
+- [x] **Override anchor:** if `vehicles.combined_cycle_consumption` is set, anchor the green band to the manufacturer claim — answers "am I beating spec?"
+- [x] Fuel entries feed the Spend tab automatically (subsume the current Fuel expense category)
 
 ### 2.5 — Document vault
 
