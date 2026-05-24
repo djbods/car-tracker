@@ -227,10 +227,28 @@ User-defined intervals to start. Per-platform defaults are deferred to Phase 3 a
 - [ ] Scoped to the currently selected vehicle by default, with an "All vehicles" option
 - [ ] **PDF export** (the original pre-sale handover report) remains in scope but is now downstream of the Excel work — same data pipeline, different layout
 
-### Other Phase 2 items (not yet scheduled)
+### 2.8 — Tiering & monetisation
 
-- **Stripe payments** — free tier (1 vehicle, no export, no document vault) vs paid tier (unlimited vehicles, Excel/JSON/PDF export, document vault, reminders)
-- *(Photo attachments rolled into 2.5; PDF export rolled into 2.7; Reminders rolled into 2.6.)*
+The free/paid split needs to be locked in before the beta closes, even though Stripe integration itself lands later.
+
+**Beta posture:** everything free during beta, with clear "Free in beta — paid post-launch" labels on premium features so early users aren't surprised. Beta users get grandfathered into a lifetime discount as a thank-you.
+
+| Tier | Features |
+|---|---|
+| **Free forever** | 1 vehicle; service / mod / expense logs; fuel log + economy gauge; spend analytics (current scope) |
+| **Paid (~$5–8 AUD/mo or ~$50/yr)** | Unlimited vehicles; document vault (2.5); reminders (2.6); Excel / JSON / PDF export (2.7); full historical analytics |
+
+Reasoning for the split:
+- Fuel gauge stays free — it's the screenshot-worthy hook that drives word-of-mouth signups
+- Document vault is the strongest paid hook — daily utility with expiry alerts
+- Multi-vehicle gate filters perfectly: enthusiasts with 2+ cars are the willing-to-pay segment
+- PDF pre-sale handover report is a one-shot conversion moment; one month's sub then churn is fine
+
+- [ ] Stripe integration (wire up close to public launch)
+- [ ] Tier enforcement in app (feature flags driven by subscription status)
+- [ ] Grandfathering logic for beta cohort
+
+*(Photo attachments rolled into 2.5; PDF export rolled into 2.7; Reminders rolled into 2.6.)*
 
 ---
 
@@ -240,6 +258,21 @@ User-defined intervals to start. Per-platform defaults are deferred to Phase 3 a
 - **Community layer** — public build profiles, browse other users' builds
 - **Platform-specific defaults** — pre-populated common service intervals (auto-fill "engine oil every 10,000 km" when a BMW is added — the smart layer on top of user-defined intervals from 2.6) and mod categories per model
 - **Curated brand lists per platform** — once platform-awareness lands, layer curated popular-brand suggestions on top of the organic autocomplete from Phase 2.1 (deferred from Dad's original suggestion; doing it sooner would mean per-platform curation + maintenance burden). Ship together with platform-specific service-interval defaults — same curation work
+
+---
+
+## Beta Launch Readiness
+
+Things that aren't features but must be true before opening up to real users. Can ship alongside the remaining Phase 2 work — not gated on full Phase 2 completion.
+
+- [ ] **Per-user storage caps** — set before 2.5 ships (~50MB free / ~1GB paid). PDFs and photos are 100–1000× larger than text rows; uncapped uploads will burn the Supabase storage budget fast
+- [ ] **Error logging** — Sentry free tier or Supabase's built-in logs dashboard so real-world failures we can't reproduce locally are visible
+- [ ] **Basic usage telemetry** — signups, DAU, feature usage; enough to know if anyone is actually using it
+- [ ] **Privacy & terms pages** — minimum-viable versions before collecting real user data beyond the closed beta
+- [ ] **Database backup posture** — Supabase Pro takes daily backups; free tier doesn't. Decide if we upgrade before public launch
+- [ ] **Auth rate limiting verified** — Supabase has it by default, just confirm it's on for the production project
+
+At ~100 users the database itself is a non-event (well inside free tier; hot-path indexes already in place). Storage and observability are the real risks.
 
 ---
 
