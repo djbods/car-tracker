@@ -385,3 +385,130 @@ export async function getVehiclePhotoUrl(photoPath) {
   if (error) throw error;
   return data.signedUrl;
 }
+
+// ──────────────────────────────────────────────────────────────────
+// Documents (Supabase table + Storage bucket)
+// ──────────────────────────────────────────────────────────────────
+//
+// Bucket: 'documents' (private). Folder-per-user RLS, same pattern as
+// car-photos. Path convention: <user_id>/<vehicle_id>/<uuid>.<ext>.
+// The metadata (title, type, expiry, etc.) lives in the documents table;
+// the file itself in Storage. file_size_bytes is denormalised onto the
+// row so the per-user usage check is one cheap query instead of a stat.
+
+const DOCUMENTS_BUCKET = 'documents';
+
+// 50MB total per user during beta. Soft cap enforced client-side — when
+// tier flags ship in 2.8 this becomes free=50MB / paid=1GB driven by
+// subscription state, ideally validated server-side.
+export const DOCUMENT_STORAGE_LIMIT_BYTES = 50 * 1024 * 1024;
+
+export const DOCUMENT_TYPES = [
+  'Insurance', 'Registration', 'Roadworthy', 'Warranty',
+  'Manual', 'Receipt', 'Other',
+];
+
+function documentRowToEntry(r) {
+  return {
+    id:            r.id,
+    vehicleId:     r.vehicle_id,
+    type:          r.type,
+    title:         r.title,
+    filePath:      r.file_path,
+    fileSizeBytes: r.file_size_bytes != null ? Number(r.file_size_bytes) : 0,
+    mimeType:      r.mime_type || '',
+    expiryDate:    r.expiry_date || '',
+    notes:         r.notes || '',
+    createdAt:     r.created_at,
+  };
+}
+
+export async function loadDocuments(vehicleId) {
+  if (!vehicleId) return [];
+  const { data, error } = await supabase
+    .from('documents')
+    .select('*')
+    .eq('vehicle_id', vehicleId)
+    .order('expiry_date', { ascending: true, nullsFirst: false });
+  if (error) throw error;
+  return (data || []).map(documentRowToEntry);
+}
+
+// Sum bytes across every document the signed-in user owns, scoped by RLS.
+// Used to decide whether the next upload would push them over the cap.
+export async function getUserStorageUsageBytes() {
+  const { data, error } = await supabase
+    .from('documents')
+    .select('file_size_bytes');
+  if (error) throw error;
+  return (data || []).reduce((sum, r) => sum + (Number(r.file_size_bytes) || 0), 0);
+}
+
+function fileExtension(file) {
+  const name = file?.name || '';
+  const dot = name.lastIndexOf('.');
+  return dot >= 0 ? name.slice(dot + 1).toLowerCase() : '';
+}
+
+// Uploads the file then writes the metadata row. Returns the saved entry.
+// Caller is responsible for checking storage cap *before* invoking this —
+// keeps the UI in charge of showing a friendly cap-exceeded message.
+export async function addDocument(vehicleId, doc, file) {
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  if (!user) throw new Error('Not signed in');
+  if (!vehicleId) throw new Error('No vehicle selected');
+  if (!file) throw new Error('No file provided');
+  if (!DOCUMENT_TYPES.includes(doc.type)) throw new Error('Invalid document type');
+
+  const ext = fileExtension(file);
+  const objectName = `${crypto.randomUUID()}${ext ? '.' + ext : ''}`;
+  const path = `${user.id}/${vehicleId}/${objectName}`;
+
+  const { error: upErr } = await supabase.storage
+    .from(DOCUMENTS_BUCKET)
+    .upload(path, file, { upsert: false, contentType: file.type || 'application/octet-stream' });
+  if (upErr) throw upErr;
+
+  const { data, error } = await supabase.from('documents').insert({
+    vehicle_id:      vehicleId,
+    user_id:         user.id,
+    type:            doc.type,
+    title:           (doc.title || '').trim() || file.name,
+    file_path:       path,
+    file_size_bytes: file.size || null,
+    mime_type:       file.type || null,
+    expiry_date:     doc.expiryDate || null,
+    notes:           (doc.notes || '').trim() || null,
+  }).select().single();
+
+  if (error) {
+    // Roll back the orphaned Storage object so a row failure doesn't leak bytes.
+    await supabase.storage.from(DOCUMENTS_BUCKET).remove([path]).catch(() => {});
+    throw error;
+  }
+  return documentRowToEntry(data);
+}
+
+export async function deleteDocument(doc) {
+  if (!doc?.id) return;
+  // Storage first — if the row delete fails we'd rather have a dangling
+  // row pointing at a missing object than a live row pointing at deleted
+  // bytes the user thinks are still backed up.
+  if (doc.filePath) {
+    await supabase.storage.from(DOCUMENTS_BUCKET).remove([doc.filePath]).catch(() => {});
+  }
+  const { error } = await supabase.from('documents').delete().eq('id', doc.id);
+  if (error) throw error;
+}
+
+// Signed URL good for one hour. Long enough to open / preview / download
+// within a session; short enough that a leaked link expires quickly.
+export async function getDocumentUrl(filePath) {
+  if (!filePath) return null;
+  const { data, error } = await supabase.storage
+    .from(DOCUMENTS_BUCKET)
+    .createSignedUrl(filePath, 60 * 60);
+  if (error) throw error;
+  return data.signedUrl;
+}

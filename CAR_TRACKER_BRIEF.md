@@ -204,9 +204,9 @@ The headline visual feature. Daily-use driver, screenshot-worthy.
 
 Supersedes the original "Photo attachments" bullet — broader and more valuable.
 
-- [ ] Supabase Storage bucket with per-user RLS scoping
-- [ ] New `documents` table: `vehicle_id`, `user_id`, `type` (Insurance / Registration / Roadworthy / Warranty / Manual / Receipt / Other), `title`, `file_path`, `expiry_date` (date, nullable), `notes`, `created_at`
-- [ ] Per-vehicle Documents tab — upload, inline preview (image + PDF), download
+- [x] Supabase Storage bucket with per-user RLS scoping
+- [x] New `documents` table: `vehicle_id`, `user_id`, `type` (Insurance / Registration / Roadworthy / Warranty / Manual / Receipt / Other), `title`, `file_path`, `expiry_date` (date, nullable), `notes`, `created_at`
+- [x] Per-vehicle Documents tab — upload, inline preview (image + PDF), download
 - [ ] `expiry_date` feeds the reminder surface in 2.6 — "Insurance expires in 14 days"
 - [ ] Photo attachments on service / mod logs remain in scope but reuse the same storage bucket
 

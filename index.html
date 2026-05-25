@@ -356,6 +356,29 @@
   .category-bar-track { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
   .category-bar-fill { height: 100%; background: var(--accent); transition: width 0.35s ease; border-radius: 3px; }
 
+  /* ── DOCUMENTS ── */
+  .doc-storage-meter { margin: 0 16px 14px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+  .doc-storage-meter-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 300; }
+  .doc-storage-meter-row strong { color: var(--text); font-weight: 600; }
+  .doc-storage-bar-track { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .doc-storage-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.35s ease, background 0.2s; }
+  .doc-storage-bar-fill.warn { background: var(--red); }
+  .doc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; display: flex; gap: 14px; align-items: center; cursor: pointer; transition: background 0.15s; position: relative; overflow: hidden; }
+  .doc-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
+  .doc-card:active { background: var(--surface2); }
+  .doc-icon { width: 38px; height: 38px; border-radius: 10px; background: rgba(200,168,75,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
+  .doc-content { flex: 1; min-width: 0; }
+  .doc-title { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .doc-meta { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 300; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .doc-type-pill { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: rgba(200,168,75,0.10); color: var(--accent2); border: 1px solid rgba(200,168,75,0.18); }
+  .doc-expiry-pill { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 999px; }
+  .doc-expiry-pill.ok      { background: rgba(82,183,136,0.10); color: var(--green);  border: 1px solid rgba(82,183,136,0.22); }
+  .doc-expiry-pill.soon    { background: rgba(200,168,75,0.10); color: var(--accent2); border: 1px solid rgba(200,168,75,0.22); }
+  .doc-expiry-pill.overdue { background: rgba(224,82,82,0.10);  color: var(--red);    border: 1px solid rgba(224,82,82,0.22); }
+  .doc-preview-frame { width: 100%; aspect-ratio: 3 / 4; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 12px 0; display: flex; align-items: center; justify-content: center; }
+  .doc-preview-frame img, .doc-preview-frame iframe { width: 100%; height: 100%; border: none; display: block; object-fit: contain; background: #000; }
+  .doc-preview-fallback { color: var(--muted); font-size: 13px; padding: 24px; text-align: center; }
+
   /* ── ACCOUNT / SETTINGS ── */
   .settings-section { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
   .settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
@@ -669,6 +692,21 @@
   <div class="entries" id="spend-entries"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nothing spent yet.<br>(Enjoy it while it lasts.)</div></div></div>
 </div>
 
+<!-- DOCUMENTS -->
+<div class="screen" id="screen-documents">
+  <div class="header"><div class="header-label">Glovebox</div><div class="header-title">Documents</div></div>
+  <div class="doc-storage-meter" id="doc-storage-meter">
+    <div class="doc-storage-meter-row">
+      <span>Storage</span>
+      <span><strong id="doc-storage-used">0 KB</strong> / <span id="doc-storage-limit">50 MB</span></span>
+    </div>
+    <div class="doc-storage-bar-track"><div class="doc-storage-bar-fill" id="doc-storage-bar" style="width:0%"></div></div>
+  </div>
+  <div class="entries" id="document-entries">
+    <div class="empty"><div class="empty-icon">📁</div><div class="empty-text">No documents yet.<br>Tap + to upload insurance, rego, receipts and more.</div></div>
+  </div>
+</div>
+
 <!-- SETTINGS / ACCOUNT -->
 <div class="screen" id="screen-settings">
   <div class="header"><div class="header-label">App</div><div class="header-title">Settings</div></div>
@@ -756,6 +794,9 @@
   </button>
   <button class="nav-item" data-screen="spend">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Spend
+  </button>
+  <button class="nav-item" data-screen="documents">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Docs
   </button>
   <button class="nav-item" data-screen="settings">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings
@@ -936,6 +977,59 @@
   </div>
 </div>
 
+<!-- ADD DOCUMENT MODAL -->
+<div class="modal-overlay" id="document-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Document</div>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="doc-input-type">
+        <option value="">— Select type —</option>
+        <option value="Insurance">Insurance</option>
+        <option value="Registration">Registration</option>
+        <option value="Roadworthy">Roadworthy</option>
+        <option value="Warranty">Warranty</option>
+        <option value="Manual">Manual</option>
+        <option value="Receipt">Receipt</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="doc-input-title" placeholder="e.g. RACV Comprehensive 2026">
+    </div>
+    <div class="form-group">
+      <label>File (image or PDF, max 10MB)</label>
+      <input type="file" id="doc-input-file" accept="image/*,application/pdf">
+      <span class="form-hint" id="doc-file-hint" style="display:none"></span>
+    </div>
+    <div class="form-group">
+      <label>Expiry date (optional)</label>
+      <input type="date" id="doc-input-expiry">
+    </div>
+    <div class="form-group">
+      <label>Notes (optional)</label>
+      <textarea id="doc-input-notes" placeholder="Policy number, claim contact, anything worth remembering…"></textarea>
+    </div>
+    <button class="btn-primary" id="save-doc-btn">Save Document</button>
+    <button class="btn-ghost" id="cancel-doc-btn">Cancel</button>
+  </div>
+</div>
+
+<!-- DOCUMENT PREVIEW MODAL -->
+<div class="modal-overlay" id="doc-preview-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="doc-preview-title"></div>
+    <div id="doc-preview-meta" style="font-size:12px;color:var(--muted);margin-bottom:4px"></div>
+    <div class="doc-preview-frame" id="doc-preview-frame"></div>
+    <a id="doc-preview-download" class="btn-primary" target="_blank" rel="noopener" style="text-decoration:none;text-align:center;display:block;box-sizing:border-box">Download</a>
+    <button class="btn-ghost danger" id="doc-delete-btn" style="margin-top:8px">Delete</button>
+    <button class="btn-ghost" id="doc-preview-close-btn">Close</button>
+  </div>
+</div>
+
 <!-- GARAGE NAME MODAL -->
 <div class="modal-overlay" id="garage-name-modal">
   <div class="modal">
@@ -1022,6 +1116,8 @@ import {
   loadFuelLogs, addFuelLog, deleteFuelLog, computeFuelEconomy,
   uploadVehiclePhoto, getVehiclePhotoUrl,
   getGarageName, setGarageName, DEFAULT_GARAGE_NAME,
+  loadDocuments, addDocument, deleteDocument, getDocumentUrl,
+  getUserStorageUsageBytes, DOCUMENT_STORAGE_LIMIT_BYTES,
 } from './data.js';
 import { renderBrandLogo } from './logos.js';
 
@@ -1084,6 +1180,8 @@ const ACTIVE_VEHICLE_KEY = 'activeVehicleId';
 
 let entries  = [];
 let fuelLogs = [];                          // fuel-only entries — kept separate from entries because they carry odometer + litres
+let documents = [];                         // documents for the active vehicle (Glovebox tab)
+let userStorageBytes = 0;                   // total bytes the user has uploaded across all vehicles — backs the 50MB soft cap
 let vehicles = [];                          // every vehicle in the user's garage
 // Empty defaults — the Add Vehicle form is the only path to a populated row,
 // so no make is pre-selected. Keeps onboarding brand-neutral.
@@ -1120,15 +1218,24 @@ async function loadAll() {
             colour:'', odo:'', odoUnit:'km', nickname:'' };
     entries = [];
     fuelLogs = [];
+    documents = [];
+    userStorageBytes = 0;
     return;
   }
   const stored = localStorage.getItem(ACTIVE_VEHICLE_KEY);
   const active = vehicles.find(v => v.id === stored) || vehicles[0];
   setActiveVehicle(active);
-  [entries, fuelLogs] = await Promise.all([
+  // Documents and storage usage are user-scoped (usage spans all vehicles),
+  // but bundling them with the per-vehicle fetch keeps the boot sequence to
+  // a single round trip.
+  let usageResult;
+  [entries, fuelLogs, documents, usageResult] = await Promise.all([
     loadEntries(vehicleId),
     loadFuelLogs(vehicleId),
+    loadDocuments(vehicleId),
+    getUserStorageUsageBytes().catch(() => 0),
   ]);
+  userStorageBytes = usageResult || 0;
 }
 
 // Apply the saved garage name (or the default) to every place it appears.
@@ -1160,13 +1267,15 @@ async function switchVehicle(id) {
   // vehicle that actually has entries.
   entries = [];
   fuelLogs = [];
+  documents = [];
   isLoadingEntries = true;
   resetPhoto();
   renderAll();
   try {
-    [entries, fuelLogs] = await Promise.all([
+    [entries, fuelLogs, documents] = await Promise.all([
       loadEntries(vehicleId),
       loadFuelLogs(vehicleId),
+      loadDocuments(vehicleId),
     ]);
     await loadSavedPhoto();
     showToast(`Switched to ${car.nickname || car.model}`);
@@ -1304,6 +1413,8 @@ const garageModal     = document.getElementById('garage-modal');
 const installModal    = document.getElementById('install-modal');
 const garageNameModal = document.getElementById('garage-name-modal');
 const fuelModal       = document.getElementById('fuel-modal');
+const docModal        = document.getElementById('document-modal');
+const docPreviewModal = document.getElementById('doc-preview-modal');
 const close = m => m.classList.remove('open');
 
 document.getElementById('cancel-btn').onclick               = () => close(addModal);
@@ -1313,7 +1424,9 @@ document.getElementById('close-garage-btn').onclick         = () => close(garage
 document.getElementById('close-install-modal').onclick      = () => close(installModal);
 document.getElementById('cancel-garage-name-btn').onclick   = () => close(garageNameModal);
 document.getElementById('cancel-fuel-btn').onclick          = () => close(fuelModal);
-[addModal, detailModal, carModal, garageModal, installModal, garageNameModal, fuelModal].forEach(m =>
+document.getElementById('cancel-doc-btn').onclick           = () => close(docModal);
+document.getElementById('doc-preview-close-btn').onclick    = () => close(docPreviewModal);
+[addModal, detailModal, carModal, garageModal, installModal, garageNameModal, fuelModal, docModal, docPreviewModal].forEach(m =>
   m.addEventListener('click', e => { if (e.target === m) close(m); })
 );
 
@@ -1381,6 +1494,10 @@ document.getElementById('fab-btn').onclick = async () => {
     showToast('This vehicle is read-only — change status to Active to add entries');
     return;
   }
+  // Context-aware: the FAB opens whatever "Add" makes sense on the current
+  // screen. Docs tab → upload a document; everywhere else → log an entry.
+  const activeScreen = document.querySelector('.nav-item.active')?.dataset.screen;
+  if (activeScreen === 'documents') { openDocumentModal(); return; }
   document.getElementById('input-title').value = '';
   document.getElementById('input-cost').value  = '';
   document.getElementById('input-notes').value = '';
@@ -2456,6 +2573,107 @@ function renderAll() {
   renderList('mod-entries',    'mod');
   renderList('service-entries','service');
   renderSpendScreen();
+  renderDocumentsScreen();
+}
+
+// ══════════════════════════════════════════════════════
+// Documents (Glovebox tab)
+// ══════════════════════════════════════════════════════
+
+function formatBytes(n) {
+  if (!n || n < 1024) return `${n || 0} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(n < 10 * 1024 * 1024 ? 1 : 0)} MB`;
+}
+
+// Returns { status: 'overdue'|'soon'|'ok'|null, label }. Null when no expiry
+// is set — the UI just hides the pill in that case.
+function expiryStatus(isoDate) {
+  if (!isoDate) return { status: null, label: '' };
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const expiry = new Date(isoDate); expiry.setHours(0, 0, 0, 0);
+  const days = Math.round((expiry - today) / 86400000);
+  const formatted = expiry.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  if (days < 0)   return { status: 'overdue', label: `Expired ${formatted}` };
+  if (days <= 14) return { status: 'soon',    label: `Expires in ${days}d` };
+  if (days <= 60) return { status: 'soon',    label: `Expires ${formatted}` };
+  return { status: 'ok', label: `Expires ${formatted}` };
+}
+
+function docIcon(type) {
+  switch (type) {
+    case 'Insurance':    return '🛡️';
+    case 'Registration': return '🪪';
+    case 'Roadworthy':   return '✅';
+    case 'Warranty':     return '📜';
+    case 'Manual':       return '📖';
+    case 'Receipt':      return '🧾';
+    default:             return '📄';
+  }
+}
+
+function renderStorageMeter() {
+  const used = userStorageBytes || 0;
+  const limit = DOCUMENT_STORAGE_LIMIT_BYTES;
+  const pct = Math.min(100, Math.round((used / limit) * 100));
+  const usedEl = document.getElementById('doc-storage-used');
+  const limitEl = document.getElementById('doc-storage-limit');
+  const barEl = document.getElementById('doc-storage-bar');
+  if (!usedEl || !limitEl || !barEl) return;
+  usedEl.textContent = formatBytes(used);
+  limitEl.textContent = formatBytes(limit);
+  barEl.style.width = pct + '%';
+  barEl.classList.toggle('warn', pct >= 90);
+}
+
+function renderDocumentsScreen() {
+  renderStorageMeter();
+  const list = document.getElementById('document-entries');
+  if (!list) return;
+
+  if (!vehicleId) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">📁</div><div class="empty-text">Add a vehicle in the Garage tab to start uploading documents.</div></div>';
+    return;
+  }
+  if (!documents.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">📁</div><div class="empty-text">No documents yet.<br>Tap + to upload insurance, rego, receipts and more.</div></div>';
+    return;
+  }
+
+  // Sort: documents with an expiry asc (urgency at the top), then undated docs
+  // by created_at desc. The DB sort is the same, but re-sorting here keeps the
+  // UI consistent if a doc is added in-memory before reload.
+  const sorted = [...documents].sort((a, b) => {
+    if (a.expiryDate && b.expiryDate) return a.expiryDate < b.expiryDate ? -1 : 1;
+    if (a.expiryDate) return -1;
+    if (b.expiryDate) return 1;
+    return (b.createdAt || '').localeCompare(a.createdAt || '');
+  });
+
+  list.replaceChildren(...sorted.map(d => {
+    const exp = expiryStatus(d.expiryDate);
+    const card = document.createElement('div');
+    card.className = 'doc-card';
+    card.dataset.id = d.id;
+    const expiryHtml = exp.status
+      ? `<span class="doc-expiry-pill ${exp.status}">${exp.label}</span>`
+      : '';
+    card.innerHTML = `
+      <div class="doc-icon">${docIcon(d.type)}</div>
+      <div class="doc-content">
+        <div class="doc-title"></div>
+        <div class="doc-meta">
+          <span class="doc-type-pill">${d.type}</span>
+          ${expiryHtml}
+          <span>${formatBytes(d.fileSizeBytes)}</span>
+        </div>
+      </div>
+    `;
+    // Set title via textContent so user-entered strings can't inject HTML.
+    card.querySelector('.doc-title').textContent = d.title;
+    card.addEventListener('click', () => openDocumentPreview(d.id));
+    return card;
+  }));
 }
 
 // ══════════════════════════════════════════════════════
@@ -2484,6 +2702,137 @@ function syncNavClearance() {
 }
 syncNavClearance();
 window.addEventListener('load', syncNavClearance);
+
+// ══════════════════════════════════════════════════════
+// Documents — modal handlers
+// ══════════════════════════════════════════════════════
+
+const PER_FILE_LIMIT_BYTES = 10 * 1024 * 1024;
+let previewDocId = null;
+
+function openDocumentModal() {
+  if (!vehicleId) { openCarModal('add'); return; }
+  document.getElementById('doc-input-type').value   = '';
+  document.getElementById('doc-input-title').value  = '';
+  document.getElementById('doc-input-file').value   = '';
+  document.getElementById('doc-input-expiry').value = '';
+  document.getElementById('doc-input-notes').value  = '';
+  const hint = document.getElementById('doc-file-hint');
+  hint.style.display = 'none';
+  hint.textContent = '';
+  docModal.classList.add('open');
+  setTimeout(() => document.getElementById('doc-input-type').focus(), 350);
+}
+
+// Show file size + warn early if the chosen file would push the user over
+// the per-file or total cap — saves them filling out the rest of the form.
+document.getElementById('doc-input-file').addEventListener('change', e => {
+  const file = e.target.files[0];
+  const hint = document.getElementById('doc-file-hint');
+  if (!file) { hint.style.display = 'none'; hint.textContent = ''; return; }
+  const remaining = DOCUMENT_STORAGE_LIMIT_BYTES - userStorageBytes;
+  let msg = `${formatBytes(file.size)} · ${formatBytes(remaining)} remaining of your ${formatBytes(DOCUMENT_STORAGE_LIMIT_BYTES)} limit`;
+  if (file.size > PER_FILE_LIMIT_BYTES) {
+    msg = `File is ${formatBytes(file.size)} — max ${formatBytes(PER_FILE_LIMIT_BYTES)} per upload.`;
+  } else if (file.size > remaining) {
+    msg = `This file would push you ${formatBytes(file.size - remaining)} over your storage limit.`;
+  }
+  hint.textContent = msg;
+  hint.style.display = '';
+});
+
+document.getElementById('save-doc-btn').onclick = async () => {
+  const type    = document.getElementById('doc-input-type').value;
+  const title   = document.getElementById('doc-input-title').value.trim();
+  const fileEl  = document.getElementById('doc-input-file');
+  const expiry  = document.getElementById('doc-input-expiry').value;
+  const notes   = document.getElementById('doc-input-notes').value.trim();
+  const file    = fileEl.files[0];
+
+  if (!type)  { showToast('Pick a document type'); return; }
+  if (!file)  { showToast('Choose a file to upload'); return; }
+  if (file.size > PER_FILE_LIMIT_BYTES) {
+    showToast(`File too large — max ${formatBytes(PER_FILE_LIMIT_BYTES)} per upload`);
+    return;
+  }
+  if (userStorageBytes + file.size > DOCUMENT_STORAGE_LIMIT_BYTES) {
+    showToast(`Storage full — ${formatBytes(DOCUMENT_STORAGE_LIMIT_BYTES - userStorageBytes)} remaining`);
+    return;
+  }
+
+  const saveBtn = document.getElementById('save-doc-btn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Uploading…';
+  try {
+    const saved = await addDocument(vehicleId, { type, title, expiryDate: expiry, notes }, file);
+    documents.unshift(saved);
+    userStorageBytes += saved.fileSizeBytes || 0;
+    close(docModal);
+    renderDocumentsScreen();
+    showToast('Document saved ✓');
+  } catch (err) {
+    showToast('Upload failed: ' + (err?.message || 'unknown error'));
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Document';
+  }
+};
+
+async function openDocumentPreview(id) {
+  const doc = documents.find(d => d.id === id);
+  if (!doc) return;
+  previewDocId = doc.id;
+  document.getElementById('doc-preview-title').textContent = doc.title;
+  const meta = [doc.type, formatBytes(doc.fileSizeBytes)];
+  const exp = expiryStatus(doc.expiryDate);
+  if (exp.label) meta.push(exp.label);
+  if (doc.notes) meta.push(doc.notes);
+  document.getElementById('doc-preview-meta').textContent = meta.join(' · ');
+  const frame = document.getElementById('doc-preview-frame');
+  const dl    = document.getElementById('doc-preview-download');
+  frame.innerHTML = '<div class="doc-preview-fallback">Loading…</div>';
+  dl.removeAttribute('href');
+
+  try {
+    const url = await getDocumentUrl(doc.filePath);
+    dl.href = url;
+    dl.setAttribute('download', doc.title);
+    const mime = (doc.mimeType || '').toLowerCase();
+    if (mime.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = doc.title;
+      frame.replaceChildren(img);
+    } else if (mime === 'application/pdf') {
+      const iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.title = doc.title;
+      frame.replaceChildren(iframe);
+    } else {
+      frame.innerHTML = '<div class="doc-preview-fallback">No inline preview — use Download to open.</div>';
+    }
+  } catch (err) {
+    frame.innerHTML = `<div class="doc-preview-fallback">Preview failed: ${err?.message || 'unknown error'}</div>`;
+  }
+  docPreviewModal.classList.add('open');
+}
+
+document.getElementById('doc-delete-btn').onclick = async () => {
+  const doc = documents.find(d => d.id === previewDocId);
+  if (!doc) return;
+  if (!confirm(`Delete "${doc.title}"? This cannot be undone.`)) return;
+  try {
+    await deleteDocument(doc);
+    documents = documents.filter(d => d.id !== doc.id);
+    userStorageBytes = Math.max(0, userStorageBytes - (doc.fileSizeBytes || 0));
+    previewDocId = null;
+    close(docPreviewModal);
+    renderDocumentsScreen();
+    showToast('Document deleted');
+  } catch (err) {
+    showToast('Delete failed: ' + (err?.message || 'unknown error'));
+  }
+};
 window.addEventListener('resize', syncNavClearance);
 window.addEventListener('orientationchange', syncNavClearance);
 if (typeof ResizeObserver !== 'undefined') {
