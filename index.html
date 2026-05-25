@@ -1094,6 +1094,24 @@
   </div>
 </div>
 
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Export Data</div>
+    <div class="form-group">
+      <label>Format</label>
+      <select id="export-format-select">
+        <option value="json">JSON Backup (free)</option>
+        <option value="excel">Excel Spreadsheet (paid)</option>
+        <option value="pdf" disabled>PDF (coming soon)</option>
+      </select>
+    </div>
+    <button class="btn-primary" id="do-export-btn">Export</button>
+    <button class="btn-ghost" id="cancel-export-btn">Cancel</button>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -1125,6 +1143,11 @@ import { renderBrandLogo } from './logos.js';
 // we fall back to plain text inputs. Centralised here so the form, badge,
 // and renderCarCard all agree on what "BMW mode" means.
 const isBMW = make => (make || '').trim().toLowerCase() === 'bmw';
+
+// Stub until Stripe lands — every caller must gate paid features through this.
+function isPaidTier() {
+  return false;
+}
 
 // ══════════════════════════════════════════════════════
 // IndexedDB (legacy — photo now lives in Supabase Storage;
@@ -1415,6 +1438,7 @@ const garageNameModal = document.getElementById('garage-name-modal');
 const fuelModal       = document.getElementById('fuel-modal');
 const docModal        = document.getElementById('document-modal');
 const docPreviewModal = document.getElementById('doc-preview-modal');
+const exportModal     = document.getElementById('export-modal');
 const close = m => m.classList.remove('open');
 
 document.getElementById('cancel-btn').onclick               = () => close(addModal);
@@ -1426,7 +1450,8 @@ document.getElementById('cancel-garage-name-btn').onclick   = () => close(garage
 document.getElementById('cancel-fuel-btn').onclick          = () => close(fuelModal);
 document.getElementById('cancel-doc-btn').onclick           = () => close(docModal);
 document.getElementById('doc-preview-close-btn').onclick    = () => close(docPreviewModal);
-[addModal, detailModal, carModal, garageModal, installModal, garageNameModal, fuelModal, docModal, docPreviewModal].forEach(m =>
+document.getElementById('cancel-export-btn').onclick        = () => close(exportModal);
+[addModal, detailModal, carModal, garageModal, installModal, garageNameModal, fuelModal, docModal, docPreviewModal, exportModal].forEach(m =>
   m.addEventListener('click', e => { if (e.target === m) close(m); })
 );
 
@@ -1938,49 +1963,170 @@ document.getElementById('add-vehicle-btn').onclick = () => {
 };
 
 // ══════════════════════════════════════════════════════
+// Excel Export
+// ══════════════════════════════════════════════════════
+const money = v => ({ t: 'n', v: Number(v) || 0, z: '"$"#,##0.00' });
+
+async function exportToExcel() {
+  if (!vehicleId) throw new Error('Load a vehicle before exporting');
+
+  // xlsx is ~700KB — load only when the user actually exports.
+  const XLSX = await import('https://esm.sh/xlsx@0.18.5');
+
+  const [allEntries, allFuel, allDocs] = await Promise.all([
+    loadEntries(vehicleId),
+    loadFuelLogs(vehicleId),
+    loadDocuments(vehicleId).catch(() => []),
+  ]);
+
+  const mods    = allEntries.filter(e => e.type === 'mod').sort((a, b) => b.date.localeCompare(a.date));
+  const service = allEntries.filter(e => e.type === 'service' || e.type === 'repair').sort((a, b) => b.date.localeCompare(a.date));
+  const fuel    = [...allFuel].sort((a, b) => b.date.localeCompare(a.date));
+  const docs    = [...allDocs].sort((a, b) => {
+    if (!a.expiryDate && !b.expiryDate) return 0;
+    if (!a.expiryDate) return 1;
+    if (!b.expiryDate) return -1;
+    return a.expiryDate.localeCompare(b.expiryDate);
+  });
+
+  const modsSpend    = mods.reduce((s, e) => s + (Number(e.cost) || 0), 0);
+  const serviceSpend = service.reduce((s, e) => s + (Number(e.cost) || 0), 0);
+  const fuelSpend    = fuel.reduce((s, f) => s + (Number(f.totalCost) || 0), 0);
+
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: Overview
+  const overviewData = [
+    ['Export Date', new Date().toLocaleDateString('en-AU')],
+    [''],
+    ['Vehicle Details'],
+    ['Nickname', car.nickname || ''],
+    ['Make', car.make || ''],
+    ['Model', car.model || ''],
+    ['Year', car.year || ''],
+    ['Body', car.body || ''],
+    ['Engine', car.engine || ''],
+    ['Variant', car.variant || ''],
+    ['Colour', car.colour || ''],
+    ['Odometer', car.odo ? `${car.odo} ${car.odoUnit}` : ''],
+    ['Status', car.status || ''],
+    ['Sold Date', car.soldDate || ''],
+    ['Sold Price', car.soldPrice ? money(car.soldPrice) : ''],
+    [''],
+    ['Summary Statistics'],
+    ['Total Mods', mods.length],
+    ['Total Service/Repairs', service.length],
+    ['Total Fuel Entries', fuel.length],
+    ['Total Documents', docs.length],
+    ['Spend — Mods', money(modsSpend)],
+    ['Spend — Service/Repairs', money(serviceSpend)],
+    ['Spend — Fuel', money(fuelSpend)],
+    ['Spend — Total', money(modsSpend + serviceSpend + fuelSpend)],
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(overviewData), 'Overview');
+
+  // Sheet 2: Mods
+  const modsData = mods.length
+    ? [['Date', 'Title', 'Category', 'Cost (AUD)', 'Notes'],
+       ...mods.map(m => [m.date, m.title, m.category || '', money(m.cost), m.notes])]
+    : [['No mods logged']];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(modsData), 'Mods');
+
+  // Sheet 3: Service (includes repairs)
+  const serviceData = service.length
+    ? [['Date', 'Type', 'Title', 'Cost (AUD)', 'Notes'],
+       ...service.map(s => [s.date, s.type === 'repair' ? 'Repair' : 'Service', s.title, money(s.cost), s.notes])]
+    : [['No service/repair entries']];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(serviceData), 'Service');
+
+  // Sheet 4: Fuel
+  const fuelData = fuel.length
+    ? [['Date', 'Odometer (km)', 'Litres', 'Cost (AUD)', 'Station', 'Full Tank', 'Notes'],
+       ...fuel.map(f => [f.date, f.odometer, f.litres, money(f.totalCost), f.station, f.isFullTank ? 'Yes' : 'No', f.notes])]
+    : [['No fuel logs']];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(fuelData), 'Fuel');
+
+  // Sheet 5: Documents
+  const docsData = docs.length
+    ? [['Type', 'Title', 'Expiry Date', 'File Size (MB)', 'Notes'],
+       ...docs.map(d => [d.type, d.title, d.expiryDate || '-', Number((d.fileSizeBytes / (1024 * 1024)).toFixed(2)), d.notes])]
+    : [['No documents']];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(docsData), 'Documents');
+
+  // Filename: slug of nickname (or make-model), then date.
+  const label = (car.nickname || [car.make, car.model].filter(Boolean).join('-') || 'vehicle')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'vehicle';
+  const date = new Date().toISOString().split('T')[0];
+  XLSX.writeFile(wb, `car-tracker-${label}-${date}.xlsx`);
+}
+
+// ══════════════════════════════════════════════════════
 // Settings
 // ══════════════════════════════════════════════════════
 
-// Export
-document.getElementById('btn-export').onclick = async () => {
-  try {
-    const [allEntries, allFuel] = vehicleId
-      ? await Promise.all([loadEntries(vehicleId), loadFuelLogs(vehicleId)])
-      : [[], []];
-    // Backups embed the photo as a data URL so they're self-contained.
-    let photo = null;
-    if (car.photoPath) {
-      try {
-        const url  = await getVehiclePhotoUrl(car.photoPath);
-        const blob = await (await fetch(url)).blob();
-        photo = await new Promise((res, rej) => {
-          const r = new FileReader();
-          r.onload  = () => res(r.result);
-          r.onerror = () => rej(r.error);
-          r.readAsDataURL(blob);
-        });
-      } catch (err) {
-        console.error('Photo export failed:', err);
-      }
+// Export — opens format selection modal
+document.getElementById('btn-export').onclick = () => {
+  exportModal.classList.add('open');
+};
+
+// Export modal: handle format selection and trigger export
+document.getElementById('do-export-btn').onclick = async () => {
+  const format = document.getElementById('export-format-select').value;
+  close(exportModal);
+
+  if (format === 'excel') {
+    if (!isPaidTier()) {
+      showToast('Excel export is a paid feature — coming soon');
+      return;
     }
-    const payload = {
-      version: 2,
-      exported: new Date().toISOString(),
-      car,
-      entries: allEntries,
-      fuelLogs: allFuel,
-      photo: photo || null
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `e39-garage-backup-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Backup exported ✓');
-  } catch (err) {
-    showToast('Export failed: ' + (err?.message || 'unknown error'));
+    try {
+      await exportToExcel();
+      showToast('Excel exported ✓');
+    } catch (err) {
+      showToast('Export failed: ' + (err?.message || 'unknown error'));
+    }
+  } else if (format === 'pdf') {
+    showToast('PDF export coming soon');
+  } else {
+    try {
+      const [allEntries, allFuel] = vehicleId
+        ? await Promise.all([loadEntries(vehicleId), loadFuelLogs(vehicleId)])
+        : [[], []];
+      // Backups embed the photo as a data URL so they're self-contained.
+      let photo = null;
+      if (car.photoPath) {
+        try {
+          const url  = await getVehiclePhotoUrl(car.photoPath);
+          const blob = await (await fetch(url)).blob();
+          photo = await new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload  = () => res(r.result);
+            r.onerror = () => rej(r.error);
+            r.readAsDataURL(blob);
+          });
+        } catch (err) {
+          console.error('Photo export failed:', err);
+        }
+      }
+      const payload = {
+        version: 2,
+        exported: new Date().toISOString(),
+        car,
+        entries: allEntries,
+        fuelLogs: allFuel,
+        photo: photo || null
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `e39-garage-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Backup exported ✓');
+    } catch (err) {
+      showToast('Export failed: ' + (err?.message || 'unknown error'));
+    }
   }
 };
 
