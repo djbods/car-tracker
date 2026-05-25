@@ -2045,7 +2045,10 @@ async function exportToExcel() {
   if (!vehicleId) throw new Error('Load a vehicle before exporting');
 
   // ~750KB; load only when the user actually exports.
-  const XLSX = await import('https://esm.sh/xlsx-js-style@1.2.0');
+  // xlsx-js-style is CommonJS — dynamic import wraps it, so the namespace
+  // (book_new, aoa_to_sheet, etc.) lives on .default, not the module root.
+  const xlsxMod = await import('https://esm.sh/xlsx-js-style@1.2.0');
+  const XLSX = xlsxMod.default || xlsxMod;
 
   const [allEntries, allFuel, allDocs] = await Promise.all([
     loadEntries(vehicleId),
