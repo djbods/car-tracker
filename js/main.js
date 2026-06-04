@@ -402,6 +402,16 @@ function showBootError(msg) {
 }
 function hideBoot() { bootOverlay.classList.remove('open', 'error'); }
 
+// Minimum time the startup splash stays up so the fuel-fill animation reads
+// as intentional, not a flicker — getSession() often resolves from cache in
+// well under 100ms. splashStart is captured at module eval (≈ first paint).
+const SPLASH_MIN_MS = 1500;
+const splashStart = performance.now();
+function splashHold() {
+  const remaining = SPLASH_MIN_MS - (performance.now() - splashStart);
+  return remaining > 0 ? new Promise(r => setTimeout(r, remaining)) : Promise.resolve();
+}
+
 bootRetry.addEventListener('click', async () => {
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
@@ -443,6 +453,7 @@ function showAuthGate() {
   authPass.value = '';
   setAuthMode('login');
   authOverlay.classList.add('open');
+  hideBoot(); // dismiss the startup splash so the auth gate fades in cleanly
 }
 
 // ══════════════════════════════════════════════════════
@@ -451,6 +462,7 @@ function showAuthGate() {
 
 (async () => {
   const { data: { session } } = await supabase.auth.getSession();
+  await splashHold();
   if (session) {
     await bootApp(session);
   } else {
