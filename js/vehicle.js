@@ -165,6 +165,23 @@ export function openCarModal(mode) {
   carModal.classList.add('open');
 }
 
+// Create a brand-new vehicle and make it active. Used by the first-run
+// onboarding wizard, which awaits behind a button spinner — so unlike the
+// optimistic path in saveCarBtn there's no perceived lag to paper over.
+// Throws on failure; the caller surfaces the error and keeps the wizard
+// open so the user can retry without losing input.
+export async function createVehicle(next) {
+  const saved = await upsertVehicle({ ...next, id: null });
+  state.vehicles.push(saved);
+  setActiveVehicle(saved);
+  state.entries   = [];
+  state.fuelLogs  = [];
+  state.documents = [];
+  resetPhoto();
+  renderAll();
+  return saved;
+}
+
 // ══════════════════════════════════════════════════════
 // "My Garage" — vehicle switcher
 // ══════════════════════════════════════════════════════

@@ -91,14 +91,17 @@
   .car-name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px, calc(24px + 1vw), 36px); letter-spacing: 1px; line-height: 1; }
   .car-sub { color: var(--muted); font-size: 13px; margin-top: 3px; font-weight: 300; }
 
-  /* Brand logo — official manufacturer SVG (Wikimedia) rendered as <img>
-     directly on the dark UI. Each SVG has been recoloured so dark-only
-     elements (Kia, Porsche, Honda, Audi, Mitsubishi text, etc.) read as
-     white/silver against the background, while brand colours (BMW blue,
-     Toyota/Tesla red, Ford blue, Mercedes silver) are preserved. */
+  /* Brand logo — full-colour manufacturer emblem (car-logos dataset) rendered
+     as an <img> on a light "chip". Car badges are designed for light
+     backgrounds, so dark-element marks (VW, Nissan, Porsche, Tesla) would
+     vanish on the dark UI — the chip gives every emblem its natural home and
+     a uniform frame, which is what keeps the wizard grid visually consistent. */
   .brand-logo {
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
+    background: #f2f0ec;
+    border-radius: 9px;
+    padding: 6px;
   }
   .brand-logo img {
     max-width: 100%; max-height: 100%;
@@ -192,6 +195,20 @@
     transition: color 0.2s;
   }
   .user-bar-logout:active { color: var(--accent); }
+  /* Settings gear — icon-only chip sharing the logout chip's glass treatment.
+     Lifted out of the bottom nav so the nav stays at five primary tabs. */
+  .user-bar-icon-btn {
+    pointer-events: all;
+    display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; padding: 0; border-radius: 50%;
+    background: rgba(10,10,10,0.65); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.75);
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: color 0.2s;
+  }
+  .user-bar-icon-btn svg { width: 16px; height: 16px; }
+  .user-bar-icon-btn:active { color: var(--accent); }
 
   /* ── AUTH GATE (full-screen overlay, blocks app) ── */
   .auth-overlay {
@@ -231,6 +248,54 @@
   }
   .auth-info.show { display: block; }
   .auth-card .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* ── ONBOARDING WIZARD (first-run "add your first car") ──
+     Full-screen gate, same family as .auth-overlay. Shown only when a
+     signed-in user has zero vehicles; sits above the auth gate (z 320 vs
+     300) and below the boot splash. */
+  .wizard-overlay {
+    position: fixed; inset: 0; z-index: 320;
+    background:
+      radial-gradient(120% 80% at 50% 18%, rgba(200,168,75,0.08) 0%, transparent 60%),
+      var(--bg);
+    display: none; flex-direction: column;
+    padding: calc(40px + env(safe-area-inset-top)) 20px 24px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+  .wizard-overlay.open { display: flex; }
+  .wizard { width: 100%; max-width: 460px; margin: 0 auto; }
+  .wizard-progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 28px; }
+  .wizard-dot { width: 28px; height: 4px; border-radius: 2px; background: var(--surface2); transition: background 0.25s; }
+  .wizard-dot.active { background: var(--accent); }
+  .wizard-step { display: none; animation: fadeIn 0.22s ease; }
+  .wizard-step.active { display: block; }
+  .wizard-back { background: none; border: none; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; padding: 0 0 18px; }
+  .wizard-back:active { color: var(--text); }
+  .wizard-brand-label { font-size: 11px; letter-spacing: 2px; color: var(--accent); font-weight: 600; text-transform: uppercase; margin-bottom: 6px; text-align: center; }
+  .wizard-title { font-family: 'Bebas Neue', sans-serif; font-size: 46px; letter-spacing: 1px; line-height: 1; text-align: center; margin-bottom: 14px; }
+  .wizard-lead { color: var(--muted); font-size: 14px; line-height: 1.6; text-align: center; font-weight: 400; margin: 0 auto 26px; max-width: 330px; }
+  .wizard-step-title { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 1px; margin-bottom: 16px; }
+  .wizard-logo-wall { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 28px; }
+  .wizard-logo-wall .brand-logo { width: 100%; height: 44px; border-radius: 10px; padding: 8px 10px; }
+  .wizard-search { margin-bottom: 14px; }
+  .wizard-make-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  /* Solid logo tile: the whole card is one light fill (no border, no inset
+     chip) so the emblem reads on its natural light background and fills the
+     cell. A faint dark outline on the logo keeps white/silver marks legible
+     against the light fill. */
+  .wizard-make { display: flex; align-items: center; justify-content: center; background: #f2f0ec; border: none; border-radius: 14px; padding: 11px 13px; cursor: pointer; transition: transform 0.12s, filter 0.15s; font-family: 'DM Sans', sans-serif; }
+  .wizard-make:active { transform: scale(0.97); filter: brightness(0.94); }
+  .wizard-make .brand-logo { width: 100%; height: 58px; background: transparent; padding: 0; border-radius: 0; }
+  .wizard-make .brand-logo img { filter: drop-shadow(0 0 0.6px rgba(0,0,0,0.55)); }
+  .wizard-make.hidden { display: none; }
+  .wizard-empty-makes { text-align: center; color: var(--muted); font-size: 13px; padding: 22px 8px; }
+  .wizard-other { text-align: center; margin-top: 18px; font-size: 13px; color: var(--muted); }
+  .wizard-other button { background: none; border: none; color: var(--accent2); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 4px; }
+  .wizard-chosen { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+  .wizard-chosen .brand-logo { width: 56px; height: 40px; flex-shrink: 0; }
+  .wizard-chosen-make { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.5px; }
+  .wizard-finish-spin { opacity: 0.7; cursor: not-allowed; }
 
   /* ── FORMS ── */
   .form-group { margin-bottom: 16px; }
@@ -510,6 +575,9 @@
 <!-- USER BAR (visible only when signed in) -->
 <div class="user-bar" id="user-bar">
   <span class="user-bar-email" id="user-bar-email"></span>
+  <button class="user-bar-icon-btn" id="user-bar-settings" aria-label="Settings" title="Settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+  </button>
   <button class="user-bar-logout" id="user-bar-logout">Log out</button>
 </div>
 
@@ -537,6 +605,56 @@
       </div>
       <button type="submit" class="btn-primary" id="auth-submit">Log in</button>
     </form>
+  </div>
+</div>
+
+<!-- ONBOARDING WIZARD (first-run "add your first car" flow; shown only when
+     the signed-in user has no vehicles yet) -->
+<div class="wizard-overlay" id="wizard-overlay">
+  <div class="wizard">
+    <div class="wizard-progress" id="wizard-progress" aria-hidden="true">
+      <span class="wizard-dot active"></span><span class="wizard-dot"></span><span class="wizard-dot"></span>
+    </div>
+
+    <!-- Step 1 — welcome -->
+    <section class="wizard-step active" data-step="1">
+      <div class="wizard-brand-label">Welcome to</div>
+      <h1 class="wizard-title" id="wizard-brand-title">Car Tracker</h1>
+      <p class="wizard-lead">Log mods, service, fuel and spend for any car you own — 40+ manufacturers, with official emblems.</p>
+      <div class="wizard-logo-wall" id="wizard-logo-wall" aria-hidden="true"></div>
+      <button class="btn-primary" id="wizard-start">Add your first car</button>
+      <button class="btn-ghost" id="wizard-logout">Log out</button>
+    </section>
+
+    <!-- Step 2 — manufacturer picker -->
+    <section class="wizard-step" data-step="2">
+      <button class="wizard-back" type="button" data-back>← Back</button>
+      <h2 class="wizard-step-title">Pick a manufacturer</h2>
+      <input class="wizard-search" id="wizard-make-search" type="text" placeholder="Search makes…" autocomplete="off" autocorrect="off" spellcheck="false">
+      <div class="wizard-make-grid" id="wizard-make-grid"></div>
+      <div class="wizard-empty-makes" id="wizard-no-makes" style="display:none">No match — enter it manually below.</div>
+      <div class="wizard-other">Can't see it? <button id="wizard-make-other" type="button">Enter make manually</button></div>
+    </section>
+
+    <!-- Step 3 — quick details -->
+    <section class="wizard-step" data-step="3">
+      <button class="wizard-back" type="button" data-back>← Back</button>
+      <div class="wizard-chosen" id="wizard-chosen">
+        <div class="brand-logo" id="wizard-chosen-logo" aria-hidden="true"></div>
+        <div class="wizard-chosen-make" id="wizard-chosen-make"></div>
+      </div>
+      <div class="form-group" id="wizard-make-manual-group" style="display:none">
+        <label>Make</label>
+        <input type="text" id="wizard-make-manual" placeholder="e.g. Datsun, Daihatsu…" autocomplete="off">
+      </div>
+      <div class="form-group"><label>Model</label><input type="text" id="wizard-model" placeholder="e.g. 530i, Camry, Mustang…" autocomplete="off"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Year</label><input type="number" id="wizard-year" inputmode="numeric" placeholder="e.g. 2002"></div>
+        <div class="form-group"><label>Colour</label><input type="text" id="wizard-colour" placeholder="e.g. Titan Silver" autocomplete="off"></div>
+      </div>
+      <div class="form-group"><label>Nickname (optional)</label><input type="text" id="wizard-nickname" placeholder="e.g. The Bimmer, Silver Shark…" autocomplete="off"></div>
+      <button class="btn-primary" id="wizard-finish">Create my garage</button>
+    </section>
   </div>
 </div>
 
@@ -797,9 +915,6 @@
   </button>
   <button class="nav-item" data-screen="documents">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Docs
-  </button>
-  <button class="nav-item" data-screen="settings">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings
   </button>
 </nav>
 
