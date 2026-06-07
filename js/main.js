@@ -155,7 +155,7 @@ document.getElementById('do-export-btn').onclick = async () => {
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
       a.href     = url;
-      a.download = `e39-garage-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `car-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
       showToast('Backup exported ✓');
@@ -263,12 +263,12 @@ document.getElementById('btn-clear-data').onclick = async () => {
 // ══════════════════════════════════════════════════════
 
 const banner = document.getElementById('install-banner');
-if (localStorage.getItem('e39_banner_dismissed') || window.navigator.standalone) {
+if (localStorage.getItem('install_banner_dismissed') || window.navigator.standalone) {
   banner.classList.add('hidden');
 }
 document.getElementById('dismiss-banner').onclick = () => {
   banner.classList.add('hidden');
-  localStorage.setItem('e39_banner_dismissed', '1');
+  localStorage.setItem('install_banner_dismissed', '1');
 };
 
 // ══════════════════════════════════════════════════════

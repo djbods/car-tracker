@@ -52,11 +52,12 @@ export function renderCarCard() {
   if (Number.isFinite(cc) && cc > 0) parts.push(`${cc} L/100km claimed`);
   document.getElementById('car-sub-display').textContent = parts.join(' · ') || '';
 
-  // Badge: BMW preserves the chassis · engine easter egg; everyone else
-  // gets a generic MAKE · MODEL badge in the same spot.
+  // Badge: BMW (and anything with an engine on record) shows a MODEL · ENGINE
+  // badge for the enthusiast detail; everyone else gets a generic MAKE · MODEL
+  // badge in the same spot.
   const badge = document.getElementById('car-badge');
-  if (bmw && engine) {
-    badge.textContent = `E39 · ${engine}`;
+  if (bmw && engine && model) {
+    badge.textContent = `${model} · ${engine}`.toUpperCase();
     badge.style.display = '';
   } else if (make && model) {
     badge.textContent = `${make} · ${model}`.toUpperCase();
