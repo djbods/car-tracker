@@ -91,11 +91,33 @@ const MAKE_ALIASES = {
   'bugatti':        'bugatti',
 };
 
-// Brands whose logo only exists as PNG on Wikipedia (fair-use, no SVG version).
-// Render path becomes logos/<slug>.png instead of logos/<slug>.svg.
-const PNG_BRANDS = new Set(['holden', 'alfa_romeo']);
+// The brand emblems are colour PNGs (from the car-logos dataset, recoloured
+// for nothing — used as-is). Only the generic fallback and GWM (no dataset
+// entry) remain hand-authored SVGs.
+const SVG_SLUGS = new Set([
+  '_generic',
+  // Current, flat, reads-on-white emblems hand-sourced as SVG (replacing the
+  // dataset's stale/wordmark PNGs).
+  'gwm', 'renault', 'volvo', 'bentley', 'maserati', 'suzuki', 'haval', 'mclaren',
+  'genesis', 'aston_martin', 'peugeot', 'lexus',
+]);
 
 const GENERIC = '_generic';
+
+// Display names for the onboarding manufacturer picker, ordered roughly by
+// popularity in the AU market so the common choices sit at the top of the
+// grid. Every entry resolves to a real logo file via MAKE_ALIASES — keep
+// this list and the alias map in sync. Free-text "Other" covers anything
+// not here, so this doesn't need to be exhaustive.
+export const PICKER_MAKES = [
+  'BMW', 'Toyota', 'Mercedes-Benz', 'Mazda', 'Ford', 'Volkswagen', 'Audi',
+  'Honda', 'Hyundai', 'Kia', 'Subaru', 'Nissan', 'Mitsubishi', 'Lexus',
+  'Tesla', 'Porsche', 'Volvo', 'Suzuki', 'Jeep', 'Isuzu', 'MG', 'Mini',
+  'Land Rover', 'Jaguar', 'Genesis', 'Polestar', 'Renault', 'Peugeot',
+  'Citroën', 'Škoda', 'Fiat', 'Alfa Romeo', 'BYD', 'GWM', 'Haval', 'Holden',
+  'Rivian', 'Lotus', 'Maserati', 'Aston Martin', 'Bentley', 'Rolls-Royce',
+  'McLaren', 'Ferrari', 'Lamborghini', 'Bugatti',
+];
 
 export function brandLogoSlug(make) {
   const key = (make || '').trim().toLowerCase();
@@ -109,7 +131,7 @@ export function brandLogoSlug(make) {
 export function renderBrandLogo(containerEl, make) {
   if (!containerEl) return;
   const slug = brandLogoSlug(make);
-  const ext = PNG_BRANDS.has(slug) ? 'png' : 'svg';
+  const ext = SVG_SLUGS.has(slug) ? 'svg' : 'png';
   const src = `logos/${slug}.${ext}`;
   let img = containerEl.querySelector('img');
   if (!img) {
