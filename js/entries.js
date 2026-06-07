@@ -12,7 +12,7 @@ import {
   addFuelLog, deleteFuelLog,
 } from '../data.js';
 import { renderAll, renderSpendScreen } from './render.js';
-import { openCarModal } from './vehicle.js';
+import { openWizard } from './onboarding.js';
 import { openDocumentModal } from './documents.js';
 
 const addModal    = document.getElementById('add-modal');
@@ -65,7 +65,7 @@ export function wireEntryHandlers() {
     // Entries are scoped to a vehicle — bounce the user to Add Vehicle
     // if they haven't created one yet rather than opening a modal that
     // can't save.
-    if (!state.vehicleId) { openCarModal('add'); return; }
+    if (!state.vehicleId) { openWizard(); return; }
     // Sold / archived cars are read-only. Belt-and-braces: the FAB is
     // also visually disabled via body.car-sold, but a click could still
     // slip through on some browsers if the pointer-events rule is
@@ -225,7 +225,7 @@ export function wireEntryHandlers() {
 
   // ── Fuel: open modal ───────────────────────────────────────────────
   document.getElementById('fuel-log-btn').onclick = () => {
-    if (!state.vehicleId) { openCarModal('add'); return; }
+    if (!state.vehicleId) { openWizard(); return; }
     if (state.car.status === 'sold' || state.car.status === 'archived') {
       showToast('This vehicle is read-only — change status to Active to log fuel');
       return;

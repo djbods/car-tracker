@@ -29,6 +29,7 @@ import {
 } from './vehicle.js';
 import { wireEntryHandlers } from './entries.js';
 import { wireDocumentHandlers } from './documents.js';
+import { wireOnboardingHandlers, openWizard } from './onboarding.js';
 import { renderAll, syncNavClearance } from './render.js';
 import { exportToExcel } from './excel-export.js';
 
@@ -82,18 +83,29 @@ document.getElementById('save-garage-name-btn').onclick = async () => {
 };
 
 // ══════════════════════════════════════════════════════
-// Bottom nav — screen switcher
+// Screen switching — bottom nav + the Settings gear
 // ══════════════════════════════════════════════════════
 
-document.querySelectorAll('.nav-item').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('screen-' + btn.dataset.screen).classList.add('active');
-    renderAll();
-  });
-});
+// Single entry point for changing screens. Settings lives outside the
+// bottom nav now (reached via the gear in the user bar), so when it's the
+// target no nav-item lights up. The global FAB has no "add" action on
+// Settings, so hide it there.
+function switchScreen(name) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.screen === name));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const screen = document.getElementById('screen-' + name);
+  if (screen) screen.classList.add('active');
+  document.getElementById('fab-btn').style.display = name === 'settings' ? 'none' : '';
+  window.scrollTo(0, 0);
+  renderAll();
+}
+
+document.querySelectorAll('.nav-item').forEach(btn =>
+  btn.addEventListener('click', () => switchScreen(btn.dataset.screen))
+);
+
+// Settings gear (top-right user bar) — opens the Settings screen.
+document.getElementById('user-bar-settings').onclick = () => switchScreen('settings');
 
 // ══════════════════════════════════════════════════════
 // Settings — Export, Import, Install help, Clear data
@@ -279,6 +291,7 @@ wirePhotoHandlers({ openCarModal });
 wireVehicleHandlers();
 wireEntryHandlers();
 wireDocumentHandlers();
+wireOnboardingHandlers();
 
 // ══════════════════════════════════════════════════════
 // Nav-clearance reflows (fixed bottom nav can hide list items)
@@ -438,9 +451,9 @@ async function bootApp(session) {
     document.getElementById('input-date').value = today();
     appBooted = true;
     hideBoot();
-    // First-time users: bounce them straight to Add Vehicle so the
-    // empty garage isn't just a dead end.
-    if (!state.vehicleId) openCarModal('add');
+    // First-time users: run the onboarding wizard so the empty garage
+    // isn't a dead end and the very first screen explains the app.
+    if (!state.vehicleId) openWizard();
   } catch (err) {
     console.error('Boot failed:', err);
     showBootError(err?.message || 'Could not load your garage. Check your connection and try again.');
