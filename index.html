@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#0a0a0a">
 <link rel="manifest" href="manifest.json">
 <!-- Apple touch icon (inline SVG as data URI) -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230a0a0a'/%3E%3Crect x='12' y='12' width='156' height='156' rx='26' fill='%23141414'/%3E%3Ctext x='90' y='108' font-family='Arial Black' font-size='66' font-weight='900' fill='%23c8a84b' text-anchor='middle'%3EE39%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230a0a0a'/%3E%3Crect x='12' y='12' width='156' height='156' rx='26' fill='%23141414'/%3E%3Cpath d='M52 114 A38 38 0 0 1 128 114' fill='none' stroke='%23c8a84b' stroke-width='9' stroke-linecap='round'/%3E%3Cline x1='90' y1='114' x2='113' y2='80' stroke='%23c8a84b' stroke-width='8' stroke-linecap='round'/%3E%3Ccircle cx='90' cy='114' r='7' fill='%23c8a84b'/%3E%3C/svg%3E">
 <title>Car Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -731,7 +731,7 @@
           </button>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-          <div class="car-badge" id="car-badge">E39 · M54</div>
+          <div class="car-badge" id="car-badge" style="display:none"></div>
           <button class="car-photo-btn" id="change-photo-btn" style="display:none">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
             Change
@@ -743,8 +743,8 @@
     <div class="car-info">
       <div class="car-name-row">
         <div>
-          <div class="car-name" id="car-name-display">530i Sedan</div>
-          <div class="car-sub" id="car-sub-display">2002 BMW · Titan Silver</div>
+          <div class="car-name" id="car-name-display"></div>
+          <div class="car-sub" id="car-sub-display"></div>
         </div>
         <div class="brand-logo brand-logo-lg" id="car-brand-logo" aria-hidden="true"></div>
       </div>
