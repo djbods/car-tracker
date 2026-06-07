@@ -209,7 +209,10 @@ export function renderStats() {
   document.getElementById('stat-spent').textContent = fmt(total);
   const lastSvc = [...svc].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
   const el = document.getElementById('stat-service');
-  if (!lastSvc) { el.textContent = 'None'; el.className = 'stat-val overdue'; }
+  // No service history yet is a neutral state, not a problem — a fresh car
+  // shouldn't show an alarming red "None". Only go red once there's a
+  // baseline and it's actually overdue.
+  if (!lastSvc) { el.textContent = '—'; el.className = 'stat-val'; }
   else {
     const days = (Date.now() - new Date(lastSvc.date)) / 86400000;
     el.textContent = days > 180 ? 'Due' : 'OK';
