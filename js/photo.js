@@ -11,6 +11,7 @@ import {
 
 const photoInput     = document.getElementById('photo-input');
 const carPhoto       = document.getElementById('car-photo');
+const carPhotoBg     = document.getElementById('car-photo-bg');
 const uploadPrompt   = document.getElementById('upload-prompt');
 const changePhotoBtn = document.getElementById('change-photo-btn');
 
@@ -46,6 +47,10 @@ export async function loadSavedPhoto() {
 export function applyPhoto(src) {
   carPhoto.src = src;
   carPhoto.classList.add('loaded');
+  // Same image, blurred + enlarged, fills the letterbox behind the contained
+  // foreground so any aspect ratio reads as intentional (see #car-photo-bg).
+  carPhotoBg.src = src;
+  carPhotoBg.classList.add('loaded');
   uploadPrompt.classList.add('hidden');
   changePhotoBtn.style.display = 'flex';
 }
@@ -55,6 +60,8 @@ export function applyPhoto(src) {
 export function resetPhoto() {
   carPhoto.removeAttribute('src');
   carPhoto.classList.remove('loaded');
+  carPhotoBg.removeAttribute('src');
+  carPhotoBg.classList.remove('loaded');
   uploadPrompt.classList.remove('hidden');
   changePhotoBtn.style.display = 'none';
 }
@@ -80,7 +87,10 @@ export function wirePhotoHandlers({ openCarModal }) {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const maxW = 900, maxH = 500;
+        // Larger cap than the old 900×500: the photo now renders "contained"
+        // (whole image visible) rather than cropped, so portrait and wide
+        // shots need real resolution to stay sharp on the desktop-width card.
+        const maxW = 1600, maxH = 1200;
         let w = img.width, h = img.height;
         if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
         if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }

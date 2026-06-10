@@ -152,6 +152,9 @@ export function openCarModal(mode) {
   document.getElementById('car-colour').value   = src.colour   || '';
   document.getElementById('car-odo').value      = src.odo      || '';
   document.getElementById('car-odo-unit').value = src.odoUnit  || 'km';
+  document.getElementById('car-fuel').value         = src.fuelType     || '';
+  document.getElementById('car-drivetrain').value   = src.drivetrain   || '';
+  document.getElementById('car-transmission').value = src.transmission || '';
   document.getElementById('car-nickname').value = src.nickname || '';
   document.getElementById('car-cc-consumption').value = src.combinedCycleConsumption || '';
   document.getElementById('car-status').value     = src.status   || 'active';
@@ -257,6 +260,9 @@ export function wireVehicleHandlers() {
       colour:   document.getElementById('car-colour').value.trim(),
       odo:      document.getElementById('car-odo').value.trim(),
       odoUnit:  document.getElementById('car-odo-unit').value,
+      fuelType:     document.getElementById('car-fuel').value,
+      drivetrain:   document.getElementById('car-drivetrain').value,
+      transmission: document.getElementById('car-transmission').value,
       nickname: document.getElementById('car-nickname').value.trim(),
       status:                   document.getElementById('car-status').value,
       soldDate:                 document.getElementById('car-sold-date').value,
@@ -295,6 +301,9 @@ export function wireVehicleHandlers() {
       colour:        next.colour || null,
       odometer:      next.odo ? parseInt(next.odo, 10) : null,
       odometer_unit: next.odoUnit || 'km',
+      fuel_type:     next.fuelType     || null,
+      drivetrain:    next.drivetrain   || null,
+      transmission:  next.transmission || null,
       photo_path:    existingPath,
       status:        draftStatus,
       sold_date:     draftStatus === 'sold' && next.soldDate ? next.soldDate : null,
