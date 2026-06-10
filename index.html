@@ -69,14 +69,19 @@
   .header-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(42px, calc(36px + 2vw), 64px); letter-spacing: 1px; line-height: 1; }
 
   /* ── CAR CARD (floating cutout + spec layout, Porsche-style) ── */
-  .pcard { position: relative; margin: 42px 16px 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; }
+  .pcard { position: relative; margin: clamp(60px, 14%, 124px) 16px 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; }
 
-  /* Stage = the top strip. Photo mode → image banner; cutout/emblem mode → a
-     soft gold "pedestal" glow behind the floating car / emblem. */
-  .pcard-stage { position: relative; height: clamp(158px, 22vw, 220px); border-radius: 20px 20px 0 0; overflow: hidden; cursor: pointer;
-    background: radial-gradient(ellipse 70% 88% at 50% 16%, rgba(200,168,75,0.16), transparent 62%), linear-gradient(180deg, #16140e 0%, #0c0c0c 74%); }
+  /* Stage = the top strip. Photo/prompt mode → a clean neutral banner (the old
+     gold glow clashed with the page section colour, so it's gone). */
+  .pcard-stage { position: relative; height: clamp(150px, 20vw, 200px); border-radius: 18px 18px 0 0; overflow: hidden; cursor: pointer;
+    background: linear-gradient(180deg, #1b1b20 0%, #111114 100%); }
   .pcard-stage:active { opacity: 0.9; }
-  .pcard-stage.has-cutout { height: 130px; }
+  /* Cutout mode (Porsche-style): no banner, no gradient — the car floats above
+     the card's top edge. The car and the reserved zone both scale with card
+     width, and the car is anchored to the top edge by 50% of its OWN height
+     (translateY -50%), so it straddles the edge identically at every screen
+     size — no jump on mobile. */
+  .pcard-stage.has-cutout { height: 0; padding-bottom: clamp(52px, 15%, 116px); overflow: visible; background: transparent; }
 
   /* photo layers — contained image over a blurred enlarged copy so any aspect
      ratio reads as intentional (used when the user uploaded their own photo). */
@@ -90,15 +95,16 @@
 
   /* Floating cutout — clean side-profile that straddles the card's top edge.
      drop-shadow follows the PNG alpha for a real contact shadow. */
-  .pcard-cutout { position: absolute; top: -28px; left: 50%; transform: translateX(-50%); z-index: 5;
-    width: clamp(210px, 58vw, 274px); max-height: 156px; height: auto; object-fit: contain; pointer-events: none;
-    filter: drop-shadow(0 16px 13px rgba(0,0,0,0.6)); display: none; }
+  .pcard-cutout { position: absolute; left: 50%; top: 0; z-index: 5;
+    width: clamp(232px, 66%, 450px); height: auto;
+    transform: translate(-50%, -50%);   /* 50% of the car sits above the card top edge */
+    object-fit: contain; pointer-events: none;
+    filter: drop-shadow(0 12px 16px rgba(0,0,0,0.45)); display: none; }
   .pcard-cutout.loaded { display: block; }
 
   /* emblem state (no photo, no cutout) — sits on the stage's own glow */
   .car-upload-prompt { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); background: transparent; }
   .car-upload-prompt.hidden { display: none; }
-  .upload-emblem { width: 92px; height: 64px; box-shadow: 0 12px 34px rgba(0,0,0,0.5); }
   .car-upload-prompt span { font-size: 13px; font-weight: 500; color: var(--text); opacity: 0.9; }
   .car-upload-prompt small { font-size: 11px; opacity: 0.45; }
 
@@ -106,6 +112,7 @@
   .pcard-stage-actions { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; gap: 6px; }
   .car-photo-btn { background: rgba(10,10,10,0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.8); font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 5px; transition: color 0.2s; }
   .car-photo-btn:active { color: var(--accent); }
+  .car-photo-btn.danger:active { color: var(--red); }
   .car-photo-btn svg { width: 12px; height: 12px; }
   #photo-input { display: none; }
 
@@ -619,7 +626,7 @@
      card instead of a bottom sheet. */
   @media (min-width: 640px) {
     .header { padding: 40px 24px 24px; }
-    .pcard { margin: 46px 24px 28px; }
+    .pcard { margin: clamp(60px, 14%, 124px) 24px 28px; }
     .pcard-body { padding: 18px 24px 24px; }
     .spend-summary { margin: 0 24px 24px; }
     .scope-toggle { margin: 0 24px 16px; }
@@ -767,7 +774,6 @@
       <img id="car-photo-bg" alt="" aria-hidden="true">
       <img id="car-photo" alt="My car">
       <div class="car-upload-prompt" id="upload-prompt">
-        <div class="brand-logo upload-emblem" id="upload-prompt-emblem" aria-hidden="true"></div>
         <span>Tap to add a photo</span>
         <small id="upload-prompt-sub">Your car, your build</small>
       </div>
@@ -775,6 +781,10 @@
         <button class="car-photo-btn" id="change-photo-btn" style="display:none">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
           Change
+        </button>
+        <button class="car-photo-btn danger" id="delete-photo-btn" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          Delete
         </button>
       </div>
       <input type="file" id="photo-input" accept="image/*">

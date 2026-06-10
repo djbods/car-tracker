@@ -7,13 +7,16 @@ import { dbGet, dbDel } from './legacy-db.js';
 import {
   uploadVehiclePhoto,
   getVehiclePhotoUrl,
+  deleteVehiclePhoto,
 } from '../data.js';
+import { renderAll } from './render.js';
 
 const photoInput     = document.getElementById('photo-input');
 const carPhoto       = document.getElementById('car-photo');
 const carPhotoBg     = document.getElementById('car-photo-bg');
 const uploadPrompt   = document.getElementById('upload-prompt');
 const changePhotoBtn = document.getElementById('change-photo-btn');
+const deletePhotoBtn = document.getElementById('delete-photo-btn');
 
 // Preferred source: the vehicle row's photo_path → signed URL from
 // Storage. Fallback: a photo still living in IndexedDB from before this
@@ -53,6 +56,7 @@ export function applyPhoto(src) {
   carPhotoBg.classList.add('loaded');
   uploadPrompt.classList.add('hidden');
   changePhotoBtn.style.display = 'flex';
+  deletePhotoBtn.style.display = 'flex';
 }
 
 // Clear the on-screen photo back to the empty-state prompt. Used when
@@ -64,6 +68,7 @@ export function resetPhoto() {
   carPhotoBg.classList.remove('loaded');
   uploadPrompt.classList.remove('hidden');
   changePhotoBtn.style.display = 'none';
+  deletePhotoBtn.style.display = 'none';
 }
 
 // Wire up the photo upload pipeline. Called from main.js after the
@@ -77,6 +82,22 @@ export function wirePhotoHandlers({ openCarModal }) {
     if (!carPhoto.classList.contains('loaded')) photoInput.click();
   });
   changePhotoBtn.addEventListener('click', () => photoInput.click());
+
+  deletePhotoBtn.addEventListener('click', async () => {
+    if (!state.vehicleId) return;
+    if (!confirm('Remove this photo?')) return;
+    try {
+      await deleteVehiclePhoto(state.vehicleId, state.car.photoPath);
+      state.car.photoPath = null;
+      const v = state.vehicles.find(x => x.id === state.vehicleId);
+      if (v) v.photo_path = null;
+      resetPhoto();
+      renderAll();   // re-evaluate the stage: cutout (if any) or prompt
+      showToast('Photo removed ✓');
+    } catch (err) {
+      showToast('Delete failed: ' + (err?.message || 'unknown error'));
+    }
+  });
 
   photoInput.addEventListener('change', e => {
     const file = e.target.files[0];

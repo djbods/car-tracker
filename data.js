@@ -381,6 +381,20 @@ export async function uploadVehiclePhoto(vehicleId, blob) {
   return path;
 }
 
+// Remove a vehicle's photo: delete the storage object (best-effort) and clear
+// photo_path on the row so the card falls back to its cutout / prompt.
+export async function deleteVehiclePhoto(vehicleId, photoPath) {
+  if (!vehicleId) throw new Error('No vehicle');
+  if (photoPath) {
+    await supabase.storage.from(PHOTO_BUCKET).remove([photoPath]).catch(() => {});
+  }
+  const { error } = await supabase
+    .from('vehicles')
+    .update({ photo_path: null })
+    .eq('id', vehicleId);
+  if (error) throw error;
+}
+
 // Signed URL good for one hour — enough for a single page session. The
 // <img> tag caches the bitmap, so we don't need a long-lived URL.
 export async function getVehiclePhotoUrl(photoPath) {

@@ -67,10 +67,8 @@ export function renderCarCard() {
 
   renderBrandLogo(document.getElementById('car-brand-logo'), make);
 
-  // Brand the empty photo state too, so a car with no photo still feels
-  // recognised: its manufacturer emblem fills the hero instead of a bare
-  // grey upload box.
-  renderBrandLogo(document.getElementById('upload-prompt-emblem'), make);
+  // Empty photo state keeps just the "add a photo" prompt — the brand emblem
+  // already sits in the card head, so there's no need to repeat it on the stage.
   const promptSub = document.getElementById('upload-prompt-sub');
   if (promptSub) promptSub.textContent = make ? `Your ${make} · your build` : 'Your car, your build';
 
@@ -92,17 +90,12 @@ export function renderCarCard() {
     }));
   }
 
-  // Stage image precedence: the user's own uploaded photo wins (it's their
-  // actual car); otherwise a curated side-profile cutout floats as the hero;
-  // otherwise the branded emblem state (the upload prompt, driven by photo.js).
+  // Stage image precedence: a curated cutout is the hero whenever one exists
+  // (.has-cutout hides the photo + prompt layers); otherwise the user's
+  // uploaded photo; otherwise the "add a photo" prompt.
   const stageEl  = document.getElementById('car-image-wrap');
   const cutoutEl = document.getElementById('car-cutout');
-  let hasCutout = false;
-  if (state.car.photoPath) {
-    if (cutoutEl) { cutoutEl.removeAttribute('src'); cutoutEl.classList.remove('loaded'); }
-  } else {
-    hasCutout = renderVehicleCutout(cutoutEl, state.car);
-  }
+  const hasCutout = renderVehicleCutout(cutoutEl, state.car);
   if (stageEl) stageEl.classList.toggle('has-cutout', hasCutout);
 
   // Lifecycle: when the active car is sold or archived, show a read-only
