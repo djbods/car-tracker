@@ -14,7 +14,8 @@ import { brandLogoSlug } from './logos.js';
 // in its image. Empty is fine — every car then shows the emblem fallback, so
 // nothing looks broken before assets are seeded.
 const CUTOUT_SLUGS = new Set([
-  // e.g. 'bmw-530i', 'toyota-86', 'ford-mustang-gt'
+  'bmw-530i',
+  // add a slug here when you drop its PNG in /cars/
 ]);
 
 function slugify(s) {
