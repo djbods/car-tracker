@@ -7,7 +7,6 @@
 import {
   state,
   fmt, fmtDate, formatBytes,
-  isBMW,
   typeIcons, typeLabels,
   SCOPE_LABELS,
   expiryStatus, docIcon,
@@ -28,14 +27,12 @@ const detailModal = document.getElementById('detail-modal');
 // ══════════════════════════════════════════════════════
 
 export function renderCarCard() {
-  const { year, make, model, body, engine, variant, colour, odo, odoUnit, nickname,
+  const { year, make, model, variant, colour, odo, odoUnit, nickname,
           fuelType, drivetrain, transmission } = state.car;
-  const bmw = isBMW(make);
 
-  // Name: nickname > "Model Body" (BMW) or "Model Variant" (other) > Model
+  // Name: nickname > "Model Variant" > Model
   const displayName = nickname
-    || (bmw ? [model, body].filter(Boolean).join(' ').trim()
-            : [model, variant].filter(Boolean).join(' ').trim())
+    || [model, variant].filter(Boolean).join(' ').trim()
     || model
     || 'Add your first vehicle';
   document.getElementById('car-name-display').textContent = displayName;
@@ -51,12 +48,10 @@ export function renderCarCard() {
   // car's identity line (year · make · odometer).
   document.getElementById('car-sub-display').textContent = parts.join(' · ') || '';
 
-  // Badge: BMW (and anything with an engine on record) shows a MODEL · ENGINE
-  // badge for the enthusiast detail; everyone else gets a generic MAKE · MODEL
-  // badge in the same spot.
+  // Badge: a MODEL · VARIANT spec chip when a trim is recorded, else MAKE · MODEL.
   const badge = document.getElementById('car-badge');
-  if (bmw && engine && model) {
-    badge.textContent = `${model} · ${engine}`.toUpperCase();
+  if (model && variant) {
+    badge.textContent = `${model} · ${variant}`.toUpperCase();
     badge.style.display = '';
   } else if (make && model) {
     badge.textContent = `${make} · ${model}`.toUpperCase();

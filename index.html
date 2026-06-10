@@ -1098,36 +1098,10 @@
       </div>
     </div>
 
-    <!-- BMW-only: chassis-style dropdowns. Shown when make = BMW. -->
-    <div id="car-bmw-fields">
-      <div class="form-row">
-        <div class="form-group"><label>Model</label>
-          <select id="car-model">
-            <option value="520i">520i</option><option value="523i">523i</option><option value="525i">525i</option>
-            <option value="528i">528i</option><option value="530i" selected>530i</option><option value="535i">535i</option>
-            <option value="540i">540i</option><option value="M5">M5</option>
-            <option value="525d">525d</option><option value="530d">530d</option><option value="535d">535d</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Body</label>
-          <select id="car-body"><option value="Sedan" selected>Sedan</option><option value="Touring">Touring</option></select>
-        </div>
-      </div>
-      <div class="form-group"><label>Engine</label>
-        <select id="car-engine">
-          <option value="M52">M52</option><option value="M52TU">M52TU</option><option value="M54" selected>M54</option>
-          <option value="M62">M62</option><option value="S62">S62</option>
-          <option value="M57">M57</option><option value="M57TU">M57TU</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Generic: plain Model + Variant text inputs. Shown when make != BMW. -->
-    <div id="car-generic-fields">
-      <div class="form-row">
-        <div class="form-group"><label>Model</label><input type="text" id="car-model-text" placeholder="e.g. Camry, Mustang, Golf…"></div>
-        <div class="form-group"><label>Variant / Trim</label><input type="text" id="car-variant-text" placeholder="e.g. GTI, Sport, RS…"></div>
-      </div>
+    <!-- Model + variant/trim: free text for every make. -->
+    <div class="form-row">
+      <div class="form-group"><label>Model</label><input type="text" id="car-model-text" placeholder="e.g. M3, Camry, Mustang…"></div>
+      <div class="form-group"><label>Variant / Trim (optional)</label><input type="text" id="car-variant-text" placeholder="e.g. Competition, GTI, RS…"></div>
     </div>
 
     <div class="form-group"><label>Colour</label><input type="text" id="car-colour" placeholder="e.g. Titan Silver, Cosmos Black…"></div>

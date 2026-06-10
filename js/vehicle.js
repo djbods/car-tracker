@@ -4,7 +4,7 @@
 
 import {
   state, ACTIVE_VEHICLE_KEY,
-  isBMW, showToast, close,
+  showToast, close,
 } from './state.js';
 import {
   loadVehicles, upsertVehicle, rowToCar,
@@ -21,9 +21,7 @@ const garageModal   = document.getElementById('garage-modal');
 const garageList    = document.getElementById('garage-list');
 const carModalTitle = document.querySelector('#car-modal .modal-title');
 const saveCarBtn    = document.getElementById('save-car-btn');
-const carBmwFields     = document.getElementById('car-bmw-fields');
-const carGenericFields = document.getElementById('car-generic-fields');
-const carMakeInput     = document.getElementById('car-make');
+const carMakeInput  = document.getElementById('car-make');
 
 // ══════════════════════════════════════════════════════
 // Load + switch
@@ -115,14 +113,6 @@ export function applyGarageName(name) {
 // Car modal — add / edit
 // ══════════════════════════════════════════════════════
 
-// Show the chassis/body/engine dropdowns for BMW, plain text inputs for
-// everything else. Driven by the Make field's current value.
-function applyMakeMode() {
-  const bmw = isBMW(carMakeInput.value);
-  carBmwFields.style.display     = bmw ? '' : 'none';
-  carGenericFields.style.display = bmw ? 'none' : '';
-}
-
 // Reveal Sold date/price inputs only when status = sold; keeps the form
 // uncluttered for the 99% case where the user is editing a car they
 // still own.
@@ -140,14 +130,7 @@ export function openCarModal(mode) {
   const src = isEdit ? state.car : { odoUnit:'km' };
   document.getElementById('car-year').value     = src.year     || '';
   carMakeInput.value                            = src.make     || '';
-  // BMW dropdowns: keep their current select option if the saved value
-  // matches, otherwise let the select default to its first <option>.
-  document.getElementById('car-model').value    = src.model    || '530i';
-  document.getElementById('car-body').value     = src.body     || 'Sedan';
-  document.getElementById('car-engine').value   = src.engine   || 'M54';
-  // Generic text inputs share the same column but use different state
-  // fields.
-  document.getElementById('car-model-text').value   = isBMW(src.make) ? '' : (src.model || '');
+  document.getElementById('car-model-text').value   = src.model   || '';
   document.getElementById('car-variant-text').value = src.variant || '';
   document.getElementById('car-colour').value   = src.colour   || '';
   document.getElementById('car-odo').value      = src.odo      || '';
@@ -162,7 +145,6 @@ export function openCarModal(mode) {
   document.getElementById('car-sold-price').value = src.soldPrice || '';
   applyStatusMode();
 
-  applyMakeMode();
   carModalTitle.textContent = isEdit ? 'Car Details' : 'Add Vehicle';
   saveCarBtn.textContent    = isEdit ? 'Save Details' : 'Add Vehicle';
   carModal.classList.add('open');
@@ -194,8 +176,7 @@ export function renderGarageList() {
   state.vehicles.forEach(v => {
     const c = rowToCar(v);
     const isActive = v.id === state.vehicleId;
-    const bmw = isBMW(c.make);
-    const trailing = bmw ? c.body : c.variant;
+    const trailing = c.variant;
     const btn = document.createElement('button');
     btn.type = 'button';
     const lifecycleClass = c.status === 'sold' ? ' sold' : c.status === 'archived' ? ' archived' : '';
@@ -234,7 +215,6 @@ export function renderGarageList() {
 // ══════════════════════════════════════════════════════
 
 export function wireVehicleHandlers() {
-  carMakeInput.addEventListener('input', applyMakeMode);
   document.getElementById('car-status').addEventListener('change', applyStatusMode);
   document.getElementById('car-edit-btn').onclick = () => openCarModal('edit');
 
@@ -242,10 +222,7 @@ export function wireVehicleHandlers() {
     const make = carMakeInput.value.trim();
     if (!make) { showToast('Make is required'); return; }
 
-    const bmw = isBMW(make);
-    const model = bmw
-      ? document.getElementById('car-model').value
-      : document.getElementById('car-model-text').value.trim();
+    const model = document.getElementById('car-model-text').value.trim();
     if (!model) { showToast('Model is required'); return; }
 
     const next = {
@@ -253,10 +230,7 @@ export function wireVehicleHandlers() {
       year:     document.getElementById('car-year').value.trim(),
       make,
       model,
-      // BMW preserves chassis/body/engine; other makes carry a free-text variant.
-      body:     bmw ? document.getElementById('car-body').value   : null,
-      engine:   bmw ? document.getElementById('car-engine').value : null,
-      variant:  bmw ? '' : document.getElementById('car-variant-text').value.trim(),
+      variant:  document.getElementById('car-variant-text').value.trim(),
       colour:   document.getElementById('car-colour').value.trim(),
       odo:      document.getElementById('car-odo').value.trim(),
       odoUnit:  document.getElementById('car-odo-unit').value,
@@ -290,14 +264,12 @@ export function wireVehicleHandlers() {
     const draftRow = {
       id:            tmpId,
       nickname:      next.nickname
-        || [next.model, next.body].filter(Boolean).join(' ').trim()
+        || [next.model, next.variant].filter(Boolean).join(' ').trim()
         || `My ${next.make}`,
       make:          next.make,
       model:         next.model,
       year:          next.year ? parseInt(next.year, 10) : null,
       variant:       next.variant || null,
-      body:          next.body   || null,
-      engine:        next.engine || null,
       colour:        next.colour || null,
       odometer:      next.odo ? parseInt(next.odo, 10) : null,
       odometer_unit: next.odoUnit || 'km',
