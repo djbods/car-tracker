@@ -1,16 +1,22 @@
-# Cutout image attributions
+# Cutout image attributions / provenance
 
-Each cutout is a background-removed derivative of a source photo. Where the
-source licence requires it, credit and licence are recorded here. Keep this file
-in sync when adding cutouts.
+Each cutout is a background-removed, alpha-feathered derivative of a source
+image. Record the source + licence here so the provenance is auditable —
+especially important before any public / commercial launch.
 
-| File | Source | Author | Licence |
-|------|--------|--------|---------|
-| `bmw-530i.png` | [BMW 5 series e39.jpg](https://commons.wikimedia.org/wiki/File:BMW_5_series_e39.jpg) (Wikimedia Commons) | MichalPL | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| File | Source | Licence / status |
+|------|--------|------------------|
+| `bmw-530i.png` | Jack-supplied | ⚠️ source/licence to confirm |
+| `bmw-528i.png` | Jack-supplied | ⚠️ source/licence to confirm |
+| `bmw-530i-green.png` | Jack-supplied | ⚠️ source/licence to confirm |
+| `bmw-335i.png` | BMW E92 side profile from a BIMMERPOST forum post (carried a "BIMMERPOST BMW ENTHUSIAST CLUB" watermark) | ⚠️ **not** an open licence — likely copyrighted |
 
-## CC BY-SA note
+## ⚠️ Licensing note
 
-`bmw-530i.png` is an adaptation of a CC BY-SA 4.0 photo, so the cutout itself is
-distributed under **CC BY-SA 4.0** with attribution to **MichalPL**. If that
-obligation is unwanted, replace it with a public-domain / CC0 source or a
-licensed studio render.
+Most of these were hand-sourced rather than pulled from a public-domain / CC
+catalogue, so their reuse rights are **unconfirmed**. The `bmw-335i.png` source
+specifically carried an enthusiast-forum watermark, i.e. it's someone else's
+copyrighted image. That's low-risk for a private single-user garage, but **before
+shipping this publicly / commercially, replace any unlicensed cutouts** with
+public-domain / CC sources (see the E39 method in the `car-tracker-vehicle-cutouts`
+memory) or licensed studio renders.

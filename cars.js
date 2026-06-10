@@ -14,7 +14,10 @@ import { brandLogoSlug } from './logos.js';
 // in its image. Empty is fine — every car then shows the emblem fallback, so
 // nothing looks broken before assets are seeded.
 const CUTOUT_SLUGS = new Set([
+  'bmw-530i-green',
+  'bmw-528i',
   'bmw-530i',
+  'bmw-335i',
   // add a slug here when you drop its PNG in /cars/
 ]);
 
@@ -36,10 +39,21 @@ export function vehicleCutoutCandidates(car) {
   const model = slugify(car.model);
   if (!model) return [];
   const variant = slugify(car.variant);
+  const colour = slugify(car.colour);
   const out = [];
+if (colour) {
+    if (variant) {
+      out.push(`${make}-${model}-${variant}-${colour}`);
+    }
+    out.push(`${make}-${model}-${colour}`);   // ← this line was missing / broken
+  }
+
   if (variant) out.push(`${make}-${model}-${variant}`);
+
   out.push(`${make}-${model}`);
+  console.log(out);
   return out;
+
 }
 
 // First candidate that has a curated file, else null.
