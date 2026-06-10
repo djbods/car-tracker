@@ -30,30 +30,42 @@ function slugify(s) {
     .replace(/^-+|-+$/g, '');
 }
 
-// Candidate slugs, most-specific first. makeSlug reuses logos' alias map so
-// "Mercedes-Benz", "merc", "VW" etc. normalise the same way the emblem does.
+// Candidate slugs for a car, ordered MOST-SPECIFIC → least, so vehicleCutoutSrc
+// picks the richest cutout that actually exists and degrades gracefully:
+//   bmw-530i-sedan-green-2002 → … → bmw-530i-green → … → bmw-530i
+// Facets: make (via logos' alias map, so "Mercedes-Benz"/"VW" normalise like the
+// emblem), model, a single "spec" (BMW stores body sedan/touring; other makes a
+// variant/trim — they're mutually exclusive), colour, and year. Among equal
+// specificity, colour ranks above spec above year, so a colour match wins.
 export function vehicleCutoutCandidates(car) {
   if (!car) return [];
   const make = brandLogoSlug(car.make);   // 'bmw', 'land_rover', … or '_generic'
   if (make === '_generic') return [];      // unknown make → don't attempt a cutout
   const model = slugify(car.model);
   if (!model) return [];
-  const variant = slugify(car.variant);
+
+  const spec   = slugify(car.variant) || slugify(car.body);
   const colour = slugify(car.colour);
+  const year   = slugify(car.year);
+  const base   = `${make}-${model}`;
+
   const out = [];
-if (colour) {
-    if (variant) {
-      out.push(`${make}-${model}-${variant}-${colour}`);
-    }
-    out.push(`${make}-${model}-${colour}`);   // ← this line was missing / broken
-  }
+  const add = (...parts) => {
+    const kept = parts.filter(Boolean);
+    if (!kept.length) return;            // skip empty combos; base added last
+    const slug = [base, ...kept].join('-');
+    if (!out.includes(slug)) out.push(slug);
+  };
 
-  if (variant) out.push(`${make}-${model}-${variant}`);
-
-  out.push(`${make}-${model}`);
-  console.log(out);
+  add(spec, colour, year);   // three facets
+  add(spec, colour);         // two
+  add(colour, year);
+  add(spec, year);
+  add(colour);               // one
+  add(spec);
+  add(year);
+  if (!out.includes(base)) out.push(base);   // make-model
   return out;
-
 }
 
 // First candidate that has a curated file, else null.
