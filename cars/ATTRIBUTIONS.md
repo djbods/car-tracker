@@ -21,6 +21,20 @@ Full C / E / S / SL lineage plus the AMG GT (C190) and G-Class (W463).
 | `mercedes-w113.png` (280SL Pagoda) | bhauction.com auction listing photo | ⚠️ source/licence to confirm — **watermark-free** |
 | The other 27 (`r107`, `r129`, `r230`, `r231`, `r232`, `w116`, `w123`, `w124`, `w126`, `w140`, `w201`, `w202`, `w203`, `w204`, `w205`, `w206`, `w210`, `w211`, `w212`, `w213`, `w214`, `w220`, `w221`, `w222`, `w223`, `c190`, `w463`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
 
+## Bugatti (8 model cutouts)
+
+Bugatti uses model names rather than chassis codes, so these slugs are
+model-named and resolve via the model tier. Carsized only catalogues two
+Bugattis (Chiron, EB110); the remaining six were sourced from NetCarShow.com
+"Side_Profile" studio press photos (background removed by rembg). Type 35 (1924)
+and Type 57 (1936) were requested but **dropped** — no clean orthographic
+side-view render of either could be sourced.
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| `bugatti-chiron.png`, `bugatti-eb110.png` | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — faint tiled "carsized.com" watermark baked into bodywork (background watermark removed by rembg) |
+| `bugatti-veyron.png`, `bugatti-divo.png`, `bugatti-centodieci.png`, `bugatti-mistral.png`, `bugatti-bolide.png`, `bugatti-tourbillon.png` | NetCarShow.com "Side_Profile" studio press photos (manufacturer press imagery) | ⚠️ source/licence to confirm — copyrighted press photos, background removed by rembg; **not** an open licence |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC

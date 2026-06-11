@@ -71,6 +71,18 @@ const CUTOUT_SLUGS = new Set([
   'bmw-e21',  // 3-series (1975-1983) - original 3-series
   'bmw-e9',   // CS coupe (1968-1975) - beautiful classic coupe
   'bmw-e70',  // X6 (2006-2014) - original SUV coupe, invented segment
+
+  // Bugatti — model-named side profiles. Bugatti uses model names, not chassis
+  // codes, so these resolve via the model tier add(model): a user typing
+  // "Veyron"/"Chiron"/etc. in the model field renders straight from the slug.
+  'bugatti-eb110',       // EB110 (1991-1995) - Campogalliano-era 90s revival
+  'bugatti-veyron',      // Veyron (2005-2015) - first modern W16 hypercar
+  'bugatti-chiron',      // Chiron (2016-2022) - Veyron successor
+  'bugatti-divo',        // Divo (2018) - track-focused Chiron derivative
+  'bugatti-centodieci',  // Centodieci (2019) - EB110 homage, 10 units
+  'bugatti-mistral',     // W16 Mistral (2022) - final W16, roadster
+  'bugatti-bolide',      // Bolide (2024) - extreme track-focused hypercar
+  'bugatti-tourbillon',  // Tourbillon (2026) - new V16 hybrid flagship
   // add a slug here when you drop its PNG in /cars/
 ]);
 
