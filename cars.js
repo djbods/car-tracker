@@ -96,18 +96,13 @@ export function vehicleCutoutCandidates(car) {
 // cutout (see render.js).
 export const VEHICLE_COVER_SRC = 'cars/_covered.png';
 
-// First candidate that has a curated file, else null. After the ordered
-// candidates fail, a loose make-level pass returns the first curated cutout for
-// the make, so any BMW shows *a* BMW silhouette rather than nothing.
+// First candidate that has a curated file, else null. Only an actual match in
+// the ordered candidate ladder counts — no loose "any cutout for this make"
+// guess. When nothing matches, the card degrades to the brand emblem / cover
+// (see render.js) rather than showing some unrelated specific car.
 export function vehicleCutoutSrc(car) {
   for (const slug of vehicleCutoutCandidates(car)) {
     if (CUTOUT_SLUGS.has(slug)) return `cars/${slug}.png`;
-  }
-  const make = car ? brandLogoSlug(car.make) : '_generic';
-  if (make !== '_generic') {
-    for (const slug of CUTOUT_SLUGS) {
-      if (slug === make || slug.startsWith(`${make}-`)) return `cars/${slug}.png`;
-    }
   }
   return null;
 }
