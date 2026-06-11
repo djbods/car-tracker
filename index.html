@@ -1103,11 +1103,13 @@
       </div>
     </div>
 
-    <!-- Model + variant/trim: free text for every make. -->
+    <!-- Model + chassis/generation + variant/trim: free text for every make.
+         Chassis (E39, G80, Mk7…) drives the most-specific car-cutout match. -->
     <div class="form-row">
       <div class="form-group"><label>Model</label><input type="text" id="car-model-text" placeholder="e.g. M3, Camry, Mustang…"></div>
-      <div class="form-group"><label>Variant / Trim (optional)</label><input type="text" id="car-variant-text" placeholder="e.g. Competition, GTI, RS…"></div>
+      <div class="form-group"><label>Chassis / Gen (optional)</label><input type="text" id="car-chassis-text" placeholder="e.g. E39, G80, Mk7…" autocomplete="off"></div>
     </div>
+    <div class="form-group"><label>Variant / Trim (optional)</label><input type="text" id="car-variant-text" placeholder="e.g. Competition, GTI, RS…"></div>
 
     <div class="form-group"><label>Colour</label><input type="text" id="car-colour" placeholder="e.g. Titan Silver, Cosmos Black…"></div>
     <div class="form-row">
