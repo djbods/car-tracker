@@ -18,6 +18,41 @@ const CUTOUT_SLUGS = new Set([
   'bmw-528i',
   'bmw-530i',
   'bmw-335i',
+  // Mercedes-Benz — chassis-code side profiles, grouped by model line.
+  // SL roadster (full lineage):
+  'mercedes-w198',  // 300SL Gullwing (1954-1963)
+  'mercedes-w113',  // 280SL Pagoda (1963-1971)
+  'mercedes-r107',  // SL (1971-1989)
+  'mercedes-r129',  // SL (1989-2001)
+  'mercedes-r230',  // SL (2001-2012)
+  'mercedes-r231',  // SL (2012-2020)
+  'mercedes-r232',  // AMG SL (2021-present)
+  // S-Class (full lineage):
+  'mercedes-w116',  // S-Class (1972-1980)
+  'mercedes-w126',  // S-Class (1979-1991)
+  'mercedes-w140',  // S-Class (1991-1998)
+  'mercedes-w220',  // S-Class (1998-2005)
+  'mercedes-w221',  // S-Class (2005-2013)
+  'mercedes-w222',  // S-Class (2013-2020)
+  'mercedes-w223',  // S-Class (2020-present)
+  // E-Class (full lineage):
+  'mercedes-w123',  // (1976-1986)
+  'mercedes-w124',  // E-Class (1984-1995)
+  'mercedes-w210',  // E-Class (1995-2002)
+  'mercedes-w211',  // E-Class (2002-2009)
+  'mercedes-w212',  // E-Class (2009-2016)
+  'mercedes-w213',  // E-Class (2016-2023)
+  'mercedes-w214',  // E-Class (2023-present)
+  // C-Class (full lineage):
+  'mercedes-w201',  // 190E (1982-1993)
+  'mercedes-w202',  // C-Class (1993-2000)
+  'mercedes-w203',  // C-Class (2000-2007)
+  'mercedes-w204',  // C-Class (2007-2014)
+  'mercedes-w205',  // C-Class (2014-2021)
+  'mercedes-w206',  // C-Class (2021-present)
+  // Halo / other:
+  'mercedes-c190',  // AMG GT (2015-2021)
+  'mercedes-w463',  // G-Class (1990-present)
   // add a slug here when you drop its PNG in /cars/
 ]);
 
