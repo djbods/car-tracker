@@ -68,28 +68,66 @@
   .header-label { font-size: 11px; letter-spacing: 2px; color: var(--accent); font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
   .header-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(42px, calc(36px + 2vw), 64px); letter-spacing: 1px; line-height: 1; }
 
-  /* ── CAR CARD ── */
-  .car-card { margin: 0 16px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-  .car-image-wrap { height: clamp(180px, 28vw, 420px); background: #0e0e0e; position: relative; overflow: hidden; cursor: pointer; }
-  .car-image-wrap:active { opacity: 0.88; }
-  #car-photo { width: 100%; height: 100%; object-fit: cover; object-position: center; display: none; }
+  /* ── CAR CARD (floating cutout + spec layout, Porsche-style) ── */
+  .pcard { position: relative; margin: clamp(60px, 14%, 124px) 16px 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; }
+
+  /* Stage = the top strip. Photo/prompt mode → a clean neutral banner (the old
+     gold glow clashed with the page section colour, so it's gone). */
+  .pcard-stage { position: relative; height: clamp(150px, 20vw, 200px); border-radius: 18px 18px 0 0; overflow: hidden; cursor: pointer;
+    background: linear-gradient(180deg, #1b1b20 0%, #111114 100%); }
+  .pcard-stage:active { opacity: 0.9; }
+  /* Cutout mode (Porsche-style): no banner, no gradient — the car floats above
+     the card's top edge. The car and the reserved zone both scale with card
+     width, and the car is anchored to the top edge by 50% of its OWN height
+     (translateY -50%), so it straddles the edge identically at every screen
+     size — no jump on mobile. */
+  .pcard-stage.has-cutout { height: 0; padding-bottom: clamp(52px, 15%, 116px); overflow: visible; background: transparent; }
+
+  /* photo layers — contained image over a blurred enlarged copy so any aspect
+     ratio reads as intentional (used when the user uploaded their own photo). */
+  #car-photo-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.18); filter: blur(34px) saturate(1.3) brightness(0.5); display: none; }
+  #car-photo-bg.loaded { display: block; }
+  #car-photo { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; object-position: center; display: none; }
   #car-photo.loaded { display: block; }
-  .car-upload-prompt { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--muted); }
+  .pcard-stage.has-cutout #car-photo,
+  .pcard-stage.has-cutout #car-photo-bg,
+  .pcard-stage.has-cutout .car-upload-prompt { display: none !important; }
+
+  /* Floating cutout — clean side-profile that straddles the card's top edge.
+     drop-shadow follows the PNG alpha for a real contact shadow. */
+  .pcard-cutout { position: absolute; left: 50%; top: 0; z-index: 5;
+    width: clamp(232px, 66%, 450px); height: auto;
+    transform: translate(-50%, -50%);   /* 50% of the car sits above the card top edge */
+    object-fit: contain; pointer-events: none;
+    filter: drop-shadow(0 12px 16px rgba(0,0,0,0.45)); display: none; }
+  .pcard-cutout.loaded { display: block; }
+
+  /* emblem state (no photo, no cutout) — sits on the stage's own glow */
+  .car-upload-prompt { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); background: transparent; }
   .car-upload-prompt.hidden { display: none; }
-  .car-upload-prompt svg { width: 32px; height: 32px; opacity: 0.35; }
-  .car-upload-prompt span { font-size: 13px; opacity: 0.5; }
-  .car-upload-prompt small { font-size: 11px; opacity: 0.3; }
-  .car-image-actions { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
-  .car-edit-btn, .car-photo-btn { pointer-events: all; background: rgba(10,10,10,0.65); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 5px; transition: color 0.2s; }
-  .car-edit-btn:active, .car-photo-btn:active { color: var(--accent); }
-  .car-edit-btn svg, .car-photo-btn svg { width: 12px; height: 12px; }
-  .car-badge { background: rgba(200,168,75,0.15); border: 1px solid rgba(200,168,75,0.3); color: var(--accent2); font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; }
+  .car-upload-prompt span { font-size: 13px; font-weight: 500; color: var(--text); opacity: 0.9; }
+  .car-upload-prompt small { font-size: 11px; opacity: 0.45; }
+
+  /* small photo chip on the stage (add / change your own photo) */
+  .pcard-stage-actions { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; gap: 6px; }
+  .car-photo-btn { background: rgba(10,10,10,0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.8); font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 5px; transition: color 0.2s; }
+  .car-photo-btn:active { color: var(--accent); }
+  .car-photo-btn.danger:active { color: var(--red); }
+  .car-photo-btn svg { width: 12px; height: 12px; }
   #photo-input { display: none; }
 
-  .car-info { padding: 16px 20px; }
-  .car-name-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-  .car-name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px, calc(24px + 1vw), 36px); letter-spacing: 1px; line-height: 1; }
+  /* card body */
+  .pcard-body { padding: 16px 22px 22px; }
+  .pcard-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+  .car-name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(30px, calc(24px + 1.4vw), 40px); letter-spacing: 1px; line-height: 0.95; }
   .car-sub { color: var(--muted); font-size: 13px; margin-top: 3px; font-weight: 300; }
+  .car-badge { display: inline-block; margin-top: 10px; background: rgba(200,168,75,0.14); border: 1px solid rgba(200,168,75,0.3); color: var(--accent2); font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; }
+
+  /* spec pills (year is the gold lead pill; rest are outlined) */
+  .pcard-pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+  .pcard-pills:empty { display: none; }
+  .pill { font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); color: var(--text); }
+  .pill.lead { background: var(--accent); border-color: var(--accent); color: #1a1407; font-weight: 700; }
 
   /* Brand logo — full-colour manufacturer emblem (car-logos dataset) rendered
      as an <img> on a light "chip". Car badges are designed for light
@@ -117,6 +155,24 @@
   .stat-val.overdue { color: var(--red); }
   .stat-val.good { color: var(--green); }
   .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+  /* spec stack — headline ownership numbers, Porsche-style (big value, quiet label) */
+  .pcard-specs { margin-top: 20px; }
+  .pcard-specs .spec { padding: 13px 0; border-top: 1px solid var(--border); }
+  .pcard-specs .spec:first-child { border-top: none; padding-top: 4px; }
+  .pcard-specs .stat-val { font-size: 22px; font-weight: 600; line-height: 1; }
+  .pcard-specs .stat-val.overdue { color: var(--red); }
+  .pcard-specs .stat-val.good { color: var(--green); }
+  .pcard-specs .stat-label { font-size: 12px; color: var(--muted); letter-spacing: 0; text-transform: none; margin-top: 5px; }
+
+  /* bottom CTA row */
+  .pcard-cta { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-pcard { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 12px; border-radius: 11px; font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; border: 1px solid transparent; transition: filter 0.15s, background 0.15s; }
+  .btn-pcard svg { width: 15px; height: 15px; }
+  .btn-pcard.primary { background: var(--accent); color: #1a1407; }
+  .btn-pcard.primary:active { filter: brightness(0.92); }
+  .btn-pcard.ghost { background: transparent; border-color: var(--border); color: var(--text); }
+  .btn-pcard.ghost:active { background: var(--surface2); }
 
   /* ── SECTION ── */
   .section-header { padding: 8px 20px 12px; font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
@@ -575,8 +631,8 @@
      card instead of a bottom sheet. */
   @media (min-width: 640px) {
     .header { padding: 40px 24px 24px; }
-    .car-card { margin: 0 24px 28px; }
-    .car-info { padding: 20px 24px; }
+    .pcard { margin: clamp(60px, 14%, 124px) 24px 28px; }
+    .pcard-body { padding: 18px 24px 24px; }
     .spend-summary { margin: 0 24px 24px; }
     .scope-toggle { margin: 0 24px 16px; }
     .biggest-card { margin: 0 24px 24px; }
@@ -716,53 +772,58 @@
     <button class="install-banner-close" id="dismiss-banner">×</button>
   </div>
 
-  <div class="car-card">
-    <div class="car-image-wrap" id="car-image-wrap">
+  <div class="pcard">
+    <!-- floating cutout (cutout mode only) — straddles the card's top edge -->
+    <img class="pcard-cutout" id="car-cutout" alt="" aria-hidden="true">
+    <div class="pcard-stage" id="car-image-wrap">
+      <img id="car-photo-bg" alt="" aria-hidden="true">
       <img id="car-photo" alt="My car">
       <div class="car-upload-prompt" id="upload-prompt">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
         <span>Tap to add a photo</span>
-        <small>Your car, your build</small>
+        <small id="upload-prompt-sub">Your car, your build</small>
       </div>
-      <div class="car-image-actions">
-        <div style="display:flex;gap:6px">
-          <button class="car-edit-btn" id="car-edit-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Edit
-          </button>
-          <button class="car-edit-btn" id="car-garage-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v10a1 1 0 01-1 1H4a1 1 0 01-1-1V11z"/><path d="M7 16h10"/></svg>
-            Garage
-          </button>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-          <div class="car-badge" id="car-badge" style="display:none"></div>
-          <button class="car-photo-btn" id="change-photo-btn" style="display:none">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            Change
-          </button>
-        </div>
+      <div class="pcard-stage-actions">
+        <button class="car-photo-btn" id="change-photo-btn" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Change
+        </button>
+        <button class="car-photo-btn danger" id="delete-photo-btn" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          Delete
+        </button>
       </div>
       <input type="file" id="photo-input" accept="image/*">
     </div>
-    <div class="car-info">
-      <div class="car-name-row">
+    <div class="pcard-body">
+      <div class="pcard-head">
         <div>
           <div class="car-name" id="car-name-display"></div>
           <div class="car-sub" id="car-sub-display"></div>
         </div>
         <div class="brand-logo brand-logo-lg" id="car-brand-logo" aria-hidden="true"></div>
       </div>
+      <div class="car-badge" id="car-badge" style="display:none"></div>
+      <div class="pcard-pills" id="car-pills"></div>
       <div class="sold-banner" id="sold-banner" role="status">
         <div>
           <div class="sold-banner-title" id="sold-banner-title">Sold</div>
           <div class="sold-banner-detail" id="sold-banner-detail"></div>
         </div>
       </div>
-      <div class="car-stats">
-        <div class="stat"><div class="stat-val" id="stat-mods">0</div><div class="stat-label">Mods</div></div>
-        <div class="stat"><div class="stat-val" id="stat-spent">$0</div><div class="stat-label">Invested</div></div>
-        <div class="stat"><div class="stat-val overdue" id="stat-service">–</div><div class="stat-label">Service</div></div>
+      <div class="pcard-specs">
+        <div class="spec"><div class="stat-val" id="stat-mods">0</div><div class="stat-label">Modifications</div></div>
+        <div class="spec"><div class="stat-val" id="stat-spent">$0</div><div class="stat-label">Invested</div></div>
+        <div class="spec"><div class="stat-val overdue" id="stat-service">–</div><div class="stat-label">Next service</div></div>
+      </div>
+      <div class="pcard-cta">
+        <button class="btn-pcard primary" id="car-edit-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit details
+        </button>
+        <button class="btn-pcard ghost" id="car-garage-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v10a1 1 0 01-1 1H4a1 1 0 01-1-1V11z"/><path d="M7 16h10"/></svg>
+          Garage
+        </button>
       </div>
     </div>
   </div>
@@ -1042,39 +1103,44 @@
       </div>
     </div>
 
-    <!-- BMW-only: chassis-style dropdowns. Shown when make = BMW. -->
-    <div id="car-bmw-fields">
-      <div class="form-row">
-        <div class="form-group"><label>Model</label>
-          <select id="car-model">
-            <option value="520i">520i</option><option value="523i">523i</option><option value="525i">525i</option>
-            <option value="528i">528i</option><option value="530i" selected>530i</option><option value="535i">535i</option>
-            <option value="540i">540i</option><option value="M5">M5</option>
-            <option value="525d">525d</option><option value="530d">530d</option><option value="535d">535d</option>
-          </select>
-        </div>
-        <div class="form-group"><label>Body</label>
-          <select id="car-body"><option value="Sedan" selected>Sedan</option><option value="Touring">Touring</option></select>
-        </div>
-      </div>
-      <div class="form-group"><label>Engine</label>
-        <select id="car-engine">
-          <option value="M52">M52</option><option value="M52TU">M52TU</option><option value="M54" selected>M54</option>
-          <option value="M62">M62</option><option value="S62">S62</option>
-          <option value="M57">M57</option><option value="M57TU">M57TU</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Generic: plain Model + Variant text inputs. Shown when make != BMW. -->
-    <div id="car-generic-fields">
-      <div class="form-row">
-        <div class="form-group"><label>Model</label><input type="text" id="car-model-text" placeholder="e.g. Camry, Mustang, Golf…"></div>
-        <div class="form-group"><label>Variant / Trim</label><input type="text" id="car-variant-text" placeholder="e.g. GTI, Sport, RS…"></div>
-      </div>
+    <!-- Model + variant/trim: free text for every make. -->
+    <div class="form-row">
+      <div class="form-group"><label>Model</label><input type="text" id="car-model-text" placeholder="e.g. M3, Camry, Mustang…"></div>
+      <div class="form-group"><label>Variant / Trim (optional)</label><input type="text" id="car-variant-text" placeholder="e.g. Competition, GTI, RS…"></div>
     </div>
 
     <div class="form-group"><label>Colour</label><input type="text" id="car-colour" placeholder="e.g. Titan Silver, Cosmos Black…"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Fuel (optional)</label>
+        <select id="car-fuel">
+          <option value="">—</option>
+          <option value="Petrol">Petrol</option>
+          <option value="Diesel">Diesel</option>
+          <option value="Hybrid">Hybrid</option>
+          <option value="Plug-in Hybrid">Plug-in Hybrid</option>
+          <option value="Electric">Electric</option>
+          <option value="LPG">LPG</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Transmission (optional)</label>
+        <select id="car-transmission">
+          <option value="">—</option>
+          <option value="Manual">Manual</option>
+          <option value="Automatic">Automatic</option>
+          <option value="Dual-clutch">Dual-clutch</option>
+          <option value="CVT">CVT</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Drivetrain (optional)</label>
+      <select id="car-drivetrain">
+        <option value="">—</option>
+        <option value="Rear-Wheel Drive">Rear-Wheel Drive</option>
+        <option value="Front-Wheel Drive">Front-Wheel Drive</option>
+        <option value="All-Wheel Drive">All-Wheel Drive</option>
+        <option value="Four-Wheel Drive">Four-Wheel Drive</option>
+      </select>
+    </div>
     <div class="form-row">
       <div class="form-group"><label>Odometer</label><input type="number" id="car-odo" placeholder="e.g. 187430" inputmode="numeric"></div>
       <div class="form-group"><label>Unit</label>

@@ -24,6 +24,9 @@ export function rowToCar(row) {
     colour:                   row.colour   || '',
     odo:                      row.odometer ? String(row.odometer) : '',
     odoUnit:                  row.odometer_unit || 'km',
+    fuelType:                 row.fuel_type    || '',
+    drivetrain:               row.drivetrain   || '',
+    transmission:             row.transmission || '',
     photoPath:                row.photo_path || null,
     status:                   row.status || 'active',
     soldDate:                 row.sold_date || '',
@@ -82,6 +85,9 @@ export async function upsertVehicle(vehicle) {
     colour:                      vehicle.colour   || null,
     odometer:                    vehicle.odo ? parseInt(vehicle.odo, 10) : null,
     odometer_unit:               vehicle.odoUnit  || 'km',
+    fuel_type:                   (vehicle.fuelType    || '').trim() || null,
+    drivetrain:                  (vehicle.drivetrain  || '').trim() || null,
+    transmission:                (vehicle.transmission || '').trim() || null,
     status,
     sold_date:                   status === 'sold' && vehicle.soldDate ? vehicle.soldDate : null,
     sold_price:                  status === 'sold' && Number.isFinite(soldPrice) ? soldPrice : null,
@@ -373,6 +379,20 @@ export async function uploadVehiclePhoto(vehicleId, blob) {
   if (rowErr) throw rowErr;
 
   return path;
+}
+
+// Remove a vehicle's photo: delete the storage object (best-effort) and clear
+// photo_path on the row so the card falls back to its cutout / prompt.
+export async function deleteVehiclePhoto(vehicleId, photoPath) {
+  if (!vehicleId) throw new Error('No vehicle');
+  if (photoPath) {
+    await supabase.storage.from(PHOTO_BUCKET).remove([photoPath]).catch(() => {});
+  }
+  const { error } = await supabase
+    .from('vehicles')
+    .update({ photo_path: null })
+    .eq('id', vehicleId);
+  if (error) throw error;
 }
 
 // Signed URL good for one hour — enough for a single page session. The

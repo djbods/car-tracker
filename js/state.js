@@ -93,14 +93,6 @@ export function isPaidTier() {
 }
 
 // ──────────────────────────────────────────────────────────────────
-// BMW is the only make with bespoke chassis/body/engine UI — everywhere
-// else we fall back to plain text inputs. Centralised so the form, badge,
-// and renderCarCard all agree on what "BMW mode" means.
-// ──────────────────────────────────────────────────────────────────
-
-export const isBMW = make => (make || '').trim().toLowerCase() === 'bmw';
-
-// ──────────────────────────────────────────────────────────────────
 // Formatting helpers
 // ──────────────────────────────────────────────────────────────────
 

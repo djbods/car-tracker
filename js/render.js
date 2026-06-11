@@ -7,13 +7,13 @@
 import {
   state,
   fmt, fmtDate, formatBytes,
-  isBMW,
   typeIcons, typeLabels,
   SCOPE_LABELS,
   expiryStatus, docIcon,
   entriesInScope, fuelInScope,
 } from './state.js';
 import { renderBrandLogo } from '../logos.js';
+import { renderVehicleCutout } from '../cars.js';
 import {
   computeFuelEconomy,
   DOCUMENT_STORAGE_LIMIT_BYTES,
@@ -27,13 +27,12 @@ const detailModal = document.getElementById('detail-modal');
 // ══════════════════════════════════════════════════════
 
 export function renderCarCard() {
-  const { year, make, model, body, engine, variant, colour, odo, odoUnit, nickname, combinedCycleConsumption } = state.car;
-  const bmw = isBMW(make);
+  const { year, make, model, variant, colour, odo, odoUnit, nickname,
+          fuelType, drivetrain, transmission } = state.car;
 
-  // Name: nickname > "Model Body" (BMW) or "Model Variant" (other) > Model
+  // Name: nickname > "Model Variant" > Model
   const displayName = nickname
-    || (bmw ? [model, body].filter(Boolean).join(' ').trim()
-            : [model, variant].filter(Boolean).join(' ').trim())
+    || [model, variant].filter(Boolean).join(' ').trim()
     || model
     || 'Add your first vehicle';
   document.getElementById('car-name-display').textContent = displayName;
@@ -44,20 +43,15 @@ export function renderCarCard() {
   else if (make)    parts.push(make);
   else if (year)    parts.push(year);
   if (odo)    parts.push(Number(odo).toLocaleString('en-AU') + ' ' + odoUnit);
-  if (colour) parts.push(colour);
-  // Stored for 2.4's fuel gauge — surface here so the saved value is
-  // visible before the gauge lands. parseFloat keeps "11.4" but drops
-  // empty strings.
-  const cc = parseFloat(combinedCycleConsumption);
-  if (Number.isFinite(cc) && cc > 0) parts.push(`${cc} L/100km claimed`);
+  // Colour, fuel, drivetrain and transmission now live in the pill row below,
+  // and the claimed economy shows on the fuel gauge — so the tagline stays the
+  // car's identity line (year · make · odometer).
   document.getElementById('car-sub-display').textContent = parts.join(' · ') || '';
 
-  // Badge: BMW (and anything with an engine on record) shows a MODEL · ENGINE
-  // badge for the enthusiast detail; everyone else gets a generic MAKE · MODEL
-  // badge in the same spot.
+  // Badge: a MODEL · VARIANT spec chip when a trim is recorded, else MAKE · MODEL.
   const badge = document.getElementById('car-badge');
-  if (bmw && engine && model) {
-    badge.textContent = `${model} · ${engine}`.toUpperCase();
+  if (model && variant) {
+    badge.textContent = `${model} · ${variant}`.toUpperCase();
     badge.style.display = '';
   } else if (make && model) {
     badge.textContent = `${make} · ${model}`.toUpperCase();
@@ -67,6 +61,37 @@ export function renderCarCard() {
   }
 
   renderBrandLogo(document.getElementById('car-brand-logo'), make);
+
+  // Empty photo state keeps just the "add a photo" prompt — the brand emblem
+  // already sits in the card head, so there's no need to repeat it on the stage.
+  const promptSub = document.getElementById('upload-prompt-sub');
+  if (promptSub) promptSub.textContent = make ? `Your ${make} · your build` : 'Your car, your build';
+
+  // Spec pills: year is the gold lead pill, then the descriptive fields. Only
+  // populated values render (built as DOM nodes so free-text colour is safe).
+  const pillsEl = document.getElementById('car-pills');
+  if (pillsEl) {
+    const pills = [];
+    if (year)         pills.push({ text: year, lead: true });
+    if (fuelType)     pills.push({ text: fuelType });
+    if (drivetrain)   pills.push({ text: drivetrain });
+    if (transmission) pills.push({ text: transmission });
+    if (colour)       pills.push({ text: colour });
+    pillsEl.replaceChildren(...pills.map(p => {
+      const span = document.createElement('span');
+      span.className = 'pill' + (p.lead ? ' lead' : '');
+      span.textContent = p.text;
+      return span;
+    }));
+  }
+
+  // Stage image precedence: a curated cutout is the hero whenever one exists
+  // (.has-cutout hides the photo + prompt layers); otherwise the user's
+  // uploaded photo; otherwise the "add a photo" prompt.
+  const stageEl  = document.getElementById('car-image-wrap');
+  const cutoutEl = document.getElementById('car-cutout');
+  const hasCutout = renderVehicleCutout(cutoutEl, state.car);
+  if (stageEl) stageEl.classList.toggle('has-cutout', hasCutout);
 
   // Lifecycle: when the active car is sold or archived, show a read-only
   // banner and dim the add-entry FAB (via body.car-sold). Edit + photo

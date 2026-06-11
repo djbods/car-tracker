@@ -7,12 +7,16 @@ import { dbGet, dbDel } from './legacy-db.js';
 import {
   uploadVehiclePhoto,
   getVehiclePhotoUrl,
+  deleteVehiclePhoto,
 } from '../data.js';
+import { renderAll } from './render.js';
 
 const photoInput     = document.getElementById('photo-input');
 const carPhoto       = document.getElementById('car-photo');
+const carPhotoBg     = document.getElementById('car-photo-bg');
 const uploadPrompt   = document.getElementById('upload-prompt');
 const changePhotoBtn = document.getElementById('change-photo-btn');
+const deletePhotoBtn = document.getElementById('delete-photo-btn');
 
 // Preferred source: the vehicle row's photo_path → signed URL from
 // Storage. Fallback: a photo still living in IndexedDB from before this
@@ -46,8 +50,13 @@ export async function loadSavedPhoto() {
 export function applyPhoto(src) {
   carPhoto.src = src;
   carPhoto.classList.add('loaded');
+  // Same image, blurred + enlarged, fills the letterbox behind the contained
+  // foreground so any aspect ratio reads as intentional (see #car-photo-bg).
+  carPhotoBg.src = src;
+  carPhotoBg.classList.add('loaded');
   uploadPrompt.classList.add('hidden');
   changePhotoBtn.style.display = 'flex';
+  deletePhotoBtn.style.display = 'flex';
 }
 
 // Clear the on-screen photo back to the empty-state prompt. Used when
@@ -55,8 +64,11 @@ export function applyPhoto(src) {
 export function resetPhoto() {
   carPhoto.removeAttribute('src');
   carPhoto.classList.remove('loaded');
+  carPhotoBg.removeAttribute('src');
+  carPhotoBg.classList.remove('loaded');
   uploadPrompt.classList.remove('hidden');
   changePhotoBtn.style.display = 'none';
+  deletePhotoBtn.style.display = 'none';
 }
 
 // Wire up the photo upload pipeline. Called from main.js after the
@@ -71,6 +83,22 @@ export function wirePhotoHandlers({ openCarModal }) {
   });
   changePhotoBtn.addEventListener('click', () => photoInput.click());
 
+  deletePhotoBtn.addEventListener('click', async () => {
+    if (!state.vehicleId) return;
+    if (!confirm('Remove this photo?')) return;
+    try {
+      await deleteVehiclePhoto(state.vehicleId, state.car.photoPath);
+      state.car.photoPath = null;
+      const v = state.vehicles.find(x => x.id === state.vehicleId);
+      if (v) v.photo_path = null;
+      resetPhoto();
+      renderAll();   // re-evaluate the stage: cutout (if any) or prompt
+      showToast('Photo removed ✓');
+    } catch (err) {
+      showToast('Delete failed: ' + (err?.message || 'unknown error'));
+    }
+  });
+
   photoInput.addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -80,7 +108,10 @@ export function wirePhotoHandlers({ openCarModal }) {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const maxW = 900, maxH = 500;
+        // Larger cap than the old 900×500: the photo now renders "contained"
+        // (whole image visible) rather than cropped, so portrait and wide
+        // shots need real resolution to stay sharp on the desktop-width card.
+        const maxW = 1600, maxH = 1200;
         let w = img.width, h = img.height;
         if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
         if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
