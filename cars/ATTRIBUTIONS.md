@@ -35,6 +35,27 @@ side-view render of either could be sourced.
 | `bugatti-chiron.png`, `bugatti-eb110.png` | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — faint tiled "carsized.com" watermark baked into bodywork (background watermark removed by rembg) |
 | `bugatti-veyron.png`, `bugatti-divo.png`, `bugatti-centodieci.png`, `bugatti-mistral.png`, `bugatti-bolide.png`, `bugatti-tourbillon.png` | NetCarShow.com "Side_Profile" studio press photos (manufacturer press imagery) | ⚠️ source/licence to confirm — copyrighted press photos, background removed by rembg; **not** an open licence |
 
+## Porsche (21 cutouts)
+
+A MIXED slug set. The 911 (`930`/`964`/`993`/`996`/`997`/`991`/`992`) and the
+mid-engine Boxster/Cayman lines (`986`/`987`/`981`/`982`) are chassis-coded and
+resolve via the chassis tier; the standalone model lines (Cayenne, Macan,
+Panamera, Taycan) and the classics/halo cars (944, 928, 356, 959, 918,
+Carrera GT) are model-named and resolve via the model tier.
+
+Carsized has deep Porsche coverage and supplied 17 of the 21. The five it lacks
+a usable orthographic side render for were sourced from NetCarShow.com "Side
+Profile" press photos: `porsche-996` (Carsized has no 996 — used the 911 Carrera
+4S 2002), `porsche-959`, `porsche-918`, `porsche-carrera-gt`, and
+`porsche-taycan` (Carsized's only Taycan sedan listing carried a baked-in "008"
+race livery, so the clean Taycan Turbo S press shot was used instead).
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| `porsche-930`, `porsche-964`, `porsche-993`, `porsche-997`, `porsche-991`, `porsche-992`, `porsche-986`, `porsche-987`, `porsche-981`, `porsche-982`, `porsche-cayenne`, `porsche-macan`, `porsche-panamera`, `porsche-944`, `porsche-928`, `porsche-356` | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — faint tiled "carsized.com" watermark baked into bodywork (background watermark removed by rembg) |
+| `porsche-996.png`, `porsche-918.png`, `porsche-carrera-gt.png`, `porsche-taycan.png` | NetCarShow.com "Side Profile" studio press photos (manufacturer press imagery) | ⚠️ source/licence to confirm — copyrighted press photos, background removed by rembg; **not** an open licence |
+| `porsche-959.png` | NetCarShow.com "Side Profile" press photo (Porsche Museum image) | ⚠️ source/licence to confirm — carries a faint "Porsche Museum" text stamp low on the rocker panel; **not** an open licence |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC

@@ -83,6 +83,36 @@ const CUTOUT_SLUGS = new Set([
   'bugatti-mistral',     // W16 Mistral (2022) - final W16, roadster
   'bugatti-bolide',      // Bolide (2024) - extreme track-focused hypercar
   'bugatti-tourbillon',  // Tourbillon (2026) - new V16 hybrid flagship
+
+  // Porsche — a MIXED set: the 911 and mid-engine lines use internal
+  // generation/chassis codes, so those slugs resolve via the chassis tier
+  // add(chassis) (like the Mercedes set); the standalone model lines and the
+  // classics/halo cars use model names, resolving via add(model) (like Bugatti).
+  // 911 lineage (chassis-coded) — distinct silhouette per generation:
+  'porsche-930',  // 911 G-series / 930 Turbo (1975-1989) - last of the classics
+  'porsche-964',  // 911 (1989-1994) - first modernised 911
+  'porsche-993',  // 911 (1994-1998) - last air-cooled
+  'porsche-996',  // 911 (1998-2004) - first water-cooled, fried-egg lights
+  'porsche-997',  // 911 (2004-2012) - return to round headlights
+  'porsche-991',  // 911 (2012-2019) - first electromechanical steering
+  'porsche-992',  // 911 (2019-present) - current generation
+  // Mid-engine Boxster/Cayman (chassis-coded):
+  'porsche-986',  // Boxster (1996-2004) - original Boxster
+  'porsche-987',  // Boxster/Cayman (2004-2012) - first Cayman
+  'porsche-981',  // Boxster/Cayman (2012-2016) - third-gen
+  'porsche-982',  // 718 Boxster/Cayman (2016-present) - flat-four/GT4 era
+  // Standalone model lines (model-named):
+  'porsche-cayenne',     // Cayenne SUV (2002-present)
+  'porsche-macan',       // Macan SUV (2014-present)
+  'porsche-panamera',    // Panamera (2009-present)
+  'porsche-taycan',      // Taycan EV (2019-present)
+  // Classics / halo cars (model-named):
+  'porsche-944',         // 944 (1982-1991) - transaxle four-cylinder
+  'porsche-928',         // 928 (1977-1995) - front-engine V8 GT
+  'porsche-356',         // 356 (1948-1965) - the original Porsche
+  'porsche-959',         // 959 (1986-1993) - Group B tech flagship
+  'porsche-918',         // 918 Spyder (2013-2015) - hybrid hypercar
+  'porsche-carrera-gt',  // Carrera GT (2003-2007) - V10 analogue halo
   // add a slug here when you drop its PNG in /cars/
 ]);
 
