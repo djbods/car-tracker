@@ -11,6 +11,16 @@ especially important before any public / commercial launch.
 | `bmw-530i-green.png` | Jack-supplied | ⚠️ source/licence to confirm |
 | `bmw-335i.png` | BMW E92 side profile from a BIMMERPOST forum post (carried a "BIMMERPOST BMW ENTHUSIAST CLUB" watermark) | ⚠️ **not** an open licence — likely copyrighted |
 
+## Mercedes-Benz (29 chassis cutouts)
+
+Full C / E / S / SL lineage plus the AMG GT (C190) and G-Class (W463).
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| `mercedes-w198.png` (300SL Gullwing) | Petrolicious (cdn.shopify.com) press/editorial image | ⚠️ source/licence to confirm — **watermark-free** |
+| `mercedes-w113.png` (280SL Pagoda) | bhauction.com auction listing photo | ⚠️ source/licence to confirm — **watermark-free** |
+| The other 27 (`r107`, `r129`, `r230`, `r231`, `r232`, `w116`, `w123`, `w124`, `w126`, `w140`, `w201`, `w202`, `w203`, `w204`, `w205`, `w206`, `w210`, `w211`, `w212`, `w213`, `w214`, `w220`, `w221`, `w222`, `w223`, `c190`, `w463`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC
@@ -19,4 +29,6 @@ specifically carried an enthusiast-forum watermark, i.e. it's someone else's
 copyrighted image. That's low-risk for a private single-user garage, but **before
 shipping this publicly / commercially, replace any unlicensed cutouts** with
 public-domain / CC sources (see the E39 method in the `car-tracker-vehicle-cutouts`
-memory) or licensed studio renders.
+memory) or licensed studio renders. The same applies to the 27 Carsized-sourced
+Mercedes cutouts: the faint baked-in "carsized.com" watermark confirms they are
+not openly licensed, so they must be replaced before any public / commercial use.
