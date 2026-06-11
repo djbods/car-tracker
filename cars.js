@@ -14,10 +14,6 @@ import { brandLogoSlug } from './logos.js';
 // in its image. Empty is fine — every car then shows the emblem fallback, so
 // nothing looks broken before assets are seeded.
 const CUTOUT_SLUGS = new Set([
-  'bmw-530i-green',
-  'bmw-528i',
-  'bmw-530i',
-  'bmw-335i',
   // Mercedes-Benz — chassis-code side profiles, grouped by model line.
   // SL roadster (full lineage):
   'mercedes-w198',  // 300SL Gullwing (1954-1963)
@@ -53,6 +49,28 @@ const CUTOUT_SLUGS = new Set([
   // Halo / other:
   'mercedes-c190',  // AMG GT (2015-2021)
   'mercedes-w463',  // G-Class (1990-present)
+  'bmw-e39',
+  'bmw-e92',
+  'bmw-g80',
+  // NEW BMW chassis to source cutouts for:
+  'bmw-e30',  // 3-series (1982-1994) - most beloved BMW, essential
+  'bmw-e46',  // 3-series (1997-2006) - extremely popular modern classic
+  'bmw-e36',  // 3-series (1990-2000) - very popular, iconic M3
+  'bmw-e60',  // 5-series (2003-2010) - controversial Bangle-era, unmistakable
+  'bmw-e28',  // 5-series (1981-1988) - classic shark-nose design
+  'bmw-e34',  // 5-series (1988-1996) - E39's predecessor, excellent touring
+  'bmw-e38',  // 7-series (1994-2001) - beautiful luxury classic, James Bond
+  'bmw-e85',  // Z4 (2002-2008) - first-gen roadster, distinctive design
+  'bmw-f80',  // M3 (2014-2019) - pre-G80 M3, very popular
+  'bmw-f82',  // M4 (2014-2020) - coupe version of F80
+  'bmw-e87',  // 1-series (2004-2013) - hatchback, M135i special
+  'bmw-g82',  // M4 (2020-present) - current gen M4
+  'bmw-g87',  // M2 (2022-present) - current M2, very popular
+  'bmw-g20',  // 3-series (2019-present) - latest 3-series sedan
+  'bmw-g22',  // 4-series (2020-present) - latest 4-series coupe
+  'bmw-e21',  // 3-series (1975-1983) - original 3-series
+  'bmw-e9',   // CS coupe (1968-1975) - beautiful classic coupe
+  'bmw-e70',  // X6 (2006-2014) - original SUV coupe, invented segment
   // add a slug here when you drop its PNG in /cars/
 ]);
 
@@ -67,11 +85,13 @@ function slugify(s) {
 
 // Candidate slugs for a car, ordered MOST-SPECIFIC → least, so vehicleCutoutSrc
 // picks the richest cutout that actually exists and degrades gracefully:
-//   bmw-530i-sedan-green-2002 → … → bmw-530i-green → … → bmw-530i
-// Facets: make (via logos' alias map, so "Mercedes-Benz"/"VW" normalise like the
-// emblem), model, a single "spec" (BMW stores body sedan/touring; other makes a
-// variant/trim — they're mutually exclusive), colour, and year. Among equal
-// specificity, colour ranks above spec above year, so a colour match wins.
+//   bmw-g80-m3-2025-black → … → bmw-g80-m3 → bmw-g80 → bmw-m3 → bmw
+// Canonical facet order in every slug is make-chassis-model-year-colour. Two
+// platform fallbacks make exhaustive per-model coverage unnecessary:
+//   • chassis-level (make-chassis, e.g. bmw-e39) — one file covers a whole
+//     generation: 525i/528i/530i/540i/M5…
+//   • make-level (make, e.g. bmw) — one generic silhouette per brand, the floor.
+// Among equal specificity, colour ranks above year, so a colour match wins.
 export function vehicleCutoutCandidates(car) {
   if (!car) return [];
   const make = brandLogoSlug(car.make);   // 'bmw', 'land_rover', … or '_generic'
@@ -79,40 +99,56 @@ export function vehicleCutoutCandidates(car) {
   const model = slugify(car.model);
   if (!model) return [];
 
-  const spec   = slugify(car.variant) || slugify(car.body);
-  const colour = slugify(car.colour);
-  const year   = slugify(car.year);
-  const base   = `${make}-${model}`;
+  const chassis = slugify(car.chassis);
+  const year    = slugify(car.year);
+  const colour  = slugify(car.colour);
 
   const out = [];
+  // Assemble a slug from canonical-ordered facets, dropping any that are blank.
+  // make is always the prefix; add() with no parts yields the bare make floor.
   const add = (...parts) => {
-    const kept = parts.filter(Boolean);
-    if (!kept.length) return;            // skip empty combos; base added last
-    const slug = [base, ...kept].join('-');
+    const slug = [make, ...parts.filter(Boolean)].join('-');
     if (!out.includes(slug)) out.push(slug);
   };
 
-  add(spec, colour, year);   // three facets
-  add(spec, colour);         // two
-  add(colour, year);
-  add(spec, year);
-  add(colour);               // one
-  add(spec);
-  add(year);
-  if (!out.includes(base)) out.push(base);   // make-model
+  if (chassis) {             // model-anchored, chassis-qualified (most specific)
+    add(chassis, model, year, colour);
+    add(chassis, model, colour);
+    add(chassis, model, year);
+    add(chassis, model);
+  }
+  add(model, year, colour);  // model-anchored, no chassis
+  add(model, colour);
+  add(model, year);
+  add(model);
+  if (chassis) add(chassis); // platform-level: one file covers the generation
+  add();                     // make-level floor: one generic silhouette
   return out;
 }
 
-// First candidate that has a curated file, else null.
+// When this returns null and the car has no photo, the card floats the
+// car-under-a-cover placeholder in the cutout slot — same 3D treatment as a real
+// cutout (see render.js).
+export const VEHICLE_COVER_SRC = 'cars/_covered.png';
+
+// First candidate that has a curated file, else null. After the ordered
+// candidates fail, a loose make-level pass returns the first curated cutout for
+// the make, so any BMW shows *a* BMW silhouette rather than nothing.
 export function vehicleCutoutSrc(car) {
   for (const slug of vehicleCutoutCandidates(car)) {
     if (CUTOUT_SLUGS.has(slug)) return `cars/${slug}.png`;
+  }
+  const make = car ? brandLogoSlug(car.make) : '_generic';
+  if (make !== '_generic') {
+    for (const slug of CUTOUT_SLUGS) {
+      if (slug === make || slug.startsWith(`${make}-`)) return `cars/${slug}.png`;
+    }
   }
   return null;
 }
 
 // Point imgEl at the cutout and return true, or clear it and return false. The
-// caller uses the return to pick the stage state: cutout vs photo vs emblem.
+// caller uses the return to pick the stage state: cutout vs photo vs cover.
 export function renderVehicleCutout(imgEl, car) {
   if (!imgEl) return false;
   const src = vehicleCutoutSrc(car);
@@ -121,7 +157,11 @@ export function renderVehicleCutout(imgEl, car) {
     imgEl.classList.remove('loaded');
     return false;
   }
-  if (!imgEl.src.endsWith(src)) imgEl.src = src;
+  // Force browser reload by clearing src first when changing images
+  if (!imgEl.src.endsWith(src)) {
+    imgEl.src = '';
+    imgEl.src = src;
+  }
   imgEl.classList.add('loaded');
   return true;
 }

@@ -131,6 +131,7 @@ export function openCarModal(mode) {
   document.getElementById('car-year').value     = src.year     || '';
   carMakeInput.value                            = src.make     || '';
   document.getElementById('car-model-text').value   = src.model   || '';
+  document.getElementById('car-chassis-text').value = src.chassis || '';
   document.getElementById('car-variant-text').value = src.variant || '';
   document.getElementById('car-colour').value   = src.colour   || '';
   document.getElementById('car-odo').value      = src.odo      || '';
@@ -230,6 +231,7 @@ export function wireVehicleHandlers() {
       year:     document.getElementById('car-year').value.trim(),
       make,
       model,
+      chassis:  document.getElementById('car-chassis-text').value.trim(),
       variant:  document.getElementById('car-variant-text').value.trim(),
       colour:   document.getElementById('car-colour').value.trim(),
       odo:      document.getElementById('car-odo').value.trim(),

@@ -13,7 +13,7 @@ import {
   entriesInScope, fuelInScope,
 } from './state.js';
 import { renderBrandLogo } from '../logos.js';
-import { renderVehicleCutout } from '../cars.js';
+import { renderVehicleCutout, VEHICLE_COVER_SRC } from '../cars.js';
 import {
   computeFuelEconomy,
   DOCUMENT_STORAGE_LIMIT_BYTES,
@@ -90,7 +90,15 @@ export function renderCarCard() {
   // uploaded photo; otherwise the "add a photo" prompt.
   const stageEl  = document.getElementById('car-image-wrap');
   const cutoutEl = document.getElementById('car-cutout');
-  const hasCutout = renderVehicleCutout(cutoutEl, state.car);
+  let   hasCutout = renderVehicleCutout(cutoutEl, state.car);
+  // No curated cutout and no photo: float the car-under-cover placeholder in the
+  // cutout slot (same 3D treatment) rather than the flat empty stage. A real
+  // photo still wins — the placeholder only stands in for "no image yet".
+  if (!hasCutout && !state.car.photoPath) {
+    cutoutEl.src = VEHICLE_COVER_SRC;
+    cutoutEl.classList.add('loaded');
+    hasCutout = true;
+  }
   if (stageEl) stageEl.classList.toggle('has-cutout', hasCutout);
 
   // Lifecycle: when the active car is sold or archived, show a read-only
