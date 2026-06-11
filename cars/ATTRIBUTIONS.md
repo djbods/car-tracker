@@ -56,16 +56,16 @@ race livery, so the clean Taycan Turbo S press shot was used instead).
 | `porsche-996.png`, `porsche-918.png`, `porsche-carrera-gt.png`, `porsche-taycan.png` | NetCarShow.com "Side Profile" studio press photos (manufacturer press imagery) | ⚠️ source/licence to confirm — copyrighted press photos, background removed by rembg; **not** an open licence |
 | `porsche-959.png` | NetCarShow.com "Side Profile" press photo (Porsche Museum image) | ⚠️ source/licence to confirm — carries a faint "Porsche Museum" text stamp low on the rocker panel; **not** an open licence |
 
-## Volkswagen (24 cutouts)
+## Volkswagen (28 cutouts)
 
 A MIXED slug set, like Porsche. The Golf (`mk1`-`mk8`) and Transporter
 (`t1`/`t4`/`t5`/`t6`) lines are generation/chassis-coded and the Beetle
 (`type1`) is chassis-coded — all resolve via the chassis tier; the standalone
 model lines and classics (`new-beetle`, `scirocco`, `polo`, `passat`,
-`phaeton`, `touareg`, `tiguan`, `up`, `id3`, `id4`, `id-buzz`) are model-named
-and resolve via the model tier.
+`phaeton`, `touareg`, `tiguan`, `up`, `id3`, `id4`, `id-buzz`, `jetta`,
+`arteon`, `amarok`, `id7`) are model-named and resolve via the model tier.
 
-All 24 came from Carsized, which has deep VW coverage. Type 2 (T2 bay-window)
+All 28 came from Carsized, which has deep VW coverage. Type 2 (T2 bay-window)
 and Type 3 (T3 Vanagon) buses, the Corrado and the Karmann Ghia were requested
 but **dropped** — no clean orthographic side render could be sourced. Carsized
 lacks all four (its only pre-T5 bus listing is the 1990 model, which is the
@@ -75,7 +75,7 @@ side profile.
 
 | Files | Source | Licence / status |
 |-------|--------|------------------|
-| All 24 (`mk1`-`mk8`, `t1`, `t4`, `t5`, `t6`, `type1`, `new-beetle`, `scirocco`, `polo`, `passat`, `phaeton`, `touareg`, `tiguan`, `up`, `id3`, `id4`, `id-buzz`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
+| All 28 (`mk1`-`mk8`, `t1`, `t4`, `t5`, `t6`, `type1`, `new-beetle`, `scirocco`, `polo`, `passat`, `phaeton`, `touareg`, `tiguan`, `up`, `id3`, `id4`, `id-buzz`, `jetta`, `arteon`, `amarok`, `id7`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
 
 ## ⚠️ Licensing note
 

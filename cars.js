@@ -148,6 +148,10 @@ const CUTOUT_SLUGS = new Set([
   'volkswagen-id3',         // ID.3 EV
   'volkswagen-id4',         // ID.4 EV
   'volkswagen-id-buzz',     // ID. Buzz EV (electric microbus revival)
+  'volkswagen-jetta',       // Jetta - the Golf-based sedan
+  'volkswagen-arteon',      // Arteon (2017-2022) - CC successor fastback
+  'volkswagen-amarok',      // Amarok pickup
+  'volkswagen-id7',         // ID.7 liftback EV
   // add a slug here when you drop its PNG in /cars/
 ]);
 
