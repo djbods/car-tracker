@@ -56,6 +56,30 @@ race livery, so the clean Taycan Turbo S press shot was used instead).
 | `porsche-996.png`, `porsche-918.png`, `porsche-carrera-gt.png`, `porsche-taycan.png` | NetCarShow.com "Side Profile" studio press photos (manufacturer press imagery) | ⚠️ source/licence to confirm — copyrighted press photos, background removed by rembg; **not** an open licence |
 | `porsche-959.png` | NetCarShow.com "Side Profile" press photo (Porsche Museum image) | ⚠️ source/licence to confirm — carries a faint "Porsche Museum" text stamp low on the rocker panel; **not** an open licence |
 
+## Audi (36 cutouts)
+
+A MIXED slug set, like Porsche/Volkswagen. The core saloon lines and the TT are
+chassis/type-coded and resolve via the chassis tier — A4 (`b5`-`b9`), A6
+(`c4`-`c8`), A8 (`d2`-`d5`), A3 (`8l`/`8p`/`8v`/`8y`) and TT (`8n`/`8j`/`8s`).
+The standalone model lines (`a1`, `a5`, `a7`, `q2`, `q3`, `q5`, `q7`, `q8`,
+`r8`), the EVs (`e-tron-gt`, `q4-e-tron`, `q8-e-tron`) and the classics
+(`ur-quattro`, `80`, `100`) are model-named and resolve via the model tier.
+
+The saloon lines use the **sedan** body as the representative silhouette, except
+`audi-b6` (A4 B6) and `audi-c4` (A6 C4) which use the **Avant** estate — Carsized
+has no sedan render for those two generations. `audi-8n` (TT 8N) is a **roadster**
+(Carsized has no 8N coupe) and `audi-8s` (TT 8S) is the **RS coupe** (the only 8S
+coupe render Carsized carries; subtle RS aero / fixed wing).
+
+Carsized has deep Audi coverage and supplied 35 of the 36. The one it lacks is
+the A8 D2 (no pre-2002 A8 listing), sourced from a NetCarShow.com "Side Profile"
+press photo.
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| All 35 except `audi-d2` (`b5`-`b9`, `c4`-`c8`, `d3`-`d5`, `8l`/`8p`/`8v`/`8y`, `8n`/`8j`/`8s`, `a1`, `a5`, `a7`, `q2`, `q3`, `q5`, `q7`, `q8`, `r8`, `e-tron-gt`, `q4-e-tron`, `q8-e-tron`, `ur-quattro`, `80`, `100`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
+| `audi-d2.png` (A8 D2) | NetCarShow.com "Side Profile" studio press photo (manufacturer press imagery) | ⚠️ source/licence to confirm — copyrighted press photo, background removed by rembg; **not** an open licence |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC
