@@ -113,6 +113,45 @@ const CUTOUT_SLUGS = new Set([
   'porsche-959',         // 959 (1986-1993) - Group B tech flagship
   'porsche-918',         // 918 Spyder (2013-2015) - hybrid hypercar
   'porsche-carrera-gt',  // Carrera GT (2003-2007) - V10 analogue halo
+
+  // Volkswagen — a MIXED set, like Porsche. The Golf and Transporter lines use
+  // internal generation/chassis codes (so those slugs resolve via the chassis
+  // tier add(chassis) — a user typing chassis "Mk7"/"T5" renders straight from
+  // the slug); the standalone model lines and classics use model names,
+  // resolving via the model tier add(model).
+  // Golf lineage (generation-coded) — the platform-level silhouette per gen
+  // (the Mk designation is shared by Jetta/Polo, but here it is the Golf shape):
+  'volkswagen-mk1',  // Golf Mk1 / Typ 17 (1974-1983; "Rabbit" in the US)
+  'volkswagen-mk2',  // Golf Mk2 / Typ 19E (1983-1992)
+  'volkswagen-mk3',  // Golf Mk3 / Typ 1H (1991-1999)
+  'volkswagen-mk4',  // Golf Mk4 / Typ 1J (1997-2004)
+  'volkswagen-mk5',  // Golf Mk5 / Typ 1K (2003-2009)
+  'volkswagen-mk6',  // Golf Mk6 / Typ 5K (2008-2013)
+  'volkswagen-mk7',  // Golf Mk7 / Typ 5G (2012-2020)
+  'volkswagen-mk8',  // Golf Mk8 / Typ CD (2019-present)
+  // Transporter / Bus (generation-coded):
+  'volkswagen-t1',  // T1 Split-screen "Splitty" (1950-1967) - Samba
+  'volkswagen-t4',  // T4 (1990-2003) - first front-engine Transporter
+  'volkswagen-t5',  // T5 (2003-2015)
+  'volkswagen-t6',  // T6 (2015-present)
+  // Classic Beetle (chassis-coded):
+  'volkswagen-type1',  // Type 1 Beetle (1938-2003)
+  // Standalone model lines & classics (model-named):
+  'volkswagen-new-beetle',  // New Beetle (1997-2011)
+  'volkswagen-scirocco',    // Scirocco (1974-1992, 2008-2017)
+  'volkswagen-polo',        // Polo supermini
+  'volkswagen-passat',      // Passat
+  'volkswagen-phaeton',     // Phaeton (2002-2016)
+  'volkswagen-touareg',     // Touareg SUV
+  'volkswagen-tiguan',      // Tiguan SUV
+  'volkswagen-up',          // up! city car
+  'volkswagen-id3',         // ID.3 EV
+  'volkswagen-id4',         // ID.4 EV
+  'volkswagen-id-buzz',     // ID. Buzz EV (electric microbus revival)
+  'volkswagen-jetta',       // Jetta - the Golf-based sedan
+  'volkswagen-arteon',      // Arteon (2017-2022) - CC successor fastback
+  'volkswagen-amarok',      // Amarok pickup
+  'volkswagen-id7',         // ID.7 liftback EV
   // add a slug here when you drop its PNG in /cars/
 ]);
 
