@@ -152,6 +152,59 @@ const CUTOUT_SLUGS = new Set([
   'volkswagen-arteon',      // Arteon (2017-2022) - CC successor fastback
   'volkswagen-amarok',      // Amarok pickup
   'volkswagen-id7',         // ID.7 liftback EV
+
+  // Audi — a MIXED set, like Porsche/Volkswagen. The core saloon lines (A4, A6,
+  // A8, A3) and the TT use internal platform/type codes, so those slugs resolve
+  // via the chassis tier add(chassis) — a user typing chassis "B8"/"C6"/"8P"
+  // renders straight from the slug. One platform file covers the whole
+  // A4/S4/RS4 (etc.) generation of that code. The standalone model lines, the
+  // EVs and the classics use model names, resolving via the model tier
+  // add(model). Saloon lines use the SEDAN body as the representative silhouette
+  // except where Carsized has no sedan render (B6 + C4 use the Avant estate).
+  // A4 line (platform-coded) — sedan, the universal A4/S4/RS4 shape per gen:
+  'audi-b5',  // A4 B5 (1994-2001)
+  'audi-b6',  // A4 B6 (2000-2006) - Avant (no sedan render available)
+  'audi-b7',  // A4 B7 (2004-2008)
+  'audi-b8',  // A4 B8 (2007-2015)
+  'audi-b9',  // A4 B9 (2015-2023)
+  // A6 line (platform-coded):
+  'audi-c4',  // A6 / 100 C4 (1991-1997) - Avant (no sedan render available)
+  'audi-c5',  // A6 C5 (1997-2004)
+  'audi-c6',  // A6 C6 (2004-2011)
+  'audi-c7',  // A6 C7 (2011-2018)
+  'audi-c8',  // A6 C8 (2018-present)
+  // A8 line (platform-coded):
+  'audi-d2',  // A8 D2 (1994-2002) - first aluminium-spaceframe A8
+  'audi-d3',  // A8 D3 (2002-2010)
+  'audi-d4',  // A8 D4 (2010-2017)
+  'audi-d5',  // A8 D5 (2017-present)
+  // A3 line (type-coded) — hatchback, the volume A3 body per gen:
+  'audi-8l',  // A3 8L (1996-2003)
+  'audi-8p',  // A3 8P (2003-2012)
+  'audi-8v',  // A3 8V (2012-2020)
+  'audi-8y',  // A3 8Y (2020-present)
+  // TT line (type-coded):
+  'audi-8n',  // TT 8N (1998-2006) - roadster (no 8N coupe render available)
+  'audi-8j',  // TT 8J (2006-2014)
+  'audi-8s',  // TT 8S (2014-2023) - RS coupe (only 8S coupe render available)
+  // Standalone model lines & halo (model-named):
+  'audi-a1',          // A1 supermini
+  'audi-a5',          // A5 coupe/Sportback
+  'audi-a7',          // A7 Sportback
+  'audi-q2',          // Q2 SUV
+  'audi-q3',          // Q3 SUV
+  'audi-q5',          // Q5 SUV
+  'audi-q7',          // Q7 SUV
+  'audi-q8',          // Q8 SUV
+  'audi-r8',          // R8 (2006-present) - V8/V10 mid-engine halo
+  // EVs (model-named):
+  'audi-e-tron-gt',   // e-tron GT
+  'audi-q4-e-tron',   // Q4 e-tron SUV
+  'audi-q8-e-tron',   // Q8 e-tron SUV (orig. e-tron)
+  // Classics (model-named):
+  'audi-ur-quattro',  // Ur-Quattro (1980-1991) - iconic Group B coupe
+  'audi-80',          // Audi 80 (B-platform predecessor)
+  'audi-100',         // Audi 100 (C3 "aero" predecessor, 1982-1991)
   // add a slug here when you drop its PNG in /cars/
 ]);
 
