@@ -80,6 +80,27 @@ press photo.
 | All 35 except `audi-d2` (`b5`-`b9`, `c4`-`c8`, `d3`-`d5`, `8l`/`8p`/`8v`/`8y`, `8n`/`8j`/`8s`, `a1`, `a5`, `a7`, `q2`, `q3`, `q5`, `q7`, `q8`, `r8`, `e-tron-gt`, `q4-e-tron`, `q8-e-tron`, `ur-quattro`, `80`, `100`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
 | `audi-d2.png` (A8 D2) | NetCarShow.com "Side Profile" studio press photo (manufacturer press imagery) | ⚠️ source/licence to confirm — copyrighted press photo, background removed by rembg; **not** an open licence |
 
+## Volkswagen (28 cutouts)
+
+A MIXED slug set, like Porsche. The Golf (`mk1`-`mk8`) and Transporter
+(`t1`/`t4`/`t5`/`t6`) lines are generation/chassis-coded and the Beetle
+(`type1`) is chassis-coded — all resolve via the chassis tier; the standalone
+model lines and classics (`new-beetle`, `scirocco`, `polo`, `passat`,
+`phaeton`, `touareg`, `tiguan`, `up`, `id3`, `id4`, `id-buzz`, `jetta`,
+`arteon`, `amarok`, `id7`) are model-named and resolve via the model tier.
+
+All 28 came from Carsized, which has deep VW coverage. Type 2 (T2 bay-window)
+and Type 3 (T3 Vanagon) buses, the Corrado and the Karmann Ghia were requested
+but **dropped** — no clean orthographic side render could be sourced. Carsized
+lacks all four (its only pre-T5 bus listing is the 1990 model, which is the
+front-engine **T4**, used here as `t4`); NetCarShow has only *concept* buses,
+no Karmann Ghia, and a single front-3/4 Corrado press shot — none usable as a
+side profile.
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| All 28 (`mk1`-`mk8`, `t1`, `t4`, `t5`, `t6`, `type1`, `new-beetle`, `scirocco`, `polo`, `passat`, `phaeton`, `touareg`, `tiguan`, `up`, `id3`, `id4`, `id-buzz`, `jetta`, `arteon`, `amarok`, `id7`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC
