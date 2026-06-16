@@ -285,14 +285,21 @@ export function vehicleCutoutSrc(car) {
 // caller uses the return to pick the stage state: cutout vs photo vs cover.
 export function renderVehicleCutout(imgEl, car) {
   if (!imgEl) return false;
+  // Bind once: when the PNG finishes decoding, play the reveal animation.
+  if (!imgEl.dataset.revealBound) {
+    imgEl.dataset.revealBound = '1';
+    imgEl.addEventListener('load', () => imgEl.classList.add('reveal'));
+  }
   const src = vehicleCutoutSrc(car);
   if (!src) {
     imgEl.removeAttribute('src');
-    imgEl.classList.remove('loaded');
+    imgEl.classList.remove('loaded', 'reveal');
     return false;
   }
-  // Force browser reload by clearing src first when changing images
+  // Force browser reload by clearing src first when changing images, and drop
+  // .reveal so the incoming image animates in fresh on its load event.
   if (!imgEl.src.endsWith(src)) {
+    imgEl.classList.remove('reveal');
     imgEl.src = '';
     imgEl.src = src;
   }
