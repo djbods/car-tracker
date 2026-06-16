@@ -99,7 +99,13 @@
     width: clamp(232px, 66%, 450px); height: auto;
     transform: translate(-50%, -50%);   /* 50% of the car sits above the card top edge */
     object-fit: contain; pointer-events: none;
-    filter: drop-shadow(0 12px 16px rgba(0,0,0,0.45)); display: none; }
+    /* Edge + shadow: the tight 0-offset dark drop-shadow paints a soft halo along
+       the silhouette that absorbs the light cut-out fringe and feathers the top
+       edge into the background. The lower 22px/6px shadow is a defined, stylised
+       cast shadow that grounds the float with a bit of attitude. */
+    filter:
+      drop-shadow(0 0 1px rgba(0,0,0,0.5))
+      drop-shadow(0 22px 6px rgba(0,0,0,0.75)); display: none; }
   .pcard-cutout.loaded { display: block; }
 
   /* emblem state (no photo, no cutout) — sits on the stage's own glow */
