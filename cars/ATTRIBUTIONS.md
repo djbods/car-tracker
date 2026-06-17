@@ -4,12 +4,24 @@ Each cutout is a background-removed, alpha-feathered derivative of a source
 image. Record the source + licence here so the provenance is auditable —
 especially important before any public / commercial launch.
 
-| File | Source | Licence / status |
-|------|--------|------------------|
-| `bmw-530i.png` | Jack-supplied | ⚠️ source/licence to confirm |
-| `bmw-528i.png` | Jack-supplied | ⚠️ source/licence to confirm |
-| `bmw-530i-green.png` | Jack-supplied | ⚠️ source/licence to confirm |
-| `bmw-335i.png` | BMW E92 side profile from a BIMMERPOST forum post (carried a "BIMMERPOST BMW ENTHUSIAST CLUB" watermark) | ⚠️ **not** an open licence — likely copyrighted |
+The earlier non-chassis-coded BMW cutouts (`bmw-530i`, `bmw-528i`,
+`bmw-530i-green`, `bmw-335i`) were **removed** — they were model-named duplicates
+of the chassis-coded coverage below (E60/E39 5-series, E92 3-series), were never
+registered in `CUTOUT_SLUGS`, and carried unconfirmed / non-open provenance.
+
+## BMW chassis cutouts (early batch — mixed provenance)
+
+The chassis-coded BMW cutouts were hand-sourced piecemeal early on and never
+fully recorded here. A watermark audit (the residual-coring detector in
+`cutout-work/`) found the set is **mixed**: six are Carsized renders carrying the
+tiled "carsized.com" mark; the rest show no carsized watermark (different /
+undocumented sources — `e21` is a small low-res image, the F/G-series renders are
+watermark-free).
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| `bmw-e28`, `bmw-e60`, `bmw-e70`, `bmw-e85`, `bmw-e87`, `bmw-e92` | Carsized.com orthographic side-view renders (confirmed by the baked-in tiled "carsized.com" watermark) | ⚠️ **not** an open licence — faint tiled "carsized.com" watermark; now **dampened** in place via `dampen_cutout_inplace.py` (Lab-space edge-preserving coring) — cosmetic only, confers no reuse right |
+| `bmw-e9`, `bmw-e21`, `bmw-e30`, `bmw-e34`, `bmw-e36`, `bmw-e38`, `bmw-e39`, `bmw-e46`, `bmw-f80`, `bmw-f82`, `bmw-g20`, `bmw-g22`, `bmw-g80`, `bmw-g82`, `bmw-g87` | Undocumented (no carsized watermark detected) | ⚠️ source/licence to confirm — provenance not recorded; left untouched by this dampening pass |
 
 ## Mercedes-Benz (29 chassis cutouts)
 
