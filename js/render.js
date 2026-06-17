@@ -13,7 +13,7 @@ import {
   entriesInScope, fuelInScope,
 } from './state.js';
 import { renderBrandLogo } from '../logos.js';
-import { renderVehicleCutout, VEHICLE_COVER_SRC } from '../cars.js';
+import { renderVehicleCutout, showCutout, VEHICLE_COVER_SRC } from '../cars.js';
 import {
   computeFuelEconomy,
   DOCUMENT_STORAGE_LIMIT_BYTES,
@@ -95,7 +95,7 @@ export function renderCarCard() {
   // cutout slot (same 3D treatment) rather than the flat empty stage. A real
   // photo still wins — the placeholder only stands in for "no image yet".
   if (!hasCutout && !state.car.photoPath) {
-    cutoutEl.src = VEHICLE_COVER_SRC;
+    showCutout(cutoutEl, VEHICLE_COVER_SRC);
     cutoutEl.classList.add('loaded');
     hasCutout = true;
   }

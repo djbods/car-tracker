@@ -281,28 +281,38 @@ export function vehicleCutoutSrc(car) {
   return null;
 }
 
+// Point the cutout img at `src` and reveal it only once its bitmap is fully
+// decoded. The image stays display:none (no .reveal) until then, so a slow
+// network or device can't flash a half-painted, top-down-loading car before the
+// reveal animation runs. decode() resolves on a paint-ready bitmap; we fall back
+// to the load event where it's unsupported. The src guard means a rapid vehicle
+// switch won't reveal a stale image after a newer one was set.
+export function showCutout(imgEl, src) {
+  if (imgEl.src.endsWith(src)) {
+    if (imgEl.complete && imgEl.naturalWidth) imgEl.classList.add('reveal');
+    return;
+  }
+  imgEl.classList.remove('reveal');
+  imgEl.src = '';
+  imgEl.src = src;
+  const reveal = () => {
+    if (imgEl.src.endsWith(src) && imgEl.naturalWidth) imgEl.classList.add('reveal');
+  };
+  if (imgEl.decode) imgEl.decode().then(reveal).catch(reveal);
+  else imgEl.addEventListener('load', reveal, { once: true });
+}
+
 // Point imgEl at the cutout and return true, or clear it and return false. The
 // caller uses the return to pick the stage state: cutout vs photo vs cover.
 export function renderVehicleCutout(imgEl, car) {
   if (!imgEl) return false;
-  // Bind once: when the PNG finishes decoding, play the reveal animation.
-  if (!imgEl.dataset.revealBound) {
-    imgEl.dataset.revealBound = '1';
-    imgEl.addEventListener('load', () => imgEl.classList.add('reveal'));
-  }
   const src = vehicleCutoutSrc(car);
   if (!src) {
     imgEl.removeAttribute('src');
     imgEl.classList.remove('loaded', 'reveal');
     return false;
   }
-  // Force browser reload by clearing src first when changing images, and drop
-  // .reveal so the incoming image animates in fresh on its load event.
-  if (!imgEl.src.endsWith(src)) {
-    imgEl.classList.remove('reveal');
-    imgEl.src = '';
-    imgEl.src = src;
-  }
+  showCutout(imgEl, src);
   imgEl.classList.add('loaded');
   return true;
 }
