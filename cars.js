@@ -206,6 +206,39 @@ const CUTOUT_SLUGS = new Set([
   'audi-80',          // Audi 80 (B-platform predecessor)
   'audi-100',         // Audi 100 (C3 "aero" predecessor, 1982-1991)
 
+  // Mazda — a MIXED set, like Porsche/VW. The mainstream lines are MODEL-NAMED,
+  // resolving via the model tier add(model): a user typing "3"/"CX-5"/"MX-30"
+  // renders straight from the slug. The MX-5 is CHASSIS-CODED (like the BMW set),
+  // resolving via the chassis tier add(chassis) — one file per generation, since
+  // the NA/NB/ND silhouettes are generationally distinct enthusiast icons.
+  // Australia-weighted: Mazda3/CX-5/CX-30 dominate local sales. Cutouts are
+  // Carsized.com orthographic `_4x` renders (watermark-dampened, rembg'd);
+  // representative generation noted per line from the source page year-range.
+  // Mainstream hatch / sedan (model-named):
+  'mazda-3',        // Mazda 3 (BP, 2019-present) - hatchback, brand design icon
+  'mazda-2',        // Mazda 2 (DJ, 2014) - supermini
+  'mazda-6',        // Mazda 6 (GJ, 2018-2024 sedan) - midsize flagship
+  // SUV / crossover — core of Australian ownership (model-named):
+  'mazda-cx-3',     // CX-3 (DK, 2015-2022) - subcompact SUV
+  'mazda-cx-30',    // CX-30 (2019-present) - small SUV, huge Aus seller
+  'mazda-cx-5',     // CX-5 (KF, 2017-2021) - perennial Aus top-selling SUV
+  'mazda-cx-7',     // CX-7 (ER, 2006-2012) - original midsize crossover
+  'mazda-cx-9',     // CX-9 (TC, 2016-2023) - 7-seat SUV
+  'mazda-cx-60',    // CX-60 (2022-present) - large-platform PHEV SUV
+  'mazda-cx-80',    // CX-80 (2024-present) - 3-row large SUV
+  'mazda-cx-90',    // CX-90 (2023-present) - flagship 3-row SUV
+  // EV & people-mover (model-named):
+  'mazda-mx-30',    // MX-30 (2020-present) - first dedicated BEV
+  'mazda-5',        // Mazda 5 (CW, 2010-2018) - compact people-mover
+  // MX-5 roadster (chassis-coded) — distinct silhouette per generation:
+  'mazda-na',       // MX-5 NA (1989-1997) - pop-up headlight original
+  'mazda-nb',       // MX-5 NB (1998-2005) - fixed-headlight second gen
+  'mazda-nd',       // MX-5 ND (2015-present) - current Kodo-era roadster
+  // Dropped (no clean orthographic side render — not in Carsized's catalogue,
+  // NetCarShow only has perspective press shots): rx-7 (fb/fc/fd), rx-8, cosmo,
+  // mx-6, 626, 323-gtx/familia, bt-50 (ute). Also skipped (not Australian-market):
+  // cx-50, 6e EV, demio. Revisit if a clean side source turns up.
+
   // Toyota — a MIXED set, like Porsche/VW. All MODEL-NAMED here, resolving via
   // the model tier add(model): a user typing "Corolla"/"HiLux"/"86" renders
   // straight from the slug. Australia-weighted — HiLux/LandCruiser/RAV4/Corolla

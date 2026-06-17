@@ -101,6 +101,40 @@ side profile.
 |-------|--------|------------------|
 | All 28 (`mk1`-`mk8`, `t1`, `t4`, `t5`, `t6`, `type1`, `new-beetle`, `scirocco`, `polo`, `passat`, `phaeton`, `touareg`, `tiguan`, `up`, `id3`, `id4`, `id-buzz`, `jetta`, `arteon`, `amarok`, `id7`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
 
+## Mazda (16 cutouts)
+
+Brand after Toyota, again Australia-weighted (Mazda3 / CX-5 / CX-30 lead local
+sales). MAINSTREAM lines are MODEL-NAMED (resolve via the model tier); the **MX-5
+is CHASSIS-CODED** (`na`/`nb`/`nd`, resolve via the chassis tier — one file per
+generation, BMW-style) because its silhouette changes meaningfully per gen.
+
+All 16 came from Carsized. Representative generations (verified from each source
+page's year-range): Mazda3 = 2019 BP **hatchback** (the brand design statement),
+Mazda2 = 2014 DJ, Mazda6 = 2018 GJ sedan, CX-5 = 2017 KF (the ubiquitous one),
+CX-9 = 2016 TC, CX-3 = 2015 DK, Mazda5 = 2010 CW people-mover, MX-5 NA = 1989,
+NB = 2000, ND = 2015 roadster.
+
+**New this run — watermark dampening.** Carsized bakes a faint tiled
+"carsized.com" text band across the lower bodywork. Earlier brands left it lightly
+baked in; for Mazda each raw render was first run through `dampen_watermark.py`
+(Lab-space edge-preserving "coring": median-smooth each channel, keep only
+large-amplitude detail = real edges, discard the low-amplitude watermark texture —
+luma-weighted, since the mark reads almost entirely as a small luma wobble). QA'd
+at full res on the worst case (white CX-60) and a saturated case (red NA): the
+text band is gone while panel gaps, handles and trim stay crisp. The mark is
+**suppressed, not provably licence-cleared** — treat as below.
+
+Requested but **dropped** — not in Carsized's catalogue at all, and NetCarShow
+only carries angled perspective press shots (the user prefers dropping over mixing
+in non-orthographic photos): the rotaries `rx-7` (fb/fc/fd), `rx-8`, `cosmo`, plus
+`mx-6`, `626`, `323-gtx`/`familia`, and the `bt-50` ute. MX-5 `nc` (2005-2015) is
+also absent from Carsized, so that generation is skipped (na/nb/nd only). Also
+skipped as non-Australian-market / redundant: `cx-50`, the `6e` EV, `demio`.
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| All 16 (`3`, `2`, `6`, `cx-3`, `cx-30`, `cx-5`, `cx-7`, `cx-9`, `cx-60`, `cx-80`, `cx-90`, `mx-30`, `5`, `na`, `nb`, `nd`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; here additionally **dampened** via `dampen_watermark.py`, but dampening is cosmetic and does **not** confer any reuse right |
+
 ## Toyota (23 cutouts)
 
 First non-German brand, Australia-weighted (HiLux/LandCruiser/RAV4/Corolla lead
