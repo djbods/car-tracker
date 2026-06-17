@@ -168,6 +168,37 @@ the A80 Supra): `ae86`, Supra Mk4 `a80`, `gr-corolla`, `2000gt`, `fj40`,
 |-------|--------|------------------|
 | All 23 (`86`, `gr86`, `supra`, `mr2`, `celica`, `gr-yaris`, `corolla`, `camry`, `yaris`, `crown`, `prius`, `hilux`, `landcruiser`, `prado`, `rav4`, `kluger`, `fortuner`, `fj-cruiser`, `4runner`, `tundra`, `tarago`, `bz4x`, `mirai`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
 
+## Nissan (26 cutouts)
+
+A MIXED set, like Porsche/VW/Mazda. The enthusiast Z-car and GT-R lines are
+CHASSIS-CODED (`z34`, `rz34`, `r35`), resolving via the chassis tier; the
+mainstream / AU-market lines are MODEL-NAMED, resolving via the model tier.
+Australia-weighted — Patrol/X-Trail/Qashqai/Navara dominate local sales. Each is
+the representative generation, verified from its Carsized detail-page year-range:
+370Z = **Z34** (2009-2020), Z = **RZ34** (2023-present), GT-R = **R35** (the
+2016-2022 facelift, the only GT-R Carsized catalogues), Patrol = **Y62**
+(2021-2023 facelift), Navara = **D23/NP300** (2014-present), X-Trail = **T33**
+(2021-present), Qashqai = **J12** (2021-2024), Pathfinder = **R53**
+(2021-present), Juke = **F16** (2019-2024), Leaf = **ZE1** hatch (2017-2025),
+Micra = **K14** (2016-2023), Pulsar = **C13** (2014-2018).
+
+A further **14 model-named mainstream** lines were added from Carsized to broaden
+coverage beyond the AU core (generation/year from each detail-page range): Ariya
+(2022-present), Murano **Z53** (2024-present), Altima **L34** (2018-present),
+Maxima **A36** (2015-2023), Sentra **B18** (2025), Kicks (2024-present), Note
+**E12** (2012-2020), Primera **P12** wagon (2001-2007), Titan **A61** crew cab
+(2015-2024), Cube **Z12** (2008-2019), Sunny **N17** (2015), Pixo (2008-2013),
+NV200 (2009-present), X-Terra (2021).
+
+Requested but **dropped** — not in Carsized's catalogue, no clean orthographic
+side render: the Skyline GT-R `r32`/`r33`/`r34`, Silvia `s13`/`s14`/`s15`, and the
+older Z-cars `s30` (240Z), `z32` (300ZX), `z33` (350Z). Only the 370Z (Z34), the
+new Z (RZ34) and the R35 GT-R exist there. Revisit if a clean side source turns up.
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| All 26 (`z34`, `rz34`, `r35`, `patrol`, `navara`, `x-trail`, `qashqai`, `pathfinder`, `juke`, `leaf`, `micra`, `pulsar`, `ariya`, `murano`, `altima`, `maxima`, `sentra`, `kicks`, `note`, `primera`, `titan`, `cube`, `sunny`, `pixo`, `nv200`, `xterra`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; here additionally **dampened** via `dampen_watermark.py`, but dampening is cosmetic and does **not** confer any reuse right |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC
