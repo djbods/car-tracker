@@ -299,6 +299,21 @@ const CUTOUT_SLUGS = new Set([
   'nissan-leaf',       // Leaf ZE1 (2017-2025) - mainstream BEV hatch
   'nissan-micra',      // Micra K14 (2016-2023) - supermini
   'nissan-pulsar',     // Pulsar C13 (2014-2018) - small hatch
+  // Additional global / other-market mainstream (model-named):
+  'nissan-ariya',      // Ariya (2022-present) - EV crossover
+  'nissan-murano',     // Murano Z53 (2024-present) - mid-size SUV
+  'nissan-altima',     // Altima L34 (2018-present) - mid-size sedan
+  'nissan-maxima',     // Maxima A36 (2015-2023) - full-size sedan
+  'nissan-sentra',     // Sentra B18 (2025) - compact sedan
+  'nissan-kicks',      // Kicks (2024-present) - subcompact SUV
+  'nissan-note',       // Note E12 (2012-2020) - supermini
+  'nissan-primera',    // Primera P12 wagon (2001-2007) - mid-size estate
+  'nissan-titan',      // Titan A61 crew cab (2015-2024) - full-size pickup
+  'nissan-cube',       // Cube Z12 (2008-2019) - boxy compact hatch
+  'nissan-sunny',      // Sunny N17 (2015) - compact sedan
+  'nissan-pixo',       // Pixo (2008-2013) - city car
+  'nissan-nv200',      // NV200 (2009-present) - compact panel van
+  'nissan-xterra',     // X-Terra (2021) - Middle-East body-on-frame SUV
   // Dropped (not in Carsized's catalogue — no clean orthographic side render):
   // Skyline GT-R r32/r33/r34, Silvia s13/s14/s15, and the older Z-cars s30 (240Z),
   // z32 (300ZX), z33 (350Z). Only the 370Z (Z34), new Z (RZ34) and R35 GT-R exist
