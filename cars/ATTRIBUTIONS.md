@@ -101,6 +101,27 @@ side profile.
 |-------|--------|------------------|
 | All 28 (`mk1`-`mk8`, `t1`, `t4`, `t5`, `t6`, `type1`, `new-beetle`, `scirocco`, `polo`, `passat`, `phaeton`, `touareg`, `tiguan`, `up`, `id3`, `id4`, `id-buzz`, `jetta`, `arteon`, `amarok`, `id7`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
 
+## Toyota (23 cutouts)
+
+First non-German brand, Australia-weighted (HiLux/LandCruiser/RAV4/Corolla lead
+local ownership). All MODEL-NAMED, resolving via the model tier. Each is the
+representative generation noted below.
+
+All 23 came from Carsized, which has deep Toyota coverage. The chosen body styles:
+HiLux = 2016 **double-cab** (the iconic Aus silhouette; the 2020 listing is only a
+2-door extra-cab), Tundra = 2021 double-cab, Corolla = 2022 sedan, Yaris = 2020
+5-door, Crown = 2022 fastback, Kluger = Highlander 2019 (Kluger is the Aus name),
+Tarago = Previa 2000 (Aus name), Supra = A90 2019, GR Yaris = 2020 3-door GR.
+
+Requested but **dropped** — no clean orthographic side render exists (Carsized
+lacks them; NetCarShow only carries angled perspective press shots, verified for
+the A80 Supra): `ae86`, Supra Mk4 `a80`, `gr-corolla`, `2000gt`, `fj40`,
+`landcruiser-70`, `tacoma`. Revisit if a clean side source turns up.
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| All 23 (`86`, `gr86`, `supra`, `mr2`, `celica`, `gr-yaris`, `corolla`, `camry`, `yaris`, `crown`, `prius`, `hilux`, `landcruiser`, `prado`, `rav4`, `kluger`, `fortuner`, `fj-cruiser`, `4runner`, `tundra`, `tarago`, `bz4x`, `mirai`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC
