@@ -318,6 +318,56 @@ const CUTOUT_SLUGS = new Set([
   // Skyline GT-R r32/r33/r34, Silvia s13/s14/s15, and the older Z-cars s30 (240Z),
   // z32 (300ZX), z33 (350Z). Only the 370Z (Z34), new Z (RZ34) and R35 GT-R exist
   // there. Revisit if a clean side source turns up.
+
+  // Ford — a MIXED set (like Porsche/VW/Mazda/Nissan), Australia-weighted. The
+  // Mustang performance generations are CHASSIS-CODED (distinct silhouette per
+  // gen, resolving via the chassis tier); everything else is MODEL-NAMED,
+  // resolving via the model tier. Each is the representative generation, verified
+  // from its Carsized detail-page year-range (see cars/ATTRIBUTIONS.md).
+  // Mustang generations (chassis-coded):
+  'ford-s197',          // Mustang (2009-2014) - fifth-gen retro coupe
+  'ford-s550',          // Mustang (2015-2023) - Carsized codes it LAE; S550 platform
+  'ford-s650',          // Mustang (2023-present) - current S650
+  // Australian core (model-named) — locally relevant lines lead the set:
+  'ford-ranger',        // Ranger P703 (2022-present) - AU best-seller ute
+  'ford-ranger-raptor', // Ranger Raptor P703 (2022-present) - widebody performance ute
+  'ford-everest',       // Everest U704 (2022-present) - Ranger-based 7-seat SUV
+  'ford-mustang',       // Mustang (1964-1966) - classic first-gen fastback (default)
+  'ford-mustang-mach-e',// Mustang Mach-E LSK (2021-present) - EV crossover
+  'ford-kuga',          // Kuga DFK (2019-2024) - current AU Escape platform
+  'ford-escape',        // Escape (2007-2011) - earlier AU/US compact SUV
+  'ford-puma',          // Puma J2K (2019-2024) - small SUV
+  'ford-focus',         // Focus DEH (2022-present) - current 5-door hatch
+  'ford-fiesta',        // Fiesta JHH (2017-present) - supermini
+  'ford-falcon',        // Falcon FG G6E (2008-2014) - locally-built AU sedan (NetCarShow)
+  // Global mainstream (model-named):
+  'ford-mondeo',        // Mondeo BA7 (2014-2021) - mid-size estate
+  'ford-galaxy',        // Galaxy WA6 (2015-present) - large MPV
+  'ford-s-max',         // S-Max WA6 (2015-2019) - sporty MPV
+  'ford-c-max',         // C-Max DXA (2010-2015) - compact MPV
+  'ford-b-max',         // B-Max JK8 (2012-2017) - mini-MPV
+  'ford-ka',            // Ka RU8 (2008-2016) - city car
+  'ford-ecosport',      // EcoSport JK8 (2017-2022) - subcompact SUV
+  'ford-edge',          // Edge SBF (2014-2020) - mid-size SUV (sold in AU as Endura)
+  'ford-explorer',      // Explorer WUJ (2019-2023) - full-size SUV
+  'ford-expedition',    // Expedition U553 (2018-2021) - full-size SUV
+  'ford-excursion',     // Excursion (2005) - extended full-size SUV
+  'ford-bronco',        // Bronco U725 (2021-present) - retro off-roader
+  'ford-bronco-sport',  // Bronco Sport (2021-present) - compact crossover
+  'ford-maverick',      // Maverick P758 (2021-present) - compact unibody pickup
+  'ford-f-150',         // F-150 P702 (2023-present) - full-size pickup
+  'ford-f-250',         // F-250 P708 (2023-present) - Super Duty pickup
+  'ford-f-350',         // F-350 P558 (2016-2019) - Super Duty pickup
+  'ford-fusion',        // Fusion (2012-2017) - US mid-size sedan
+  'ford-taurus',        // Taurus (2009-2019) - US full-size sedan
+  'ford-crown-victoria',// Crown Victoria EN114 (1997-2011) - body-on-frame sedan
+  'ford-cougar',        // Cougar BCV (1998-2001) - front-drive coupe
+  // Dropped — not in Carsized and no clean orthographic side on NetCarShow:
+  // Territory (SX/SZ AU SUV — NetCarShow only had front/rear 3/4 + interior),
+  // Ford GT supercar, Endura (covered by ford-edge, the same SBF platform).
+  // Trimmed from scope (AU + mainstream focus): pre-war Model T/A/48, the Euro
+  // Transit/Tourneo van family, and 60s/70s classics (Cortina, Granada, Scorpio,
+  // Capri, Fairlane, Thunderbird, Taunus). All exist on Carsized — revisit to add.
   // add a slug here when you drop its PNG in /cars/
 ]);
 

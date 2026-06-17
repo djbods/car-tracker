@@ -199,6 +199,50 @@ new Z (RZ34) and the R35 GT-R exist there. Revisit if a clean side source turns 
 |-------|--------|------------------|
 | All 26 (`z34`, `rz34`, `r35`, `patrol`, `navara`, `x-trail`, `qashqai`, `pathfinder`, `juke`, `leaf`, `micra`, `pulsar`, `ariya`, `murano`, `altima`, `maxima`, `sentra`, `kicks`, `note`, `primera`, `titan`, `cube`, `sunny`, `pixo`, `nv200`, `xterra`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; here additionally **dampened** via `dampen_watermark.py`, but dampening is cosmetic and does **not** confer any reuse right |
 
+## Ford (35 cutouts)
+
+A MIXED set, like Porsche/VW/Mazda/Nissan, and Australia-weighted — Ford is one of
+the most significant marques in the AU market (the locally-built Falcon/Territory,
+the best-selling Ranger, the Mustang halo car). The Mustang performance generations
+are CHASSIS-CODED (`s197`, `s550`, `s650`), resolving via the chassis tier; every
+other line is MODEL-NAMED, resolving via the model tier. Scope this run was **AU +
+mainstream** (pre-war, the Euro Transit/Tourneo van family, and the 60s/70s classics
+were trimmed — they exist on Carsized and can be added later).
+
+Each is the representative generation, verified from its Carsized detail-page
+year-range and chassis code (shown in the page `<h1>`): Mustang **S197** (2009-2014),
+**S550** (2015-2023; Carsized labels it LAE — S550 is the platform name owners type),
+**S650** (2023-present); the classic first-gen Mustang (1964-1966 fastback) is the
+model-named default. Ranger **P703** (2022-present) + Ranger Raptor **P703**
+(2022-present), Everest **U704** (2022-present), Mach-E **LSK** (2021-present), Kuga
+**DFK** (2019-2024), Escape (2007-2011), Puma **J2K** (2019-2024), Focus **DEH**
+(2022-present), Fiesta **JHH** (2017-present). Globals: Mondeo **BA7** estate
+(2014-2021), Galaxy **WA6** (2015-present), S-Max **WA6** (2015-2019), C-Max **DXA**
+(2010-2015), B-Max **JK8** (2012-2017), Ka **RU8** (2008-2016), EcoSport **JK8**
+(2017-2022), Edge **SBF** (2014-2020 — sold in AU as the **Endura**), Explorer
+**WUJ** (2019-2023), Expedition **U553** (2018-2021), Excursion (2005), Bronco
+**U725** (2021-present), Bronco Sport (2021-present), Maverick **P758**
+(2021-present), F-150 **P702** (2023-present), F-250 **P708** (2023-present), F-350
+**P558** (2016-2019), Fusion (2012-2017), Taurus (2009-2019), Crown Victoria
+**EN114** (1997-2011), Cougar **BCV** (1998-2001).
+
+**Falcon** is the one exception sourced outside Carsized: the locally-built AU Falcon
+(and Territory) are **not** in Carsized's catalogue, so the **FG Falcon G6E
+(2008-2014)** was taken from a NetCarShow press photo — a clean orthographic-ish
+studio side shot. NetCarShow sources are **not** watermark-dampened (their mark sits
+on the background corners and is removed by rembg, not baked into the bodywork).
+
+Requested/expected but **dropped**: **Territory** (SX/SZ) — NetCarShow only carries
+front/rear 3/4 and interior shots, no clean side, so it falls back to the Ford
+emblem; the **Ford GT** supercar — not catalogued by Carsized; **Endura** — it *is*
+the AU name for the SBF Edge, so `ford-edge` already covers it. Revisit Territory if
+a clean orthographic side source turns up.
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| 34 Carsized (`s197`, `s550`, `s650`, `ranger`, `ranger-raptor`, `everest`, `mustang`, `mustang-mach-e`, `kuga`, `escape`, `puma`, `focus`, `fiesta`, `mondeo`, `galaxy`, `s-max`, `c-max`, `b-max`, `ka`, `ecosport`, `edge`, `explorer`, `expedition`, `excursion`, `bronco`, `bronco-sport`, `maverick`, `f-150`, `f-250`, `f-350`, `fusion`, `taurus`, `crown-victoria`, `cougar`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via `dampen_watermark.py` (cosmetic only, confers no reuse right) |
+| 1 NetCarShow (`falcon`) | NetCarShow.com press photo (FG Falcon G6E 2008) | ⚠️ **not** an open licence — copyrighted manufacturer press image; corner "NetCarShow.com" watermark removed with the background by rembg; not dampened |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC
