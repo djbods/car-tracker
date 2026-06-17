@@ -108,17 +108,20 @@
       drop-shadow(0 22px 6px rgba(0,0,0,0.75)); display: none; }
   /* Stays hidden until the PNG is fully decoded — JS adds .reveal only then
      (via img.decode()), so a slow network or device can't flash a half-painted,
-     top-down-loading car before the animation. .reveal both shows the car and
-     plays the fade-up-out-of-blur with a small settle-down zoom. Keyframes (not
-     a transition) so reduced-motion just shows the resting car. Replays on every
-     vehicle switch (.reveal is dropped on src change, re-added on the next
-     decode). */
-  .pcard-cutout.reveal { display: block; animation: cutout-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+     top-down-loading car before the animation. .reveal shows the car and plays
+     a fade-up with a small settle-down zoom.
+     NB: we animate ONLY opacity + transform, never `filter`. iOS WebKit has a
+     bug where animating `filter: blur()` on an image leaves the compositing
+     layer broken and paints the whole element as a solid white box once the
+     animation ends. The drop-shadows stay as a static filter (they render fine);
+     the reveal gets its softness from the fade + zoom instead of an animated
+     blur. No animation-fill-mode: the resting state already equals the `to`
+     frame, so the car holds correctly without forwards-fill (another iOS
+     filter+fill white-box trigger). */
+  .pcard-cutout.reveal { display: block; animation: cutout-in 0.55s cubic-bezier(0.16, 1, 0.3, 1); }
   @keyframes cutout-in {
-    from { opacity: 0; transform: translate(-50%, -44%) scale(1.06);
-      filter: blur(14px) drop-shadow(0 0 1px rgba(0,0,0,0.5)) drop-shadow(0 22px 6px rgba(0,0,0,0.75)); }
-    to   { opacity: 1; transform: translate(-50%, -50%) scale(1);
-      filter: blur(0) drop-shadow(0 0 1px rgba(0,0,0,0.5)) drop-shadow(0 22px 6px rgba(0,0,0,0.75)); }
+    from { opacity: 0; transform: translate(-50%, -44%) scale(1.06); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   }
   @media (prefers-reduced-motion: reduce) {
     .pcard-cutout.reveal { animation: none; }
