@@ -99,8 +99,30 @@
     width: clamp(232px, 66%, 450px); height: auto;
     transform: translate(-50%, -50%);   /* 50% of the car sits above the card top edge */
     object-fit: contain; pointer-events: none;
-    filter: drop-shadow(0 12px 16px rgba(0,0,0,0.45)); display: none; }
-  .pcard-cutout.loaded { display: block; }
+    /* Edge + shadow: the tight 0-offset dark drop-shadow paints a soft halo along
+       the silhouette that absorbs the light cut-out fringe and feathers the top
+       edge into the background. The lower 22px/6px shadow is a defined, stylised
+       cast shadow that grounds the float with a bit of attitude. */
+    filter:
+      drop-shadow(0 0 1px rgba(0,0,0,0.5))
+      drop-shadow(0 22px 6px rgba(0,0,0,0.75)); display: none; }
+  /* Stays hidden until the PNG is fully decoded — JS adds .reveal only then
+     (via img.decode()), so a slow network or device can't flash a half-painted,
+     top-down-loading car before the animation. .reveal both shows the car and
+     plays the fade-up-out-of-blur with a small settle-down zoom. Keyframes (not
+     a transition) so reduced-motion just shows the resting car. Replays on every
+     vehicle switch (.reveal is dropped on src change, re-added on the next
+     decode). */
+  .pcard-cutout.reveal { display: block; animation: cutout-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @keyframes cutout-in {
+    from { opacity: 0; transform: translate(-50%, -44%) scale(1.06);
+      filter: blur(14px) drop-shadow(0 0 1px rgba(0,0,0,0.5)) drop-shadow(0 22px 6px rgba(0,0,0,0.75)); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1);
+      filter: blur(0) drop-shadow(0 0 1px rgba(0,0,0,0.5)) drop-shadow(0 22px 6px rgba(0,0,0,0.75)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pcard-cutout.reveal { animation: none; }
+  }
 
   /* emblem state (no photo, no cutout) — sits on the stage's own glow */
   .car-upload-prompt { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); background: transparent; }
