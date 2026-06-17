@@ -6,3 +6,6 @@ package-lock.json
 config.local.js
 .DS_Store
 .claude/
+
+# Cutout sourcing scratch (venv, raw downloads, montages)
+cutout-work/

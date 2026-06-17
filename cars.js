@@ -238,6 +238,42 @@ const CUTOUT_SLUGS = new Set([
   // NetCarShow only has perspective press shots): rx-7 (fb/fc/fd), rx-8, cosmo,
   // mx-6, 626, 323-gtx/familia, bt-50 (ute). Also skipped (not Australian-market):
   // cx-50, 6e EV, demio. Revisit if a clean side source turns up.
+
+  // Toyota — a MIXED set, like Porsche/VW. All MODEL-NAMED here, resolving via
+  // the model tier add(model): a user typing "Corolla"/"HiLux"/"86" renders
+  // straight from the slug. Australia-weighted — HiLux/LandCruiser/RAV4/Corolla
+  // dominate local ownership. Cutouts are Carsized.com orthographic `_4x`
+  // side-view renders (rembg'd); representative generation noted per line.
+  // Sports / enthusiast:
+  'toyota-86',          // 86 / GT86 (ZN6, 2012)
+  'toyota-gr86',        // GR86 (ZN8, 2021) - second-gen, Gazoo Racing
+  'toyota-supra',       // Supra (model floor — A90, 2019)
+  'toyota-mr2',         // MR2 mid-engine (SW20, 1989)
+  'toyota-celica',      // Celica liftback (T230, 1999)
+  'toyota-gr-yaris',    // GR Yaris (2020) - homologation AWD hot hatch
+  // Mainstream sedans / hatch:
+  'toyota-corolla',     // Corolla (2022 sedan) - world's best-selling nameplate
+  'toyota-camry',       // Camry (2024) - midsize sedan staple
+  'toyota-yaris',       // Yaris (2020 5-door) supermini
+  'toyota-crown',       // Crown (2022 fastback) - flagship sedan lineage
+  'toyota-prius',       // Prius (2022) - hybrid icon
+  // SUV / ute / 4x4 — core of Australian ownership:
+  'toyota-hilux',          // HiLux (2016 double-cab) - perennial Aus top-seller ute
+  'toyota-landcruiser',    // LandCruiser (300-series, 2021)
+  'toyota-prado',          // LandCruiser Prado (2023)
+  'toyota-rav4',           // RAV4 (XA50, 2019) - top-selling SUV
+  'toyota-kluger',         // Kluger / Highlander (2019)
+  'toyota-fortuner',       // Fortuner (2020) - HiLux-based 7-seat SUV
+  'toyota-fj-cruiser',     // FJ Cruiser (2006) - retro SUV
+  'toyota-4runner',        // 4Runner (2024)
+  'toyota-tundra',         // Tundra (2021) - full-size pickup
+  // People-mover & EV / hydrogen:
+  'toyota-tarago',      // Tarago / Previa (2000) - egg-shape people-mover
+  'toyota-bz4x',        // bZ4X (2022) - first dedicated BEV
+  'toyota-mirai',       // Mirai (2020) - hydrogen fuel-cell sedan
+  // Dropped (no clean orthographic side render — Carsized lacks them, NetCarShow
+  // only has perspective press shots): ae86, supra a80 (Mk4), gr-corolla, 2000gt,
+  // fj40, landcruiser-70, tacoma. Revisit if a clean side source turns up.
   // add a slug here when you drop its PNG in /cars/
 ]);
 
