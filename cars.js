@@ -274,6 +274,35 @@ const CUTOUT_SLUGS = new Set([
   // Dropped (no clean orthographic side render — Carsized lacks them, NetCarShow
   // only has perspective press shots): ae86, supra a80 (Mk4), gr-corolla, 2000gt,
   // fj40, landcruiser-70, tacoma. Revisit if a clean side source turns up.
+
+  // Nissan — a MIXED set, like Porsche/VW. The enthusiast Z-car and GT-R lines
+  // are CHASSIS-CODED (like the BMW set / Mazda MX-5), resolving via the chassis
+  // tier add(chassis) — a user typing chassis "Z34"/"RZ34"/"R35" renders straight
+  // from the slug; one file per generation, since the silhouettes are distinct
+  // icons. The mainstream / AU-market lines are MODEL-NAMED, resolving via the
+  // model tier add(model): a user typing "Patrol"/"X-Trail"/"Qashqai" renders
+  // straight from the slug. Australia-weighted — Patrol/X-Trail/Qashqai/Navara
+  // dominate local sales. Cutouts are Carsized.com orthographic `_4x` renders
+  // (watermark-dampened, rembg'd); representative generation noted per line from
+  // the source detail-page year-range.
+  // Z-car / GT-R (chassis-coded) — distinct silhouette per generation:
+  'nissan-z34',     // 370Z Z34 (2009-2020) - last of the analogue Z coupes
+  'nissan-rz34',    // Z RZ34 (2023-present) - current retro-styled Z
+  'nissan-r35',     // GT-R R35 (2016-2022 facelift) - Godzilla, sole Carsized GT-R
+  // Mainstream / AU-market (model-named):
+  'nissan-patrol',     // Patrol Y62 (2021-2023) - perennial Aus large 4x4
+  'nissan-navara',     // Navara D23/NP300 (2014-present) - top-selling ute
+  'nissan-x-trail',    // X-Trail T33 (2021-present) - core Aus family SUV
+  'nissan-qashqai',    // Qashqai J12 (2021-2024) - small-SUV staple
+  'nissan-pathfinder', // Pathfinder R53 (2021-present) - 7-seat SUV
+  'nissan-juke',       // Juke F16 (2019-2024) - subcompact crossover
+  'nissan-leaf',       // Leaf ZE1 (2017-2025) - mainstream BEV hatch
+  'nissan-micra',      // Micra K14 (2016-2023) - supermini
+  'nissan-pulsar',     // Pulsar C13 (2014-2018) - small hatch
+  // Dropped (not in Carsized's catalogue — no clean orthographic side render):
+  // Skyline GT-R r32/r33/r34, Silvia s13/s14/s15, and the older Z-cars s30 (240Z),
+  // z32 (300ZX), z33 (350Z). Only the 370Z (Z34), new Z (RZ34) and R35 GT-R exist
+  // there. Revisit if a clean side source turns up.
   // add a slug here when you drop its PNG in /cars/
 ]);
 
