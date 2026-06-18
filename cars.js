@@ -368,6 +368,56 @@ const CUTOUT_SLUGS = new Set([
   // Trimmed from scope (AU + mainstream focus): pre-war Model T/A/48, the Euro
   // Transit/Tourneo van family, and 60s/70s classics (Cortina, Granada, Scorpio,
   // Capri, Fairlane, Thunderbird, Taunus). All exist on Carsized — revisit to add.
+
+  // Hyundai — a MIXED set, like Mazda/Nissan. Mainstream lines are MODEL-NAMED
+  // (resolving via the model tier); the N-performance variants are MODEL-VARIANT
+  // named (hyundai-i30-n, etc.). Hyundai uses few chassis codes, so this is
+  // mostly model-named with the latest generation as the representative silhouette.
+  // Australia-weighted — i30/Tucson/Kona/Santa Fe/i20 dominate local sales.
+  // Cutouts are Carsized.com orthographic `_4x` renders (watermark-dampened, rembg'd);
+  // representative generation verified from each detail-page year-range (see ATTRIBUTIONS.md).
+  // AU core (model-named) — locally relevant lines lead the set:
+  'hyundai-i30',         // i30 PDE (2024-present) - perennial Aus hatch
+  'hyundai-tucson',      // Tucson NX4E (2024-present) - core Aus SUV
+  'hyundai-kona',        // Kona SX2 (2023-present) - subcompact SUV
+  'hyundai-santa-fe',    // Santa Fe MX5 (2023-present) - mid-size SUV
+  'hyundai-i20',         // i20 BC3 (2023-present) - supermini hatch
+  'hyundai-venue',       // Venue (2019-present) - small SUV
+  'hyundai-palisade',   // Palisade LX3 (2024-present) - large 3-row SUV
+  'hyundai-staria',      // Staria US4 (2021-present) - people-mover
+  'hyundai-iload',       // iLoad H-1 TQ (2007-present) - commercial van (H-1 in AU)
+  // Ioniq EV line (model-named):
+  'hyundai-ioniq-5',     // Ioniq 5 NE (2021-present) - flagship compact EV SUV
+  'hyundai-ioniq-6',     // Ioniq 6 CE (2022-present) - aerodynamic EV sedan
+  'hyundai-ioniq',       // Ioniq AE (2019-present) - original liftback hybrid
+  'hyundai-ioniq-9',     // Ioniq 9 ME1 (2025-present) - large 3-row EV SUV
+  // N-performance variants (model-variant named):
+  'hyundai-i30-n',       // i30 N PDE (2017-present) - hot hatch (distinct silhouette)
+  'hyundai-i20-n',       // i20 N BC3 (2021-present) - hot supermini
+  'hyundai-ioniq-6-n',   // Ioniq 6 N CE (2025-present) - high-performance EV sedan
+  // Sporty coupe (model-named):
+  'hyundai-veloster',    // Veloster FS (2011-2023) - asymmetrical 3-door hatch
+  'hyundai-genesis-coupe', // Genesis Coupe BK (2011-present) - RWD sport coupe
+  // Global mainstream (model-named):
+  'hyundai-elantra',     // Elantra CN7 (2023-present) - global C-segment sedan
+  'hyundai-sonata',      // Sonata DN8 (2023-present) - D-segment sedan
+  'hyundai-i10',         // i10 AC3 (2019-present) - city car
+  'hyundai-i40',         // i40 VF (2011-present) - D-segment estate (Europe)
+  'hyundai-ix35',        // ix35 LM (2009-present) - pre-Tucson name globally
+  'hyundai-nexo',        // Nexo FE (2018-present) - hydrogen fuel-cell SUV
+  'hyundai-getz',        // Getz TB (2005-present) - classic i20 predecessor
+  'hyundai-atos',        // Atos MX (2004-present) - classic city car
+  'hyundai-creta',       // Creta SU2 (2019-present) - global B-segment SUV (iX25 in India)
+  'hyundai-bayon',       // Bayon BC3 (2021-present) - European B-SUV
+  'hyundai-santa-cruz',  // Santa Cruz (2021-present) - lifestyle unibody pickup
+  'hyundai-inster',      // Inster AX1 (2024-present) - new city car
+  'hyundai-ix20',        // ix20 JC (2015-present) - B-segment MPV
+  'hyundai-azera',       // Azera HG (2011-present) - large sedan (XG series)
+  'hyundai-grandeur',    // Grandeur HG (2011-present) - large sedan
+  'hyundai-tiburon',     // Tiburon GK (2001-present) - sporty coupe (Cougar in some markets)
+  // Dropped — not in Carsized's catalogue; NetCarShow only has angled press shots:
+  // Accent (global B-segment sedan), Terracan (body-on-frame SUV). No clean
+  // orthographic side render exists. Revisit if a clean side source turns up.
   // add a slug here when you drop its PNG in /cars/
 ]);
 

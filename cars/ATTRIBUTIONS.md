@@ -243,6 +243,38 @@ a clean orthographic side source turns up.
 | 34 Carsized (`s197`, `s550`, `s650`, `ranger`, `ranger-raptor`, `everest`, `mustang`, `mustang-mach-e`, `kuga`, `escape`, `puma`, `focus`, `fiesta`, `mondeo`, `galaxy`, `s-max`, `c-max`, `b-max`, `ka`, `ecosport`, `edge`, `explorer`, `expedition`, `excursion`, `bronco`, `bronco-sport`, `maverick`, `f-150`, `f-250`, `f-350`, `fusion`, `taurus`, `crown-victoria`, `cougar`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via `dampen_watermark.py` (cosmetic only, confers no reuse right) |
 | 1 NetCarShow (`falcon`) | NetCarShow.com press photo (FG Falcon G6E 2008) | ⚠️ **not** an open licence — copyrighted manufacturer press image; corner "NetCarShow.com" watermark removed with the background by rembg; not dampened |
 
+## Hyundai (34 cutouts)
+
+A MIXED set, like Mazda/Nissan. Mainstream lines are MODEL-NAMED, resolving via
+the model tier; the N-performance variants use MODEL-VARIANT naming (hyundai-i30-n,
+etc.) and also resolve via the model tier. Hyundai uses few chassis codes compared
+to Toyota or Honda, so the set is overwhelmingly model-named with the latest
+generation as the representative silhouette. Australia-weighted — i30/Tucson/Kona
+dominate local sales.
+
+Each is the representative generation, verified from its Carsized detail-page
+year-range and chassis code (shown in the page `<h1>`). AU core first (i30 PDE 2024,
+Tucson NX4E 2024, Kona SX2 2023, Santa Fe MX5 2023, i20 BC3 2023, Venue 2019,
+Palisade LX3 2024, Staria US4 2021, iLoad H-1 TQ 2007, Ioniq 5 NE 2021, Ioniq 6
+CE 2022), then global lines (Elantra CN7 2023, Sonata DN8 2023, i10 AC3 2019,
+i40 VF 2011, ix35 LM 2009, Ioniq AE 2019, Ioniq 9 ME1 2025, Nexo FE 2018, Getz
+TB 2005, Atos MX 2004, Creta SU2 2019, Bayon BC3 2021, Santa Cruz 2021, Inster
+AX1 2024, ix20 JC 2015, Azera HG 2011, Grandeur HG 2011, Tiburon GK 2001). N
+variants are pinned separately (i30-n, i20-n, ioniq-6-n) where Carsized distinguishes
+them; Veloster is the base-model silhouette only (no N variant catalogued). Genesis
+Coupe is the pre-spinoff Hyundai-badged sport coupe.
+
+All 34 came from Carsized, which has deep Hyundai coverage. Cutouts are Carsized.com
+orthographic `_4x` side-view renders (watermark-dampened, rembg'd).
+
+Requested but **dropped** — not in Carsized's catalogue, NetCarShow only has angled
+press shots (no clean orthographic side): the **Accent** (global B-segment sedan) and
+**Terracan** (body-on-frame SUV). Revisit if a clean side source turns up.
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| All 34 (`i30`, `tucson`, `kona`, `santa-fe`, `i20`, `venue`, `palisade`, `staria`, `iload`, `ioniq-5`, `ioniq-6`, `ioniq`, `ioniq-9`, `i30-n`, `i20-n`, `ioniq-6-n`, `veloster`, `genesis-coupe`, `elantra`, `sonata`, `i10`, `i40`, `ix35`, `nexo`, `getz`, `atos`, `creta`, `bayon`, `santa-cruz`, `inster`, `ix20`, `azera`, `grandeur`, `tiburon`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via `dampen_watermark.py` (cosmetic only, confers no reuse right) |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC
