@@ -1,6 +1,6 @@
 // Multi-sheet .xlsx export via xlsx-js-style (community SheetJS fork
 // that preserves cell `s` style on write — vanilla xlsx silently strips
-// it). Amber brand palette mirrors the in-app accent so the export
+// it). Orange brand palette mirrors the in-app accent so the export
 // feels like the product.
 
 import { state } from './state.js';
@@ -9,7 +9,7 @@ import {
 } from '../data.js';
 
 // ══════════════════════════════════════════════════════
-// Brand palette (matches in-app amber accent)
+// Brand palette (matches in-app orange accent)
 // ══════════════════════════════════════════════════════
 
 const STYLE_BORDER = {
@@ -20,20 +20,20 @@ const STYLE_BORDER = {
 };
 const STYLE_HEADER = {
   font:      { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
-  fill:      { fgColor: { rgb: 'F59E0B' } },
+  fill:      { fgColor: { rgb: 'FF7E00' } },
   alignment: { horizontal: 'left', vertical: 'center' },
   border:    STYLE_BORDER,
 };
 const STYLE_SECTION = {
-  font:      { bold: true, color: { rgb: 'F59E0B' }, sz: 12 },
+  font:      { bold: true, color: { rgb: 'FF7E00' }, sz: 12 },
   alignment: { horizontal: 'left', vertical: 'center' },
 };
 const STYLE_LABEL  = { font: { bold: true }, alignment: { vertical: 'center' } };
 const STYLE_BAND   = { fgColor: { rgb: 'FAFAF9' } };
 const STYLE_TOTAL  = {
   font:   { bold: true },
-  fill:   { fgColor: { rgb: 'FFF7E6' } },
-  border: { ...STYLE_BORDER, top: { style: 'medium', color: { rgb: 'F59E0B' } } },
+  fill:   { fgColor: { rgb: 'FFF1E6' } },
+  border: { ...STYLE_BORDER, top: { style: 'medium', color: { rgb: 'FF7E00' } } },
 };
 
 // Cell helpers — return SheetJS cell objects with type, value, format, style.
@@ -122,7 +122,7 @@ export async function exportToExcel() {
   // distinct amber bars; field labels are bold.
   const car = state.car;
   const overviewRows = [
-    [{ v: 'Vehicle Export', s: { font: { bold: true, sz: 16, color: { rgb: 'F59E0B' } } } }, ''],
+    [{ v: 'Vehicle Export', s: { font: { bold: true, sz: 16, color: { rgb: 'FF7E00' } } } }, ''],
     [{ v: 'Exported', s: STYLE_LABEL }, new Date().toLocaleString('en-AU')],
     ['', ''],
     [{ v: 'Vehicle Details', s: STYLE_SECTION }, ''],
