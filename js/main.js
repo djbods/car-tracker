@@ -47,6 +47,7 @@ const fuelModal       = document.getElementById('fuel-modal');
 const docModal        = document.getElementById('document-modal');
 const docPreviewModal = document.getElementById('doc-preview-modal');
 const exportModal     = document.getElementById('export-modal');
+const fabActionModal  = document.getElementById('fab-action-modal');
 
 document.getElementById('cancel-btn').onclick               = () => close(addModal);
 document.getElementById('cancel-car-btn').onclick           = () => close(carModal);
@@ -59,7 +60,7 @@ document.getElementById('cancel-doc-btn').onclick           = () => close(docMod
 document.getElementById('doc-preview-close-btn').onclick    = () => close(docPreviewModal);
 document.getElementById('cancel-export-btn').onclick        = () => close(exportModal);
 
-[addModal, detailModal, carModal, garageModal, installModal, garageNameModal, fuelModal, docModal, docPreviewModal, exportModal].forEach(m =>
+[addModal, detailModal, carModal, garageModal, installModal, garageNameModal, fuelModal, docModal, docPreviewModal, exportModal, fabActionModal].forEach(m =>
   m.addEventListener('click', e => { if (e.target === m) close(m); })
 );
 
@@ -417,8 +418,10 @@ function hideBoot() { bootOverlay.classList.remove('open', 'error'); }
 
 // Minimum time the startup splash stays up so the fuel-fill animation reads
 // as intentional, not a flicker — getSession() often resolves from cache in
-// well under 100ms. splashStart is captured at module eval (≈ first paint).
-const SPLASH_MIN_MS = 1500;
+// well under 100ms. Kept short so a cached session boots near-instantly;
+// just long enough that the splash doesn't flash-and-vanish.
+// splashStart is captured at module eval (≈ first paint).
+const SPLASH_MIN_MS = 400;
 const splashStart = performance.now();
 function splashHold() {
   const remaining = SPLASH_MIN_MS - (performance.now() - splashStart);

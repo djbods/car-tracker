@@ -406,8 +406,16 @@
   .btn-text-danger:active { opacity: 1; }
 
   /* ── FAB ── */
-  .fab { position: fixed; bottom: calc(88px + env(safe-area-inset-bottom)); right: 50%; transform: translateX(calc(50% + 160px)); width: 52px; height: 52px; border-radius: 50%; background: var(--accent); border: none; color: #000; font-size: 26px; cursor: pointer; box-shadow: 0 4px 24px rgba(200,168,75,0.4); display: flex; align-items: center; justify-content: center; z-index: 99; font-family: 'DM Sans', sans-serif; }
-  .fab:active { transform: translateX(calc(50% + 160px)) scale(0.93); }
+  .fab { position: fixed; bottom: calc(88px + env(safe-area-inset-bottom)); right: calc(20px + env(safe-area-inset-right)); width: 52px; height: 52px; border-radius: 50%; background: var(--accent); border: none; color: #000; font-size: 26px; cursor: pointer; box-shadow: 0 4px 24px rgba(200,168,75,0.4); display: flex; align-items: center; justify-content: center; z-index: 99; font-family: 'DM Sans', sans-serif; }
+  .fab:active { transform: scale(0.93); }
+
+  /* FAB action chooser — full-width tappable rows. */
+  .fab-action { width: 100%; display: flex; align-items: center; gap: 14px; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--text); transition: border-color 0.18s, background 0.18s; }
+  .fab-action:active { border-color: var(--accent); background: var(--surface2); }
+  .fab-action-icon { font-size: 22px; flex-shrink: 0; width: 28px; text-align: center; }
+  .fab-action-text { display: flex; flex-direction: column; gap: 2px; }
+  .fab-action-title { font-size: 15px; font-weight: 600; }
+  .fab-action-sub { font-size: 12px; color: var(--muted); font-weight: 300; }
 
   /* ── SPEND ── */
   .spend-summary { margin: 0 16px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
@@ -561,7 +569,13 @@
 
   /* ── GARAGE LIST ── */
   .garage-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+  .garage-row { display: flex; position: relative; }
+  .garage-row .garage-item { flex: 1; min-width: 0; padding-right: 48px; }
   .garage-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: border-color 0.15s, background 0.15s; font-family: 'DM Sans', sans-serif; color: var(--text); text-align: left; width: 100%; }
+  .garage-item-delete { position: absolute; right: 6px; top: 0; bottom: 0; border: none; background: transparent; flex-shrink: 0; width: 40px; color: var(--accent); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.15s; }
+  .garage-item-delete svg { width: 18px; height: 18px; }
+  .garage-item-delete:active { color: var(--red); }
+  .garage-item-delete:disabled { opacity: 0.5; cursor: default; }
   .garage-item:active { border-color: var(--accent); }
   .garage-item.active { border-color: rgba(200,168,75,0.5); background: rgba(200,168,75,0.06); }
   .garage-item-info { flex: 1; min-width: 0; }
@@ -874,7 +888,7 @@
       </svg>
       <div class="fuel-gauge-readout" id="fuel-gauge-readout">
         <div class="fuel-gauge-value" id="fuel-gauge-value">—</div>
-        <div class="fuel-gauge-unit">L/100km</div>
+        <div class="fuel-gauge-unit" id="fuel-gauge-unit">L/100km</div>
       </div>
     </div>
     <div class="fuel-gauge-empty" id="fuel-gauge-empty" style="display:none"></div>
@@ -900,20 +914,20 @@
 
 <!-- SERVICE -->
 <div class="screen" id="screen-service">
-  <div class="header"><div class="header-label">Maintenance</div><div class="header-title">Service</div></div>
-  <div class="entries" id="service-entries"><div class="empty"><div class="empty-icon">🛠️</div><div class="empty-text">No service records yet.</div></div></div>
+  <div class="header"><div class="header-label">Maintenance</div><div class="header-title">Service &amp; Repairs</div></div>
+  <div class="entries" id="service-entries"><div class="empty"><div class="empty-icon">🛠️</div><div class="empty-text">No service or repair records yet.</div></div></div>
 </div>
 
 <!-- SPEND -->
 <div class="screen" id="screen-spend">
   <div class="header"><div class="header-label">Financial Overview</div><div class="header-title">Spend</div></div>
   <div class="scope-toggle" id="scope-toggle" role="tablist" aria-label="Time scope">
-    <button class="scope-btn active" data-scope="year" role="tab" aria-selected="true">This year</button>
+    <button class="scope-btn" data-scope="year" role="tab" aria-selected="false">This year</button>
     <button class="scope-btn" data-scope="30d" role="tab" aria-selected="false">Last 30 days</button>
-    <button class="scope-btn" data-scope="all" role="tab" aria-selected="false">All time</button>
+    <button class="scope-btn active" data-scope="all" role="tab" aria-selected="true">All time</button>
   </div>
   <div class="spend-summary">
-    <div class="spend-label" id="spend-scope-label">This year</div>
+    <div class="spend-label" id="spend-scope-label">All time</div>
     <div class="spend-total" id="total-spend">$0</div>
     <div class="spend-stack" id="spend-stack" aria-hidden="true"></div>
     <div class="spend-breakdown">
@@ -1045,11 +1059,23 @@
   </button>
 </nav>
 
+<!-- FAB ACTION CHOOSER -->
+<div class="modal-overlay" id="fab-action-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add to your garage</div>
+    <button class="fab-action" id="fab-action-entry"><span class="fab-action-icon">🔧</span><span class="fab-action-text"><span class="fab-action-title">Log mod, service or repair</span><span class="fab-action-sub">Track a build item or maintenance job</span></span></button>
+    <button class="fab-action" id="fab-action-fuel"><span class="fab-action-icon">⛽</span><span class="fab-action-text"><span class="fab-action-title">Log fuel</span><span class="fab-action-sub">Record a fill-up for your economy gauge</span></span></button>
+    <button class="fab-action" id="fab-action-document"><span class="fab-action-icon">📁</span><span class="fab-action-text"><span class="fab-action-title">Upload document</span><span class="fab-action-sub">Insurance, rego, receipts and more</span></span></button>
+    <button class="btn-ghost" id="cancel-fab-action-btn">Cancel</button>
+  </div>
+</div>
+
 <!-- ADD ENTRY MODAL -->
 <div class="modal-overlay" id="add-modal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Log Entry</div>
+    <div class="modal-title" id="add-modal-title">Log Entry</div>
     <div class="type-selector">
       <button class="type-btn active mod" data-type="mod"><span>⚙️</span>Mod</button>
       <button class="type-btn service" data-type="service"><span>🛠️</span>Service</button>
@@ -1087,7 +1113,8 @@
     <div class="modal-handle"></div>
     <div class="modal-title" id="detail-title"></div>
     <div id="detail-body"></div>
-    <button class="btn-ghost" id="detail-close-btn" style="margin-top:20px">Close</button>
+    <button class="btn-primary" id="detail-edit-btn" style="margin-top:20px">Edit</button>
+    <button class="btn-ghost" id="detail-close-btn">Close</button>
     <button class="btn-text-danger" id="detail-delete-btn">Delete entry</button>
   </div>
 </div>
@@ -1199,6 +1226,7 @@
 
     <button class="btn-primary" id="save-car-btn">Save Details</button>
     <button class="btn-ghost" id="cancel-car-btn">Cancel</button>
+    <button class="btn-text-danger" id="delete-vehicle-btn" style="display:none">Delete this vehicle</button>
   </div>
 </div>
 
@@ -1206,9 +1234,9 @@
 <div class="modal-overlay" id="fuel-modal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Log Fill-up</div>
+    <div class="modal-title" id="fuel-modal-title">Log Fill-up</div>
     <div class="form-row">
-      <div class="form-group"><label>Odometer (km)</label><input type="number" id="fuel-input-odo" placeholder="e.g. 187430" inputmode="numeric"></div>
+      <div class="form-group"><label id="fuel-odo-label">Odometer (km)</label><input type="number" id="fuel-input-odo" placeholder="e.g. 187430" inputmode="numeric"></div>
       <div class="form-group"><label>Date</label><input type="date" id="fuel-input-date"></div>
     </div>
     <div class="form-row">
@@ -1230,7 +1258,7 @@
 <div class="modal-overlay" id="document-modal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Add Document</div>
+    <div class="modal-title" id="doc-modal-title">Add Document</div>
     <div class="form-group">
       <label>Type</label>
       <select id="doc-input-type">
@@ -1248,7 +1276,7 @@
       <label>Title</label>
       <input type="text" id="doc-input-title" placeholder="e.g. RACV Comprehensive 2026">
     </div>
-    <div class="form-group">
+    <div class="form-group" id="doc-file-group">
       <label>File (image or PDF, max 10MB)</label>
       <input type="file" id="doc-input-file" accept="image/*,application/pdf">
       <span class="form-hint" id="doc-file-hint" style="display:none"></span>
@@ -1274,6 +1302,7 @@
     <div id="doc-preview-meta" style="font-size:12px;color:var(--muted);margin-bottom:4px"></div>
     <div class="doc-preview-frame" id="doc-preview-frame"></div>
     <a id="doc-preview-download" class="btn-primary" target="_blank" rel="noopener" style="text-decoration:none;text-align:center;display:block;box-sizing:border-box">Download</a>
+    <button class="btn-ghost" id="doc-edit-btn">Edit details</button>
     <button class="btn-ghost" id="doc-preview-close-btn">Close</button>
     <button class="btn-text-danger" id="doc-delete-btn">Delete document</button>
   </div>
