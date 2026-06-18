@@ -52,15 +52,24 @@ export const state = {
   // Add-entry modal: which type-pill is selected (mod / service / repair).
   activeType: 'mod',
 
+  // Edit mode ids — null means the matching modal is in "add" mode;
+  // otherwise the id of the record being edited so the save handler routes
+  // to an update instead of an insert.
+  editingEntryId: null,
+  editingFuelId:  null,
+  editingDocId:   null,
+
   // Detail modal — at most one of these is set at a time. Fuel and regular
   // entries share the modal; the delete handler routes by checking
   // fuelDetailId first.
   detailId: null,
   fuelDetailId: null,
 
-  // Spend screen time scope. Defaults to 'year' so the hero number is the
-  // immediately-useful "spent on this car this year" rather than lifetime.
-  spendScope: 'year', // 'year' | '30d' | 'all'
+  // Spend screen time scope. Defaults to 'all' so the Spend hero matches
+  // the garage card's lifetime "Invested" total — opening Spend and seeing
+  // a smaller number than the garage card was a recurring mental-model
+  // mismatch. Users can still narrow to this-year / last-30-days.
+  spendScope: 'all', // 'year' | '30d' | 'all'
 
   // Cache of every mod {title, category} the user has logged across all
   // their vehicles. Powers the brand-autocomplete datalist. Refreshed on
@@ -100,6 +109,12 @@ export const fmt     = c => '$' + (c || 0).toFixed(0);
 export const today   = () => new Date().toISOString().split('T')[0];
 export const fmtDate = d => new Date(d + 'T00:00:00')
   .toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+
+// Distance + fuel-economy unit for the active car. The odometer can be set
+// to km or mi per-vehicle, so anything that prints a distance or an economy
+// figure reads the unit from here rather than hardcoding "km" / "L/100km".
+export const distanceUnit = () => state.car.odoUnit || 'km';
+export const economyUnit  = () => `L/100${distanceUnit()}`;
 
 export function formatBytes(n) {
   if (!n || n < 1024) return `${n || 0} B`;

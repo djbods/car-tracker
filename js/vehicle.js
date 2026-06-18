@@ -7,7 +7,7 @@ import {
   showToast, close,
 } from './state.js';
 import {
-  loadVehicles, upsertVehicle, rowToCar,
+  loadVehicles, upsertVehicle, deleteVehicle, rowToCar,
   loadEntries, loadFuelLogs, loadDocuments,
   getUserStorageUsageBytes,
   DEFAULT_GARAGE_NAME,
@@ -15,6 +15,7 @@ import {
 import { renderBrandLogo } from '../logos.js';
 import { renderAll } from './render.js';
 import { loadSavedPhoto, resetPhoto } from './photo.js';
+import { openWizard } from './onboarding.js';
 
 const carModal      = document.getElementById('car-modal');
 const garageModal   = document.getElementById('garage-modal');
@@ -148,6 +149,8 @@ export function openCarModal(mode) {
 
   carModalTitle.textContent = isEdit ? 'Car Details' : 'Add Vehicle';
   saveCarBtn.textContent    = isEdit ? 'Save Details' : 'Add Vehicle';
+  // Delete only makes sense for an existing vehicle, so it's hidden in add mode.
+  document.getElementById('delete-vehicle-btn').style.display = isEdit ? '' : 'none';
   carModal.classList.add('open');
 }
 
@@ -172,12 +175,89 @@ export async function createVehicle(next) {
 // "My Garage" — vehicle switcher
 // ══════════════════════════════════════════════════════
 
+// Confirm + delete a vehicle and everything hanging off it, then keep the
+// UI coherent. If the deleted vehicle was the active one we reselect the
+// first remaining vehicle (or reopen onboarding when the garage is now
+// empty); deleting a background vehicle leaves the active car untouched.
+// Shared by the garage-list trash button and the car-editor delete button.
+// `onConfirmed` runs after the user accepts the prompt but before any work
+// — the editor uses it to close its modal. Throws on failure; callers
+// surface the toast.
+async function deleteVehicleFlow(id, onConfirmed) {
+  if (!id) return false;
+  const target = state.vehicles.find(v => v.id === id);
+  const tc = target ? rowToCar(target) : state.car;
+  const label = tc.nickname || [tc.make, tc.model].filter(Boolean).join(' ') || 'this vehicle';
+  if (!confirm(`Delete ${label}? This permanently removes all its logs, fuel, and documents. This cannot be undone.`)) return false;
+  if (onConfirmed) onConfirmed();
+
+  const wasActive = id === state.vehicleId;
+  await deleteVehicle(id);
+  state.vehicles = state.vehicles.filter(v => v.id !== id);
+
+  // Background vehicle: the active car is untouched — just refresh the
+  // open garage list and dashboard counts.
+  if (!wasActive) {
+    if (garageModal.classList.contains('open')) renderGarageList();
+    renderAll();
+    showToast(`${label} deleted`);
+    return true;
+  }
+
+  // Active car removed and nothing left — back to first-run onboarding.
+  if (!state.vehicles.length) {
+    state.vehicleId = null;
+    state.car = { year:'', make:'', model:'', body:'', engine:'', variant:'',
+                  colour:'', odo:'', odoUnit:'km', nickname:'' };
+    state.entries = [];
+    state.fuelLogs = [];
+    state.documents = [];
+    localStorage.removeItem(ACTIVE_VEHICLE_KEY);
+    resetPhoto();
+    close(garageModal);
+    renderAll();
+    showToast('Vehicle deleted');
+    openWizard();
+    return true;
+  }
+
+  // Active car removed — fall back to the first remaining vehicle and
+  // pull its data.
+  const next = state.vehicles[0];
+  setActiveVehicle(next);
+  state.entries = [];
+  state.fuelLogs = [];
+  state.documents = [];
+  state.isLoadingEntries = true;
+  resetPhoto();
+  if (garageModal.classList.contains('open')) renderGarageList();
+  renderAll();
+  try {
+    [state.entries, state.fuelLogs, state.documents] = await Promise.all([
+      loadEntries(state.vehicleId),
+      loadFuelLogs(state.vehicleId),
+      loadDocuments(state.vehicleId),
+    ]);
+    await loadSavedPhoto();
+  } finally {
+    state.isLoadingEntries = false;
+    if (garageModal.classList.contains('open')) renderGarageList();
+    renderAll();
+  }
+  showToast(`Vehicle deleted · switched to ${state.car.nickname || state.car.model}`);
+  return true;
+}
+
+const TRASH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>';
+
 export function renderGarageList() {
   garageList.innerHTML = '';
   state.vehicles.forEach(v => {
     const c = rowToCar(v);
     const isActive = v.id === state.vehicleId;
     const trailing = c.variant;
+    const row = document.createElement('div');
+    row.className = 'garage-row';
     const btn = document.createElement('button');
     btn.type = 'button';
     const lifecycleClass = c.status === 'sold' ? ' sold' : c.status === 'archived' ? ' archived' : '';
@@ -194,10 +274,11 @@ export function renderGarageList() {
     else if (c.status === 'sold')      pill = '<span class="garage-item-sold-pill">Sold</span>';
     else if (c.status === 'archived')  pill = '<span class="garage-item-archived-pill">Archived</span>';
     const titleParts = [c.model, trailing].filter(Boolean).join(' ').trim();
+    const name = c.nickname || titleParts || c.make || 'Vehicle';
     btn.innerHTML = `
       <div class="brand-logo brand-logo-sm" aria-hidden="true"></div>
       <div class="garage-item-info">
-        <div class="garage-item-name">${c.nickname || titleParts || c.make || 'Vehicle'}</div>
+        <div class="garage-item-name">${name}</div>
         <div class="garage-item-sub">${subParts.filter(Boolean).join(' · ')}</div>
       </div>
       ${pill}
@@ -207,7 +288,26 @@ export function renderGarageList() {
       close(garageModal);
       await switchVehicle(v.id);
     };
-    garageList.appendChild(btn);
+
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'garage-item-delete';
+    del.title = 'Delete vehicle';
+    del.setAttribute('aria-label', `Delete ${name}`);
+    del.innerHTML = TRASH_SVG;
+    del.onclick = async () => {
+      del.disabled = true;
+      try {
+        await deleteVehicleFlow(v.id);
+      } catch (err) {
+        showToast('Delete failed: ' + (err?.message || 'unknown error'));
+        del.disabled = false;
+      }
+    };
+
+    row.appendChild(btn);
+    row.appendChild(del);
+    garageList.appendChild(row);
   });
 }
 
@@ -328,5 +428,23 @@ export function wireVehicleHandlers() {
   document.getElementById('add-vehicle-btn').onclick = () => {
     close(garageModal);
     openCarModal('add');
+  };
+
+  document.getElementById('delete-vehicle-btn').onclick = async () => {
+    const id = state.editingVehicleId;
+    if (!id) return;
+    const btn = document.getElementById('delete-vehicle-btn');
+    btn.disabled = true;
+    btn.textContent = 'Deleting…';
+    try {
+      // Close the editor as soon as the user confirms so the dashboard
+      // re-render (and any vehicle switch) isn't hidden behind the modal.
+      await deleteVehicleFlow(id, () => close(carModal));
+    } catch (err) {
+      showToast('Delete failed: ' + (err?.message || 'unknown error'));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Delete this vehicle';
+    }
   };
 }

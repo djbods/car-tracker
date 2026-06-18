@@ -7,7 +7,7 @@ import {
   showToast, close, formatBytes, expiryStatus,
 } from './state.js';
 import {
-  addDocument, deleteDocument, getDocumentUrl,
+  addDocument, updateDocument, deleteDocument, getDocumentUrl,
   DOCUMENT_STORAGE_LIMIT_BYTES,
 } from '../data.js';
 import { renderDocumentsScreen } from './render.js';
@@ -20,16 +20,23 @@ const docPreviewModal = document.getElementById('doc-preview-modal');
 // Upload modal
 // ══════════════════════════════════════════════════════
 
-export function openDocumentModal() {
+// doc === null → upload a new document. Passing an existing document
+// switches the modal to edit mode: metadata only (type/title/expiry/notes)
+// — the stored file itself can't be swapped, so the file picker is hidden.
+export function openDocumentModal(doc = null) {
   if (!state.vehicleId) { openCarModal('add'); return; }
-  document.getElementById('doc-input-type').value   = '';
-  document.getElementById('doc-input-title').value  = '';
+  state.editingDocId = doc ? doc.id : null;
+  document.getElementById('doc-input-type').value   = doc?.type   || '';
+  document.getElementById('doc-input-title').value  = doc?.title  || '';
   document.getElementById('doc-input-file').value   = '';
-  document.getElementById('doc-input-expiry').value = '';
-  document.getElementById('doc-input-notes').value  = '';
+  document.getElementById('doc-input-expiry').value = doc?.expiryDate || '';
+  document.getElementById('doc-input-notes').value  = doc?.notes  || '';
   const hint = document.getElementById('doc-file-hint');
   hint.style.display = 'none';
   hint.textContent = '';
+  document.getElementById('doc-file-group').style.display = doc ? 'none' : '';
+  document.getElementById('doc-modal-title').textContent = doc ? 'Edit Document' : 'Add Document';
+  document.getElementById('save-doc-btn').textContent = doc ? 'Save changes' : 'Save Document';
   docModal.classList.add('open');
   setTimeout(() => document.getElementById('doc-input-type').focus(), 350);
 }
@@ -109,6 +116,41 @@ export function wireDocumentHandlers() {
     const file    = fileEl.files[0];
 
     if (!type)  { showToast('Pick a document type'); return; }
+
+    const saveBtn = document.getElementById('save-doc-btn');
+
+    // Edit mode: metadata only — the file is left untouched, so no upload,
+    // no size/quota checks, and the file picker is hidden.
+    if (state.editingDocId) {
+      const idx = state.documents.findIndex(d => d.id === state.editingDocId);
+      if (idx === -1) { close(docModal); return; }
+      const prev = state.documents[idx];
+      const editId = state.editingDocId;
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving…';
+      // Optimistic: patch in place, close, reconcile/rollback on return.
+      state.documents[idx] = { ...prev, type, title: title || 'Untitled', expiryDate: expiry || null, notes: notes || null };
+      state.editingDocId = null;
+      close(docModal);
+      renderDocumentsScreen();
+      try {
+        const saved = await updateDocument(editId, { type, title, expiryDate: expiry, notes });
+        const i = state.documents.findIndex(d => d.id === editId);
+        if (i !== -1) state.documents[i] = saved;
+        renderDocumentsScreen();
+        showToast('Document updated ✓');
+      } catch (err) {
+        const i = state.documents.findIndex(d => d.id === editId);
+        if (i !== -1) state.documents[i] = prev;
+        renderDocumentsScreen();
+        showToast('Update failed: ' + (err?.message || 'unknown error'));
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Document';
+      }
+      return;
+    }
+
     if (!file)  { showToast('Choose a file to upload'); return; }
     if (file.size > PER_FILE_LIMIT_BYTES) {
       showToast(`File too large — max ${formatBytes(PER_FILE_LIMIT_BYTES)} per upload`);
@@ -119,7 +161,6 @@ export function wireDocumentHandlers() {
       return;
     }
 
-    const saveBtn = document.getElementById('save-doc-btn');
     saveBtn.disabled = true;
     saveBtn.textContent = 'Uploading…';
     try {
@@ -135,6 +176,13 @@ export function wireDocumentHandlers() {
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save Document';
     }
+  };
+
+  document.getElementById('doc-edit-btn').onclick = () => {
+    const doc = state.documents.find(d => d.id === state.previewDocId);
+    if (!doc) return;
+    close(docPreviewModal);
+    openDocumentModal(doc);
   };
 
   document.getElementById('doc-delete-btn').onclick = async () => {

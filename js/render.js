@@ -11,6 +11,7 @@ import {
   SCOPE_LABELS,
   expiryStatus, docIcon,
   entriesInScope, fuelInScope,
+  distanceUnit, economyUnit,
 } from './state.js';
 import { renderBrandLogo } from '../logos.js';
 import { renderVehicleCutout, showCutout, VEHICLE_COVER_SRC } from '../cars.js';
@@ -180,7 +181,7 @@ export function makeFuelCard(fuel) {
     <div class="entry-icon fuel">⛽</div>
     <div class="entry-content">
       <div class="entry-title">${title}</div>
-      <div class="entry-meta">${fmtDate(fuel.date)} · ${fuel.litres.toFixed(2)} L · ${fuel.odometer.toLocaleString('en-AU')} km</div>
+      <div class="entry-meta">${fmtDate(fuel.date)} · ${fuel.litres.toFixed(2)} L · ${fuel.odometer.toLocaleString('en-AU')} ${distanceUnit()}</div>
       <div class="entry-tags">
         <span class="tag fuel">Fuel</span>
         ${fuel.isFullTank ? '' : '<span class="tag">Partial</span>'}
@@ -202,7 +203,7 @@ export function openFuelDetail(fuel) {
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-row"><span class="detail-key">Type</span><span class="tag fuel">Fuel${fuel.isFullTank ? '' : ' (partial)'}</span></div>
     <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">${fmtDate(fuel.date)}</span></div>
-    <div class="detail-row"><span class="detail-key">Odometer</span><span class="detail-val">${fuel.odometer.toLocaleString('en-AU')} km</span></div>
+    <div class="detail-row"><span class="detail-key">Odometer</span><span class="detail-val">${fuel.odometer.toLocaleString('en-AU')} ${distanceUnit()}</span></div>
     <div class="detail-row"><span class="detail-key">Litres</span><span class="detail-val">${fuel.litres.toFixed(2)} L</span></div>
     <div class="detail-row"><span class="detail-key">Cost</span><span class="detail-val" style="color:var(--accent2);font-size:18px;font-weight:700">${fmt(fuel.totalCost)}</span></div>
     ${lp100 ? `<div class="detail-row"><span class="detail-key">Price / L</span><span class="detail-val">$${lp100.toFixed(2)}</span></div>` : ''}
@@ -215,9 +216,13 @@ export function openFuelDetail(fuel) {
 // Lists + lifetime stats
 // ══════════════════════════════════════════════════════
 
+// filter: null → every entry; a string → that one type; an array → any of
+// those types (the Service screen passes ['service','repair'] so repairs
+// share the maintenance list rather than only surfacing in Recent + Spend).
 export function renderList(id, filter) {
   const el   = document.getElementById(id);
-  const list = filter ? state.entries.filter(e => e.type === filter) : state.entries;
+  const types = Array.isArray(filter) ? filter : filter ? [filter] : null;
+  const list = types ? state.entries.filter(e => types.includes(e.type)) : state.entries;
   const icons = {'recent-entries':'🔧','mod-entries':'⚙️','service-entries':'🛠️','spend-entries':'💰'};
   if (!list.length) {
     if (state.isLoadingEntries) {
@@ -413,6 +418,12 @@ export function renderFuelCard() {
   if (!state.vehicleId) { card.style.display = 'none'; return; }
   card.style.display = '';
 
+  // Gauge unit follows the car's odometer unit (L/100km vs L/100mi) so a
+  // miles-set vehicle isn't mislabelled.
+  const unit = economyUnit();
+  const unitEl = document.getElementById('fuel-gauge-unit');
+  if (unitEl) unitEl.textContent = unit;
+
   const { samples, rolling } = computeFuelEconomy(state.fuelLogs);
   const claim = parseFloat(state.car.combinedCycleConsumption);
   const hasClaim = Number.isFinite(claim) && claim > 0;
@@ -426,7 +437,7 @@ export function renderFuelCard() {
     readoutEl.style.display = 'none';
     statsEl.style.display = 'none';
     emptyEl.style.display = '';
-    emptyEl.innerHTML = `<strong>No fill-ups yet</strong>Log your first fuel-up to start tracking L/100km.`;
+    emptyEl.innerHTML = `<strong>No fill-ups yet</strong>Log your first fuel-up to start tracking ${unit}.`;
     anchorEl.innerHTML = hasClaim ? `Spec: <strong>${claim.toFixed(1)}</strong> L/100km` : '';
     // Draw an idle arc and reset the needle to the centre.
     greenArc.setAttribute('d', '');
@@ -445,7 +456,7 @@ export function renderFuelCard() {
     readoutEl.style.display = 'none';
     statsEl.style.display = '';
     emptyEl.style.display = '';
-    emptyEl.innerHTML = `<strong>One more full tank to go</strong>L/100km needs two consecutive full tank-ups to compute.`;
+    emptyEl.innerHTML = `<strong>One more full tank to go</strong>${unit} needs two consecutive full tank-ups to compute.`;
     anchorEl.textContent = '';
     greenArc.setAttribute('d', '');
     amberArc.setAttribute('d', '');
@@ -492,7 +503,7 @@ export function renderFuelCard() {
     valueEl.classList.add('muted');
     readoutEl.style.display = 'none';
     emptyEl.style.display = '';
-    emptyEl.innerHTML = `<strong>One more full tank to go</strong>L/100km needs two consecutive full tank-ups to compute.`;
+    emptyEl.innerHTML = `<strong>One more full tank to go</strong>${unit} needs two consecutive full tank-ups to compute.`;
   }
 
   anchorEl.innerHTML = hasClaim
@@ -624,7 +635,7 @@ export function renderAll() {
   renderFuelCard();
   renderList('recent-entries', null);
   renderList('mod-entries',    'mod');
-  renderList('service-entries','service');
+  renderList('service-entries', ['service', 'repair']);
   renderSpendScreen();
   renderDocumentsScreen();
 }

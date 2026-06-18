@@ -108,6 +108,36 @@ export async function upsertVehicle(vehicle) {
   return data;
 }
 
+// Targeted odometer write — used when a fuel-up advances the reading, so we
+// persist just that field instead of round-tripping the whole vehicle row.
+export async function updateVehicleOdometer(vehicleId, odometer) {
+  if (!vehicleId) return;
+  const { error } = await supabase
+    .from('vehicles').update({ odometer }).eq('id', vehicleId);
+  if (error) throw error;
+}
+
+// Delete a vehicle and everything hanging off it. Child rows (mod_logs,
+// service_logs, fuel_logs, documents) cascade via FK on the DB side, but
+// Storage objects don't — so clear the photo + document files first
+// (best-effort) to avoid orphaned bytes counting against the user's quota.
+export async function deleteVehicle(vehicleId) {
+  if (!vehicleId) throw new Error('No vehicle');
+  const { data: docs } = await supabase
+    .from('documents').select('file_path').eq('vehicle_id', vehicleId);
+  const docPaths = (docs || []).map(d => d.file_path).filter(Boolean);
+  if (docPaths.length) {
+    await supabase.storage.from(DOCUMENTS_BUCKET).remove(docPaths).catch(() => {});
+  }
+  const { data: veh } = await supabase
+    .from('vehicles').select('photo_path').eq('id', vehicleId).single();
+  if (veh?.photo_path) {
+    await supabase.storage.from(PHOTO_BUCKET).remove([veh.photo_path]).catch(() => {});
+  }
+  const { error } = await supabase.from('vehicles').delete().eq('id', vehicleId);
+  if (error) throw error;
+}
+
 // ──────────────────────────────────────────────────────────────────
 // Garage name (per-user setting, stored on auth.users.user_metadata)
 // ──────────────────────────────────────────────────────────────────
@@ -235,6 +265,44 @@ export async function deleteEntry(entry) {
   if (error) throw error;
 }
 
+// Update an existing entry. mod_logs and service_logs are separate tables,
+// so when an edit flips the type ACROSS that boundary (mod ⇄ service/repair)
+// we can't UPDATE in place — insert into the new table and delete the old
+// row instead (the returned entry then carries a new id). Edits that stay on
+// the same side update in place.
+export async function updateEntry(vehicleId, oldEntry, entry) {
+  const oldIsMod = oldEntry.type === 'mod';
+  const newIsMod = entry.type === 'mod';
+
+  if (oldIsMod !== newIsMod) {
+    const created = await addEntry(vehicleId, entry);
+    await deleteEntry(oldEntry);
+    return created;
+  }
+
+  if (newIsMod) {
+    const { data, error } = await supabase.from('mod_logs').update({
+      date:        entry.date,
+      title:       entry.title,
+      description: entry.notes || null,
+      cost:        entry.cost || 0,
+      category:    entry.category || null,
+    }).eq('id', oldEntry.id).select().single();
+    if (error) throw error;
+    return modRowToEntry(data);
+  }
+
+  const { data, error } = await supabase.from('service_logs').update({
+    date:        entry.date,
+    title:       entry.title,
+    description: entry.notes || null,
+    cost:        entry.cost || 0,
+    kind:        entry.type === 'repair' ? 'repair' : 'service',
+  }).eq('id', oldEntry.id).select().single();
+  if (error) throw error;
+  return serviceRowToEntry(data);
+}
+
 export async function clearAllEntries(vehicleId) {
   if (!vehicleId) return;
   const [m, s, f] = await Promise.all([
@@ -304,6 +372,20 @@ export async function addFuelLog(vehicleId, fuel) {
 export async function deleteFuelLog(id) {
   const { error } = await supabase.from('fuel_logs').delete().eq('id', id);
   if (error) throw error;
+}
+
+export async function updateFuelLog(id, fuel) {
+  const { data, error } = await supabase.from('fuel_logs').update({
+    date:         fuel.date,
+    odometer:     fuel.odometer,
+    litres:       fuel.litres,
+    total_cost:   Number.isFinite(fuel.totalCost) ? fuel.totalCost : null,
+    station:      fuel.station || null,
+    is_full_tank: fuel.isFullTank !== false,
+    notes:        fuel.notes || null,
+  }).eq('id', id).select().single();
+  if (error) throw error;
+  return fuelRowToEntry(data);
 }
 
 // Walk fuel entries in odometer order and compute L/100km between each pair
@@ -509,6 +591,21 @@ export async function addDocument(vehicleId, doc, file) {
     await supabase.storage.from(DOCUMENTS_BUCKET).remove([path]).catch(() => {});
     throw error;
   }
+  return documentRowToEntry(data);
+}
+
+// Metadata-only edit (type / title / expiry / notes). The stored file isn't
+// touched — replacing the actual file means a fresh upload, which the UI
+// handles as delete + re-add rather than an in-place edit.
+export async function updateDocument(id, doc) {
+  if (!DOCUMENT_TYPES.includes(doc.type)) throw new Error('Invalid document type');
+  const { data, error } = await supabase.from('documents').update({
+    type:        doc.type,
+    title:       (doc.title || '').trim() || 'Untitled',
+    expiry_date: doc.expiryDate || null,
+    notes:       (doc.notes || '').trim() || null,
+  }).eq('id', id).select().single();
+  if (error) throw error;
   return documentRowToEntry(data);
 }
 
