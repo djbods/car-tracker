@@ -418,6 +418,79 @@ const CUTOUT_SLUGS = new Set([
   // Dropped — not in Carsized's catalogue; NetCarShow only has angled press shots:
   // Accent (global B-segment sedan), Terracan (body-on-frame SUV). No clean
   // orthographic side render exists. Revisit if a clean side source turns up.
+
+  // Kia — a MODEL-NAMED set, like Hyundai/Mazda. Kia uses few chassis codes,
+  // so all slugs resolve via the model tier add(model): a user typing "Seltos"/"Sportage"/etc.
+  // renders straight from the slug. Australia-weighted — Seltos/Sportage/Carnival/Sorento
+  // dominate local sales. Cutouts are Carsized.com orthographic side renders
+  // (watermark-dampened, rembg'd); year represents the generation in Carsized's catalogue.
+  // AU core (model-named) — locally relevant lines lead the set:
+  'kia-carnival-2020',    // Carnival (2020-present) - core AU people-mover
+  'kia-seltos-2023',       // Seltos (2023-present) - top-selling small SUV
+  'kia-seltos-2019',       // Seltos (2019-2022) - first generation
+  'kia-sportage-2024',     // Sportage (2024-present) - core AU mid-size SUV
+  'kia-sportage-2021',     // Sportage (2021-2023) - fifth generation
+  'kia-sportage-2018',     // Sportage (2016-2021) - fourth generation
+  'kia-sportage-2015',     // Sportage (2012-2016) - third generation
+  'kia-sportage-2010',     // Sportage (2004-2010) - second generation
+  'kia-sportage-2004',     // Sportage (1993-2004) - first generation
+  'kia-sorento-2024',      // Sorento (2024-present) - large SUV
+  'kia-sorento-2020',      // Sorento (2020-2023) - fourth generation
+  'kia-sorento-2014',      // Sorento (2014-2020) - third generation
+  'kia-sorento-2012',      // Sorento (2012-2014) - third gen (early)
+  'kia-sorento-2002',      // Sorento (2002-2012) - first/second generation
+  'kia-picanto-2023',      // Picanto (2023-present) - city car
+  'kia-picanto-2017',      // Picanto (2017-2023) - third generation
+  'kia-picanto-2015',      // Picanto (2011-2017) - second generation
+  'kia-picanto-2009',      // Picanto (2009-2011) - first gen facelift
+  'kia-picanto-2003',      // Picanto (2003-2009) - first generation
+  'kia-stonic-2017',       // Stonic (2017-present) - small SUV
+  // Ioniq EV line (model-named):
+  'kia-ev6-2021',          // EV6 (2021-present) - flagship compact EV SUV
+  'kia-ev9-2023',          // EV9 (2023-present) - large 3-row EV SUV
+  'kia-ev3-2024',          // EV3 (2024-present) - small EV SUV
+  'kia-ev4-2025',          // EV4 (2025-present) - EV sedan
+  'kia-ev5-2025',          // EV5 (2025-present) - compact EV SUV
+  // Global mainstream (model-named):
+  'kia-ceed-2021',         // Ceed (2021-present) - European C-segment hatch/estate
+  'kia-ceed-2015',         // Ceed (2015-2018) - third generation
+  'kia-ceed-2012',         // Ceed (2012-2015) - second generation
+  'kia-ceed-2006',         // Ceed (2006-2012) - first generation
+  'kia-rio-2017',          // Rio (2017-present) - B-segment hatch
+  'kia-rio-2011',          // Rio (2011-2017) - fourth generation
+  'kia-rio-2005',          // Rio (2005-2011) - third generation
+  'kia-niro-2021',         // Niro (2021-present) - hybrid SUV
+  'kia-niro-2016',         // Niro (2016-2022) - first generation
+  'kia-niro-2021-suv',     // Niro EV (2021-present) - electric variant
+  'kia-soul-2019',         // Soul (2019-present) - boxy compact SUV
+  'kia-soul-2014-5-door-hatchback', // Soul EV (2014-2019) - first-gen electric
+  'kia-soul-2013',         // Soul (2012-2019) - second generation
+  'kia-soul-2008',         // Soul (2008-2011) - first generation
+  'kia-stinger-2017',      // Stinger (2017-present) - fastback sport sedan
+  'kia-optima-2015',       // Optima (2015-2019) - D-segment sedan
+  'kia-optima-2010',       // Optima (2010-2015) - third generation
+  'kia-xceed-2022',        // XCeed (2022-present) - European crossover
+  'kia-xceed-2019',        // XCeed (2019-2022) - first generation
+  'kia-telluride-2023',    // Telluride (2023-present) - large SUV (US/Global)
+  'kia-telluride-2026',    // Telluride (2026-present) - next generation
+  'kia-carens-2013',       // Carens (2013-2022) - MPV (Global)
+  'kia-venga-2009',        // Venga (2009-2019) - European B-MPV
+  // K-series sedans (model-named):
+  'kia-k5-2019',           // K5 (2019-present) - D-segment sedan (Optima successor)
+  'kia-k8-2021',           // K8 (2021-present) - large luxury sedan
+  'kia-k4-2024',           // K4 (2024-present) - C-segment sedan/hatch
+  // Additional models:
+  'kia-pv5-2025',          // PV5 (2025-present) - purpose-built vehicle
+  'kia-magentis-2005',     // Magentis (2005-2009) - D-segment sedan (Optima sibling)
+  'kia-magentis-2000',     // Magentis (2000-2005) - first generation
+  'kia-carnival-2018',     // Carnival (2018-2020) - fourth generation
+  'kia-carnival-2005',     // Carnival (2005-2014) - earlier generation
+  'kia-sportage-2021-suv', // Sportage LWB (2021-2023) - long-wheelbase variant
+  'kia-ceed-2018-estate-proceed', // Ceed Proceed (2018-2021) - estate variant
+  'kia-ceed-2021-estate-proceed', // Ceed Proceed (2021-present) - current estate
+  // Dropped — not in Carsized's catalogue; NetCarShow only has angled press shots:
+  // No Kia models dropped (Carsized has excellent Kia coverage). GT variants
+  // (Stinger GT, EV6 GT) not present in Carsized's catalogue as separate entries.
   // add a slug here when you drop its PNG in /cars/
 ]);
 

@@ -275,6 +275,30 @@ press shots (no clean orthographic side): the **Accent** (global B-segment sedan
 |-------|--------|------------------|
 | All 34 (`i30`, `tucson`, `kona`, `santa-fe`, `i20`, `venue`, `palisade`, `staria`, `iload`, `ioniq-5`, `ioniq-6`, `ioniq`, `ioniq-9`, `i30-n`, `i20-n`, `ioniq-6-n`, `veloster`, `genesis-coupe`, `elantra`, `sonata`, `i10`, `i40`, `ix35`, `nexo`, `getz`, `atos`, `creta`, `bayon`, `santa-cruz`, `inster`, `ix20`, `azera`, `grandeur`, `tiburon`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via `dampen_watermark.py` (cosmetic only, confers no reuse right) |
 
+## Kia (59 cutouts)
+
+A MODEL-NAMED set, like Hyundai/Mazda. Kia uses few chassis codes, so all slugs
+resolve via the model tier: a user typing "Seltos"/"Sportage"/"Carnival" renders
+straight from the slug. Australia-weighted — Seltos, Sportage, Carnival, and
+Sorento dominate local sales. Comprehensive across generations: Carsized has
+deep Kia coverage with multiple generations per model line, all represented
+here (year suffix denotes generation, latest first).
+
+Each generation verified from its Carsized detail-page year-range (shown in the
+page `<title>`). AU core first (Carnival 2020/2018/2005, Seltos 2023/2019, Sportage
+2024/2021/2018/2015/2010/2004, Sorento 2024/2020/2014/2012/2002, Picanto 2023/2017/2015/2009/2003, Stonic 2017, EV6 2021, EV9 2023, EV3 2024, EV4 2025, EV5 2025), then global mainstream (Ceed 2021/2015/2012/2006, Rio 2017/2011/2005, Niro 2021/2016, Niro EV 2021, Soul 2019/2014/2013/2008, Stinger 2017, Optima 2015/2010, XCeed 2022/2019, Telluride 2023/2026, Carens 2013, Venga 2009, K5 2019, K8 2021, K4 2024, PV5 2025, Magentis 2005/2000). Ceed Proceed estate variants are included (2018/2021). Sportage LWB (2021 long-wheelbase) is registered separately.
+
+All 59 came from Carsized, which has excellent Kia coverage. Cutouts are
+Carsized.com orthographic `_4x` side-view renders (watermark-dampened, rembg'd).
+
+**No models dropped** — Carsized catalogues all major Kia nameplates with clean
+orthographic side renders. GT variants (Stinger GT, EV6 GT) are not present in
+Carsized's catalogue as separate entries, so they are not included.
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| All 59 (`carnival-2020`, `carnival-2018`, `carnival-2005`, `seltos-2023`, `seltos-2019`, `sportage-2024`, `sportage-2021`, `sportage-2018`, `sportage-2015`, `sportage-2010`, `sportage-2004`, `sportage-2021-suv`, `sorento-2024`, `sorento-2020`, `sorento-2014`, `sorento-2012`, `sorento-2002`, `picanto-2023`, `picanto-2017`, `picanto-2015`, `picanto-2009`, `picanto-2003`, `stonic-2017`, `ev6-2021`, `ev9-2023`, `ev3-2024`, `ev4-2025`, `ev5-2025`, `ceed-2021`, `ceed-2015`, `ceed-2012`, `ceed-2006`, `ceed-2018-estate-proceed`, `ceed-2021-estate-proceed`, `rio-2017`, `rio-2011`, `rio-2005`, `niro-2021`, `niro-2016`, `niro-2021-suv`, `soul-2019`, `soul-2014-5-door-hatchback`, `soul-2013`, `soul-2008`, `stinger-2017`, `optima-2015`, `optima-2010`, `xceed-2022`, `xceed-2019`, `telluride-2023`, `telluride-2026`, `carens-2013`, `venga-2009`, `k5-2019`, `k8-2021`, `k4-2024`, `pv5-2025`, `magentis-2005`, `magentis-2000`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via `dampen_watermark.py` (cosmetic only, confers no reuse right) |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC
