@@ -14,7 +14,6 @@ import {
 } from '../data.js';
 import { renderBrandLogo } from '../logos.js';
 import { renderAll } from './render.js';
-import { loadSavedPhoto, resetPhoto } from './photo.js';
 import { openWizard } from './onboarding.js';
 
 const carModal      = document.getElementById('car-modal');
@@ -66,8 +65,7 @@ export function setActiveVehicle(row) {
   localStorage.setItem(ACTIVE_VEHICLE_KEY, row.id);
 }
 
-// Switch the active vehicle: re-pull its entries + photo, then re-render
-// everything. Photo is re-resolved against the new vehicle's photo_path.
+// Switch the active vehicle: re-pull its entries, then re-render everything.
 export async function switchVehicle(id) {
   if (id === state.vehicleId) return;
   const row = state.vehicles.find(v => v.id === id);
@@ -80,7 +78,6 @@ export async function switchVehicle(id) {
   state.fuelLogs = [];
   state.documents = [];
   state.isLoadingEntries = true;
-  resetPhoto();
   renderAll();
   try {
     [state.entries, state.fuelLogs, state.documents] = await Promise.all([
@@ -88,7 +85,6 @@ export async function switchVehicle(id) {
       loadFuelLogs(state.vehicleId),
       loadDocuments(state.vehicleId),
     ]);
-    await loadSavedPhoto();
     showToast(`Switched to ${state.car.nickname || state.car.model}`);
   } catch (err) {
     showToast('Switch failed: ' + (err?.message || 'unknown error'));
@@ -166,7 +162,6 @@ export async function createVehicle(next) {
   state.entries   = [];
   state.fuelLogs  = [];
   state.documents = [];
-  resetPhoto();
   renderAll();
   return saved;
 }
@@ -213,7 +208,6 @@ async function deleteVehicleFlow(id, onConfirmed) {
     state.fuelLogs = [];
     state.documents = [];
     localStorage.removeItem(ACTIVE_VEHICLE_KEY);
-    resetPhoto();
     close(garageModal);
     renderAll();
     showToast('Vehicle deleted');
@@ -229,7 +223,6 @@ async function deleteVehicleFlow(id, onConfirmed) {
   state.fuelLogs = [];
   state.documents = [];
   state.isLoadingEntries = true;
-  resetPhoto();
   if (garageModal.classList.contains('open')) renderGarageList();
   renderAll();
   try {
@@ -238,7 +231,6 @@ async function deleteVehicleFlow(id, onConfirmed) {
       loadFuelLogs(state.vehicleId),
       loadDocuments(state.vehicleId),
     ]);
-    await loadSavedPhoto();
   } finally {
     state.isLoadingEntries = false;
     if (garageModal.classList.contains('open')) renderGarageList();
@@ -356,8 +348,6 @@ export function wireVehicleHandlers() {
     const prevCar       = { ...state.car };
     const prevVehicleId = state.vehicleId;
     const prevEntries   = state.entries.slice();
-    const existingPath  = isNew ? null
-      : (prevVehicles.find(v => v.id === state.editingVehicleId)?.photo_path || null);
 
     const tmpId = isNew ? 'tmp-' + Date.now() : state.editingVehicleId;
     const draftStatus = next.status === 'sold' || next.status === 'archived' ? next.status : 'active';
@@ -378,7 +368,6 @@ export function wireVehicleHandlers() {
       fuel_type:     next.fuelType     || null,
       drivetrain:    next.drivetrain   || null,
       transmission:  next.transmission || null,
-      photo_path:    existingPath,
       status:        draftStatus,
       sold_date:     draftStatus === 'sold' && next.soldDate ? next.soldDate : null,
       sold_price:    draftStatus === 'sold' && Number.isFinite(draftSoldPrice) ? draftSoldPrice : null,
@@ -389,7 +378,6 @@ export function wireVehicleHandlers() {
       state.vehicles.push(draftRow);
       setActiveVehicle(draftRow);
       state.entries = [];
-      resetPhoto();
     } else {
       const i = state.vehicles.findIndex(v => v.id === state.editingVehicleId);
       if (i !== -1) state.vehicles[i] = draftRow;

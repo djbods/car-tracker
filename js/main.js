@@ -8,7 +8,6 @@
 import { supabase } from '../supabase-client.js';
 import {
   upsertVehicle, addEntry, addFuelLog,
-  uploadVehiclePhoto, getVehiclePhotoUrl,
   getGarageName, setGarageName,
   loadEntries, loadFuelLogs,
   clearAllEntries,
@@ -21,8 +20,6 @@ import {
   showToast, close, today,
   isPaidTier,
 } from './state.js';
-import { openDB } from './legacy-db.js';
-import { loadSavedPhoto, applyPhoto, wirePhotoHandlers } from './photo.js';
 import {
   loadAll, applyGarageName,
   openCarModal, wireVehicleHandlers,
@@ -140,29 +137,12 @@ document.getElementById('do-export-btn').onclick = async () => {
       const [allEntries, allFuel] = state.vehicleId
         ? await Promise.all([loadEntries(state.vehicleId), loadFuelLogs(state.vehicleId)])
         : [[], []];
-      // Backups embed the photo as a data URL so they're self-contained.
-      let photo = null;
-      if (state.car.photoPath) {
-        try {
-          const url  = await getVehiclePhotoUrl(state.car.photoPath);
-          const blob = await (await fetch(url)).blob();
-          photo = await new Promise((res, rej) => {
-            const r = new FileReader();
-            r.onload  = () => res(r.result);
-            r.onerror = () => rej(r.error);
-            r.readAsDataURL(blob);
-          });
-        } catch (err) {
-          console.error('Photo export failed:', err);
-        }
-      }
       const payload = {
         version: 2,
         exported: new Date().toISOString(),
         car: state.car,
         entries: allEntries,
         fuelLogs: allFuel,
-        photo: photo || null
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url  = URL.createObjectURL(blob);
@@ -230,20 +210,6 @@ document.getElementById('import-input').addEventListener('change', e => {
         state.fuelLogs.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
       }
 
-      // Import the embedded photo straight into Supabase Storage so it
-      // follows the account; only do this if the user doesn't already
-      // have a photo set, to avoid clobbering a current one.
-      if (data.photo && state.vehicleId && !state.car.photoPath) {
-        try {
-          const blob = await (await fetch(data.photo)).blob();
-          const path = await uploadVehiclePhoto(state.vehicleId, blob);
-          state.car.photoPath = path;
-          applyPhoto(data.photo);
-        } catch (err) {
-          console.error('Photo import failed:', err);
-        }
-      }
-
       renderAll();
       showToast(`Imported ${added} entries ✓`);
     } catch (err) {
@@ -288,7 +254,11 @@ document.getElementById('dismiss-banner').onclick = () => {
 // Feature-module wiring (handlers that need cross-module callbacks)
 // ══════════════════════════════════════════════════════
 
-wirePhotoHandlers({ openCarModal });
+// Empty-state affordance: tapping the car stage before any vehicle exists
+// opens the Add Vehicle modal (the floating placeholder car stands in for it).
+document.getElementById('car-image-wrap').addEventListener('click', () => {
+  if (!state.vehicleId) openCarModal('add');
+});
 wireVehicleHandlers();
 wireEntryHandlers();
 wireDocumentHandlers();
@@ -446,10 +416,8 @@ async function bootApp(session) {
   if (appBooted) return;
   showBootLoading();
   try {
-    await openDB();
     applyGarageName(await getGarageName());
     await loadAll();
-    await loadSavedPhoto();
     renderAll();
     document.getElementById('input-date').value = today();
     appBooted = true;
