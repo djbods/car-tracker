@@ -329,11 +329,16 @@ NetCarShow had no clean side either): 3000GT/GTO, Magna/Verada (AU-built, absent
 like the Ford Falcon), Galant, the Eclipse coupe, Delica, Carisma, and a separate
 Outlander PHEV (covered by `mitsubishi-outlander`).
 
-All 12 are Carsized renders:
+All 12 are Carsized renders. Unlike the earlier Carsized sets (which re-matted the
+lossy `_4x.webp` through rembg), these were cut from the **lossless `_4x.png`**
+variant, which carries Carsized's own clean anti-aliased alpha matte. rembg is
+skipped entirely — the native alpha is reattached unchanged, so edges stay smooth
+instead of aliasing the thin roof-rails into a staircase. Processing is crop-to-bbox
++ Lab-space watermark dampening on the RGB only (`process_png_cutout.py`).
 
 | Files | Source | Licence / status |
 |-------|--------|------------------|
-| All 12 (`triton`, `outlander`, `asx`, `eclipse-cross`, `pajero-sport`, `pajero`, `mirage`, `lancer`, `lancer-evolution`, `colt`, `grandis`, `i-miev`) | Carsized.com orthographic `_4x` side-view renders (`triton` = Carsized "L200", `mirage` = Carsized "Space Star") | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via `dampen_watermark.py` (cosmetic only, confers no reuse right) |
+| All 12 (`triton`, `outlander`, `asx`, `eclipse-cross`, `pajero-sport`, `pajero`, `mirage`, `lancer`, `lancer-evolution`, `colt`, `grandis`, `i-miev`) | Carsized.com orthographic `_4x.png` side-view renders, native alpha (`triton` = Carsized "L200", `mirage` = Carsized "Space Star") | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via Lab coring (cosmetic only, confers no reuse right) |
 
 ## ⚠️ Licensing note
 
