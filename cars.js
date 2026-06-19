@@ -491,6 +491,36 @@ const CUTOUT_SLUGS = new Set([
   // Dropped — not in Carsized's catalogue; NetCarShow only has angled press shots:
   // No Kia models dropped (Carsized has excellent Kia coverage). GT variants
   // (Stinger GT, EV6 GT) not present in Carsized's catalogue as separate entries.
+
+  // Mitsubishi — a MIXED set, like Ford/Nissan, Australia-weighted. Almost all
+  // nameplates are MODEL-NAMED (resolving via the model tier add(model) — a user
+  // typing "Triton"/"Outlander"/"ASX" renders straight from the slug); the one
+  // chassis-pinned line is the Lancer Evolution. One file per nameplate (the
+  // representative generation), verified from each Carsized detail-page year-range
+  // (<title>) and chassis code (<h1> parens) — see cars/ATTRIBUTIONS.md. Note the
+  // region-renamed nameplates: Carsized files the AU "Triton" as L200 and the AU
+  // "Mirage" as Space Star; the AU nameplate is used as the slug (alias noted in
+  // ATTRIBUTIONS). Cutouts are Carsized.com orthographic `_4x` renders
+  // (watermark-dampened, rembg'd).
+  // AU core (model-named) — locally relevant lines lead the set:
+  'mitsubishi-triton',         // Triton/L200 KJ0T (2019-present) - AU best-seller ute (Carsized: L200)
+  'mitsubishi-outlander',      // Outlander GN0W (2021-present) - core AU mid-size SUV
+  'mitsubishi-asx',            // ASX RJB (2022-present) - top-selling small SUV (Clio-based gen)
+  'mitsubishi-eclipse-cross',  // Eclipse Cross GK0 (2021-present) - compact crossover
+  'mitsubishi-pajero-sport',   // Pajero Sport QE (2015-present) - Triton-based 7-seat 4x4 (Montero/Shogun Sport)
+  'mitsubishi-pajero',         // Pajero V80 (2006-2014) - 4th-gen full-size 4x4 (Montero/Shogun)
+  'mitsubishi-mirage',         // Mirage/Space Star A00 (2020-present) - city hatch (Carsized: Space Star)
+  // Global / heritage (model-named) — except the chassis-pinned Evo:
+  'mitsubishi-lancer',         // Lancer CY0 (2007-2017) - C-segment sedan
+  'mitsubishi-lancer-evolution',// Lancer Evolution X CZ4A (2007-2016) - chassis-pinned; only Evo gen in Carsized
+  'mitsubishi-colt',           // Colt Z30 (2008-2013) - supermini (genuine Mitsubishi gen, not the Renault-based 2023)
+  'mitsubishi-grandis',        // Grandis NA0W (2003-2011) - 7-seat MPV
+  'mitsubishi-i-miev',         // i-MiEV HA0 (2009-2017) - kei-derived city EV
+  // Dropped — not in Carsized's catalogue (no clean orthographic side render):
+  // 3000GT/GTO, Magna/Verada (AU-built, absent like the Falcon), Galant, Eclipse
+  // coupe, Delica, Carisma, Outlander PHEV (no separate render — covered by
+  // Outlander). The Lancer Evolution JDM gap mirrors Nissan/Toyota: only the Evo X
+  // (CZ4A) exists in Carsized — no Evo VII/VIII/IX. Revisit if a clean source turns up.
   // add a slug here when you drop its PNG in /cars/
 ]);
 
