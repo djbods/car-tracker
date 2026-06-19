@@ -299,6 +299,47 @@ Carsized's catalogue as separate entries, so they are not included.
 |-------|--------|------------------|
 | All 59 (`carnival-2020`, `carnival-2018`, `carnival-2005`, `seltos-2023`, `seltos-2019`, `sportage-2024`, `sportage-2021`, `sportage-2018`, `sportage-2015`, `sportage-2010`, `sportage-2004`, `sportage-2021-suv`, `sorento-2024`, `sorento-2020`, `sorento-2014`, `sorento-2012`, `sorento-2002`, `picanto-2023`, `picanto-2017`, `picanto-2015`, `picanto-2009`, `picanto-2003`, `stonic-2017`, `ev6-2021`, `ev9-2023`, `ev3-2024`, `ev4-2025`, `ev5-2025`, `ceed-2021`, `ceed-2015`, `ceed-2012`, `ceed-2006`, `ceed-2018-estate-proceed`, `ceed-2021-estate-proceed`, `rio-2017`, `rio-2011`, `rio-2005`, `niro-2021`, `niro-2016`, `niro-2021-suv`, `soul-2019`, `soul-2014-5-door-hatchback`, `soul-2013`, `soul-2008`, `stinger-2017`, `optima-2015`, `optima-2010`, `xceed-2022`, `xceed-2019`, `telluride-2023`, `telluride-2026`, `carens-2013`, `venga-2009`, `k5-2019`, `k8-2021`, `k4-2024`, `pv5-2025`, `magentis-2005`, `magentis-2000`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via `dampen_watermark.py` (cosmetic only, confers no reuse right) |
 
+## Mitsubishi (12 cutouts)
+
+A MIXED, Australia-weighted set (same pattern as Ford/Nissan): almost all
+nameplates are model-named, with the Lancer Evolution the one chassis-pinned line.
+One cutout per nameplate — the representative generation, with its year-range and
+chassis code verified from the Carsized detail page (`<title>` year-range, `<h1>`
+parens chassis). Two nameplates are region-renamed in Carsized's catalogue: the AU
+**Triton** is filed as **L200**, and the AU **Mirage** is filed as **Space Star**
+(same vehicles, different market names); the AU nameplate is used as the slug.
+
+Generation verification (from each detail page):
+
+- `mitsubishi-triton` — Carsized "L200" 4-door, 2019-present, chassis **KJ0T** (current MR Triton).
+- `mitsubishi-outlander` — Outlander SUV, 2021-present (GN0W, current 4th gen).
+- `mitsubishi-asx` — ASX SUV, 2022-present, chassis **RJB** (Clio-based 2nd gen).
+- `mitsubishi-eclipse-cross` — Eclipse Cross SUV, 2021-present, chassis **GK0** (facelift).
+- `mitsubishi-pajero-sport` — Pajero Sport SUV, 2015-present, chassis **QE** (Montero/Shogun Sport elsewhere).
+- `mitsubishi-pajero` — Pajero 5-door SUV, 2006-2014, chassis **V80** (4th gen; Montero/Shogun elsewhere).
+- `mitsubishi-mirage` — Carsized "Space Star", 2020-present, chassis **A00** (facelift).
+- `mitsubishi-lancer` — Lancer sedan, 2007-2017, chassis **CY0**.
+- `mitsubishi-lancer-evolution` — Lancer Evolution sedan, 2007-2016, chassis **CZ4A** = **Evo X**. The only Evo generation Carsized catalogues (the Evo VII–IX JDM gap mirrors the Nissan/Toyota findings).
+- `mitsubishi-colt` — Colt 5-door, 2008-2013, chassis **Z30** (genuine Mitsubishi gen; the Renault-based 2023 Colt was not used).
+- `mitsubishi-grandis` — Grandis minivan, 2003-2011, chassis **NA0W**.
+- `mitsubishi-i-miev` — i-MiEV hatch, 2009-2017, chassis **HA0**.
+
+**Dropped — not in Carsized's catalogue** (no clean orthographic side render, and
+NetCarShow had no clean side either): 3000GT/GTO, Magna/Verada (AU-built, absent
+like the Ford Falcon), Galant, the Eclipse coupe, Delica, Carisma, and a separate
+Outlander PHEV (covered by `mitsubishi-outlander`).
+
+All 12 are Carsized renders. Unlike the earlier Carsized sets (which re-matted the
+lossy `_4x.webp` through rembg), these were cut from the **lossless `_4x.png`**
+variant, which carries Carsized's own clean anti-aliased alpha matte. rembg is
+skipped entirely — the native alpha is reattached unchanged, so edges stay smooth
+instead of aliasing the thin roof-rails into a staircase. Processing is crop-to-bbox
++ Lab-space watermark dampening on the RGB only (`process_png_cutout.py`).
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| All 12 (`triton`, `outlander`, `asx`, `eclipse-cross`, `pajero-sport`, `pajero`, `mirage`, `lancer`, `lancer-evolution`, `colt`, `grandis`, `i-miev`) | Carsized.com orthographic `_4x.png` side-view renders, native alpha (`triton` = Carsized "L200", `mirage` = Carsized "Space Star") | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via Lab coring (cosmetic only, confers no reuse right) |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC
