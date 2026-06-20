@@ -63,11 +63,6 @@ export function renderCarCard() {
 
   renderBrandLogo(document.getElementById('car-brand-logo'), make);
 
-  // Empty photo state keeps just the "add a photo" prompt — the brand emblem
-  // already sits in the card head, so there's no need to repeat it on the stage.
-  const promptSub = document.getElementById('upload-prompt-sub');
-  if (promptSub) promptSub.textContent = make ? `Your ${make} · your build` : 'Your car, your build';
-
   // Spec pills: year is the gold lead pill, then the descriptive fields. Only
   // populated values render (built as DOM nodes so free-text colour is safe).
   const pillsEl = document.getElementById('car-pills');
@@ -86,25 +81,18 @@ export function renderCarCard() {
     }));
   }
 
-  // Stage image precedence: a curated cutout is the hero whenever one exists
-  // (.has-cutout hides the photo + prompt layers); otherwise the user's
-  // uploaded photo; otherwise the "add a photo" prompt.
-  const stageEl  = document.getElementById('car-image-wrap');
+  // Stage image: a curated cutout is the hero whenever one exists; otherwise
+  // the car-under-cover placeholder floats in the same slot (same 3D treatment)
+  // as a stand-in for "no image yet".
   const cutoutEl = document.getElementById('car-cutout');
-  let   hasCutout = renderVehicleCutout(cutoutEl, state.car);
-  // No curated cutout and no photo: float the car-under-cover placeholder in the
-  // cutout slot (same 3D treatment) rather than the flat empty stage. A real
-  // photo still wins — the placeholder only stands in for "no image yet".
-  if (!hasCutout && !state.car.photoPath) {
+  if (!renderVehicleCutout(cutoutEl, state.car)) {
     showCutout(cutoutEl, VEHICLE_COVER_SRC);
     cutoutEl.classList.add('loaded');
-    hasCutout = true;
   }
-  if (stageEl) stageEl.classList.toggle('has-cutout', hasCutout);
 
   // Lifecycle: when the active car is sold or archived, show a read-only
-  // banner and dim the add-entry FAB (via body.car-sold). Edit + photo
-  // remain available so the user can correct details or flip the status
+  // banner and dim the add-entry FAB (via body.car-sold). Edit remains
+  // available so the user can correct details or flip the status
   // back. Title carries the state name (in --red for sold, muted for
   // archived); detail line carries the handover info.
   const banner      = document.getElementById('sold-banner');

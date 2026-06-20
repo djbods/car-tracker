@@ -28,7 +28,6 @@ export function rowToCar(row) {
     fuelType:                 row.fuel_type    || '',
     drivetrain:               row.drivetrain   || '',
     transmission:             row.transmission || '',
-    photoPath:                row.photo_path || null,
     status:                   row.status || 'active',
     soldDate:                 row.sold_date || '',
     soldPrice:                row.sold_price != null ? String(row.sold_price) : '',
@@ -119,8 +118,10 @@ export async function updateVehicleOdometer(vehicleId, odometer) {
 
 // Delete a vehicle and everything hanging off it. Child rows (mod_logs,
 // service_logs, fuel_logs, documents) cascade via FK on the DB side, but
-// Storage objects don't — so clear the photo + document files first
-// (best-effort) to avoid orphaned bytes counting against the user's quota.
+// Storage objects don't — so clear the document files first (best-effort)
+// to avoid orphaned bytes counting against the user's quota. We also sweep
+// any legacy car-photos object: the in-app photo feature is gone (cars now
+// render as cutouts), but older accounts may still have a stored photo.
 export async function deleteVehicle(vehicleId) {
   if (!vehicleId) throw new Error('No vehicle');
   const { data: docs } = await supabase
@@ -132,7 +133,7 @@ export async function deleteVehicle(vehicleId) {
   const { data: veh } = await supabase
     .from('vehicles').select('photo_path').eq('id', vehicleId).single();
   if (veh?.photo_path) {
-    await supabase.storage.from(PHOTO_BUCKET).remove([veh.photo_path]).catch(() => {});
+    await supabase.storage.from('car-photos').remove([veh.photo_path]).catch(() => {});
   }
   const { error } = await supabase.from('vehicles').delete().eq('id', vehicleId);
   if (error) throw error;
@@ -432,62 +433,6 @@ export function computeFuelEconomy(fuelEntries, windowSize = 10) {
     ? window.reduce((s, x) => s + x.l100, 0) / window.length
     : null;
   return { samples, rolling };
-}
-
-// ──────────────────────────────────────────────────────────────────
-// Vehicle photo (Supabase Storage)
-// ──────────────────────────────────────────────────────────────────
-//
-// Bucket: 'car-photos' (private). RLS pins each user to a folder named
-// after their auth.uid(). Path convention: <user_id>/<vehicle_id>.jpg —
-// stable so re-uploads overwrite the same object.
-
-const PHOTO_BUCKET = 'car-photos';
-
-export async function uploadVehiclePhoto(vehicleId, blob) {
-  const { data: { user }, error: userErr } = await supabase.auth.getUser();
-  if (userErr) throw userErr;
-  if (!user) throw new Error('Not signed in');
-  if (!vehicleId) throw new Error('No vehicle to attach photo to');
-
-  const path = `${user.id}/${vehicleId}.jpg`;
-  const { error: upErr } = await supabase.storage
-    .from(PHOTO_BUCKET)
-    .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
-  if (upErr) throw upErr;
-
-  const { error: rowErr } = await supabase
-    .from('vehicles')
-    .update({ photo_path: path })
-    .eq('id', vehicleId);
-  if (rowErr) throw rowErr;
-
-  return path;
-}
-
-// Remove a vehicle's photo: delete the storage object (best-effort) and clear
-// photo_path on the row so the card falls back to its cutout / prompt.
-export async function deleteVehiclePhoto(vehicleId, photoPath) {
-  if (!vehicleId) throw new Error('No vehicle');
-  if (photoPath) {
-    await supabase.storage.from(PHOTO_BUCKET).remove([photoPath]).catch(() => {});
-  }
-  const { error } = await supabase
-    .from('vehicles')
-    .update({ photo_path: null })
-    .eq('id', vehicleId);
-  if (error) throw error;
-}
-
-// Signed URL good for one hour — enough for a single page session. The
-// <img> tag caches the bitmap, so we don't need a long-lived URL.
-export async function getVehiclePhotoUrl(photoPath) {
-  if (!photoPath) return null;
-  const { data, error } = await supabase.storage
-    .from(PHOTO_BUCKET)
-    .createSignedUrl(photoPath, 60 * 60);
-  if (error) throw error;
-  return data.signedUrl;
 }
 
 // ──────────────────────────────────────────────────────────────────

@@ -12,8 +12,6 @@ import { DEFAULT_GARAGE_NAME } from '../data.js';
 export const ACTIVE_VEHICLE_KEY = 'activeVehicleId';
 export const SCOPE_LABELS = { year: 'This year', '30d': 'Last 30 days', all: 'All time' };
 export const PER_FILE_LIMIT_BYTES = 10 * 1024 * 1024;
-export const DB_NAME = 'e39garage';
-export const DB_VER  = 1;
 
 export const typeIcons  = { mod:'⚙️', service:'🛠️', repair:'🔧', fuel:'⛽' };
 export const typeLabels = { mod:'Mod', service:'Service', repair:'Repair', fuel:'Fuel' };
@@ -23,10 +21,6 @@ export const typeLabels = { mod:'Mod', service:'Service', repair:'Repair', fuel:
 // ──────────────────────────────────────────────────────────────────
 
 export const state = {
-  // Legacy IndexedDB handle — only opened to migrate old local photos to
-  // Supabase Storage on first sign-in; safe to ignore otherwise.
-  db: null,
-
   // Per-vehicle records loaded from Supabase. Refreshed when switching
   // vehicles. Empty defaults so renders before loadAll() don't blow up.
   entries:  [],
