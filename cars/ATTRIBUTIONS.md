@@ -147,26 +147,59 @@ skipped as non-Australian-market / redundant: `cx-50`, the `6e` EV, `demio`.
 |-------|--------|------------------|
 | All 16 (`3`, `2`, `6`, `cx-3`, `cx-30`, `cx-5`, `cx-7`, `cx-9`, `cx-60`, `cx-80`, `cx-90`, `mx-30`, `5`, `na`, `nb`, `nd`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; here additionally **dampened** via `dampen_watermark.py`, but dampening is cosmetic and does **not** confer any reuse right |
 
-## Toyota (23 cutouts)
+## Toyota (56 cutouts)
 
-First non-German brand, Australia-weighted (HiLux/LandCruiser/RAV4/Corolla lead
-local ownership). All MODEL-NAMED, resolving via the model tier. Each is the
-representative generation noted below.
+A comprehensive, Australia-weighted set covering every distinct Toyota nameplate
+Carsized catalogues with a clean side render. All MODEL-NAMED, resolving via the
+model tier (a user typing "Corolla"/"HiLux"/"86" renders straight from the slug).
+HiLux/LandCruiser/RAV4/Corolla lead local ownership, so the AU core is registered
+first. Each is the representative generation, verified from its Carsized
+detail-page year-range (`<title>`) and chassis code (`<h1>` parens).
 
-All 23 came from Carsized, which has deep Toyota coverage. The chosen body styles:
-HiLux = 2016 **double-cab** (the iconic Aus silhouette; the 2020 listing is only a
-2-door extra-cab), Tundra = 2021 double-cab, Corolla = 2022 sedan, Yaris = 2020
-5-door, Crown = 2022 fastback, Kluger = Highlander 2019 (Kluger is the Aus name),
-Tarago = Previa 2000 (Aus name), Supra = A90 2019, GR Yaris = 2020 3-door GR.
+**Sourcing change vs. the original 23-cutout run:** these come from the **lossless
+`_4x.png`**, which carries Carsized's own native anti-aliased alpha matte — far
+smoother than re-matting the lossy `_4x.webp` (which produced "minecraft" jagged
+edges). **No rembg** is used; `process_png_cutout.py` crops to the alpha bbox
+(+2% pad), floods fully-transparent RGB with the median opaque colour, dampens the
+baked "carsized.com" watermark in Lab space (cosmetic only), and reattaches the
+original alpha unchanged.
 
-Requested but **dropped** — no clean orthographic side render exists (Carsized
-lacks them; NetCarShow only carries angled perspective press shots, verified for
-the A80 Supra): `ae86`, Supra Mk4 `a80`, `gr-corolla`, `2000gt`, `fj40`,
-`landcruiser-70`, `tacoma`. Revisit if a clean side source turns up.
+**AU-core (22)** — generation/chassis verified per detail page: HiLux **AN1P**
+(2016 **double-cab** — the iconic Aus silhouette), RAV4 **XA50** (2019), Corolla
+**E210** (2022 sedan), LandCruiser **J300** (2021, 300-series), Prado **J250**
+(2023), Camry **XV80** (2024), Yaris **XP210** (2020 5-door), Kluger **XU70**
+(2019 — sold as Highlander overseas; **Kluger** is the AU name), C-HR **X20**
+(2023), Corolla Cross **XG1TJ** (2020), Yaris Cross **XPB1F** (2021), Crown
+**S235** (2022 fastback), Prius **XW60** (2022), Fortuner **AN160** (2020),
+4Runner **N500** (2024), Tundra **XK70** (2021 double-cab), Tacoma **N400**
+(2023), Sequoia **XK80** (2023), FJ Cruiser **XJ10** (2006), bZ4X **EAM** (2022),
+Mirai **AD2** (2020), Tarago **XR30** (2000 — sold as **Previa**/Estima overseas).
+
+**Heritage / sport (6):** 86 / GT86 **ZN6** (2012 — Subaru BRZ twin, AU naming),
+GR86 **ZN8** (2021), GR Yaris **XP210** (2020 3-door GR), Supra **A90** (2019,
+Mk5), MR2 **SW20** (1989, mid-engine), Celica **T230** (1999, liftback).
+
+**Extended / other-region (28):** Alphard **AH30** (2015), Auris **E180** (2012),
+Avalon **XX50** (2018), Avensis **T27** (2009), Aygo **AB40** (2018), Aygo X
+**AB7** (2022), Corolla Verso **R1** (2004), Crown Signia **S238** (2024), Grand
+Highlander **AS10** (2023), iQ **AJ1** (2008), Matrix **E140** (2008), Paseo
+**L50** (1995), Prius c **NHP10** (2011, Aqua), Prius+ **XW30** (2011), Proace
+**V** (2016), Proace City **E** (2024), Raize **A250** (2019), Rush **F800**
+(2017), Sienna **XL40** (2020), Solara **XV30** (2003), Starlet **P90** (1996),
+Tercel **L20** (1982), Urban Cruiser **YF** (2020), Veloz **W100** (2021), Venza
+**XU80** (2020), Verso **AR2** (2013), Verso-S **XP120** (2010), Yaris Verso
+**P2** (2003).
+
+Requested/expected but **dropped** — no clean orthographic side render exists
+(Carsized lacks them, or not in catalogue; NetCarShow only carries angled
+perspective press shots, verified for the A80 Supra): `ae86`, Supra Mk4 `a80`,
+Supra Mk3 `a70`, `gr-corolla`, `2000gt`, `fj40`, `landcruiser-70` (70-series),
+`soarer`, `echo`, and `aurion` (AU/US-built). Revisit if a clean side source
+turns up.
 
 | Files | Source | Licence / status |
 |-------|--------|------------------|
-| All 23 (`86`, `gr86`, `supra`, `mr2`, `celica`, `gr-yaris`, `corolla`, `camry`, `yaris`, `crown`, `prius`, `hilux`, `landcruiser`, `prado`, `rav4`, `kluger`, `fortuner`, `fj-cruiser`, `4runner`, `tundra`, `tarago`, `bz4x`, `mirai`) | Carsized.com orthographic `_4x` side-view renders | ⚠️ **not** an open licence — carries a faint tiled "carsized.com" watermark lightly baked into the bodywork (background watermark removed by rembg) |
+| All 56 (`hilux`, `rav4`, `corolla`, `landcruiser`, `prado`, `camry`, `yaris`, `kluger`, `c-hr`, `corolla-cross`, `yaris-cross`, `crown`, `prius`, `fortuner`, `4runner`, `tundra`, `tacoma`, `sequoia`, `fj-cruiser`, `bz4x`, `mirai`, `tarago`, `86`, `gr86`, `gr-yaris`, `supra`, `mr2`, `celica`, `alphard`, `auris`, `avalon`, `avensis`, `aygo`, `aygo-x`, `corolla-verso`, `crown-signia`, `grand-highlander`, `iq`, `matrix`, `paseo`, `prius-c`, `prius-plus`, `proace`, `proace-city`, `raize`, `rush`, `sienna`, `solara`, `starlet`, `tercel`, `urban-cruiser`, `veloz`, `venza`, `verso`, `verso-s`, `yaris-verso`) | Carsized.com orthographic `_4x.png` side-view renders (native alpha matte, no rembg) | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; here **dampened** via the Lab-space coring in `process_png_cutout.py`, but dampening is cosmetic and does **not** confer any reuse right |
 
 ## Nissan (26 cutouts)
 
