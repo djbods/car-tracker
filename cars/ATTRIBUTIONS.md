@@ -373,6 +373,36 @@ instead of aliasing the thin roof-rails into a staircase. Processing is crop-to-
 |-------|--------|------------------|
 | All 12 (`triton`, `outlander`, `asx`, `eclipse-cross`, `pajero-sport`, `pajero`, `mirage`, `lancer`, `lancer-evolution`, `colt`, `grandis`, `i-miev`) | Carsized.com orthographic `_4x.png` side-view renders, native alpha (`triton` = Carsized "L200", `mirage` = Carsized "Space Star") | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via Lab coring (cosmetic only, confers no reuse right) |
 
+## Tesla (5 cutouts)
+
+A small, all-MODEL-NAMED set covering **every** Tesla nameplate Carsized
+catalogues. Tesla doesn't use chassis codes, so all resolve via the model tier.
+One cutout per nameplate — the current generation, with its year-range verified
+from the Carsized detail page (`<title>`; Tesla `<h1>` carries only the body
+style, no chassis code).
+
+Generation verification (from each detail page):
+
+- `tesla-model-s` — Model S liftback, **2021-present** (the refreshed "Plaid"-era car; Carsized also lists the 2012-2016 and 2016-2021 generations — the current one was chosen).
+- `tesla-model-3` — Model 3 sedan, **2023-present** (the "Highland" facelift; the 2017-2023 original is also catalogued).
+- `tesla-model-x` — Model X SUV, **2015-2021** (the only generation Carsized lists; falcon-wing doors).
+- `tesla-model-y` — Model Y SUV, **2025-present** (the "Juniper" facelift; the 2021-2024 original is also catalogued).
+- `tesla-cybertruck` — Cybertruck 4-door pickup, **2023-present** (stainless body).
+
+**Dropped — not in Carsized's catalogue:** the Roadster (original 2008 and the
+2020 next-gen) and the Semi. Revisit if a clean orthographic side render turns up.
+
+All 5 are Carsized renders cut from the **lossless `_4x.png`** variant (native
+anti-aliased alpha; rembg skipped, alpha reattached unchanged), with Lab-space
+watermark dampening on the RGB only (`process_png_cutout.py`). Note: on the dark
+bodywork (e.g. the black Model 3) a very faint watermark residual can remain after
+dampening — invisible at the rendered toy-car size, consistent with the documented
+dark-body caveat.
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| All 5 (`model-s`, `model-3`, `model-x`, `model-y`, `cybertruck`) | Carsized.com orthographic `_4x.png` side-view renders, native alpha | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via Lab coring (cosmetic only, confers no reuse right) |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC

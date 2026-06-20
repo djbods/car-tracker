@@ -556,6 +556,19 @@ const CUTOUT_SLUGS = new Set([
   // coupe, Delica, Carisma, Outlander PHEV (no separate render — covered by
   // Outlander). The Lancer Evolution JDM gap mirrors Nissan/Toyota: only the Evo X
   // (CZ4A) exists in Carsized — no Evo VII/VIII/IX. Revisit if a clean source turns up.
+
+  // Tesla — a small, all-MODEL-NAMED set covering every nameplate Carsized
+  // catalogues. Tesla doesn't use chassis codes, so all resolve via the model
+  // tier. Each is the current generation, verified from its Carsized detail-page
+  // year-range. Sourced from the lossless `_4x.png` (native alpha, no rembg) with
+  // a cosmetically dampened watermark (see cars/ATTRIBUTIONS.md).
+  'tesla-model-s',      // Model S (2021-present refresh) - liftback flagship
+  'tesla-model-3',      // Model 3 (2023-present "Highland" facelift) - sedan
+  'tesla-model-x',      // Model X (2015-2021, only gen Carsized lists) - falcon-wing SUV
+  'tesla-model-y',      // Model Y (2025-present "Juniper" facelift) - SUV
+  'tesla-cybertruck',   // Cybertruck (2023-present) - stainless pickup
+  // Dropped — not in Carsized's catalogue: Roadster (original 2008 + 2020
+  // next-gen) and the Semi. Revisit if a clean orthographic side source turns up.
   // add a slug here when you drop its PNG in /cars/
 ]);
 
