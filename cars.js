@@ -243,37 +243,72 @@ const CUTOUT_SLUGS = new Set([
   // the model tier add(model): a user typing "Corolla"/"HiLux"/"86" renders
   // straight from the slug. Australia-weighted — HiLux/LandCruiser/RAV4/Corolla
   // dominate local ownership. Cutouts are Carsized.com orthographic `_4x`
-  // side-view renders (rembg'd); representative generation noted per line.
-  // Sports / enthusiast:
-  'toyota-86',          // 86 / GT86 (ZN6, 2012)
+  // side-view renders sourced from the LOSSLESS .png (native anti-aliased alpha;
+  // no rembg) with a cosmetically dampened watermark; representative generation
+  // noted per line (see cars/ATTRIBUTIONS.md for full per-slug verification).
+  // ── AU-core: top sellers, utes, 4x4s, people-movers, EV/H2 ──
+  'toyota-hilux',          // HiLux (AN1P, 2016 double-cab) - perennial Aus top-seller ute
+  'toyota-rav4',           // RAV4 (XA50, 2019) - top-selling SUV
+  'toyota-corolla',        // Corolla (E210, 2022 sedan) - world's best-selling nameplate
+  'toyota-landcruiser',    // LandCruiser (J300, 2021) - 300-series
+  'toyota-prado',          // LandCruiser Prado (J250, 2023)
+  'toyota-camry',          // Camry (XV80, 2024) - midsize sedan staple
+  'toyota-yaris',          // Yaris (XP210, 2020 5-door) supermini
+  'toyota-kluger',         // Kluger (XU70, 2019) - sold as Highlander overseas
+  'toyota-c-hr',           // C-HR (X20, 2023) - coupe-styled crossover
+  'toyota-corolla-cross',  // Corolla Cross (XG1TJ, 2020)
+  'toyota-yaris-cross',    // Yaris Cross (XPB1F, 2021)
+  'toyota-crown',          // Crown (S235, 2022 fastback) - flagship sedan lineage
+  'toyota-prius',          // Prius (XW60, 2022) - hybrid icon
+  'toyota-fortuner',       // Fortuner (AN160, 2020) - HiLux-based 7-seat SUV
+  'toyota-4runner',        // 4Runner (N500, 2024)
+  'toyota-tundra',         // Tundra (XK70, 2021) - full-size pickup
+  'toyota-tacoma',         // Tacoma (N400, 2023) - midsize pickup
+  'toyota-sequoia',        // Sequoia (XK80, 2023) - full-size SUV
+  'toyota-fj-cruiser',     // FJ Cruiser (XJ10, 2006) - retro SUV
+  'toyota-bz4x',           // bZ4X (EAM, 2022) - first dedicated BEV
+  'toyota-mirai',          // Mirai (AD2, 2020) - hydrogen fuel-cell sedan
+  'toyota-tarago',         // Tarago (XR30, 2000) - sold as Previa/Estima overseas
+  // ── Heritage / sport ──
+  'toyota-86',          // 86 / GT86 (ZN6, 2012) - Subaru BRZ twin
   'toyota-gr86',        // GR86 (ZN8, 2021) - second-gen, Gazoo Racing
-  'toyota-supra',       // Supra (model floor — A90, 2019)
+  'toyota-gr-yaris',    // GR Yaris (XP210, 2020) - homologation AWD hot hatch
+  'toyota-supra',       // Supra (A90, 2019) - Mk5
   'toyota-mr2',         // MR2 mid-engine (SW20, 1989)
   'toyota-celica',      // Celica liftback (T230, 1999)
-  'toyota-gr-yaris',    // GR Yaris (2020) - homologation AWD hot hatch
-  // Mainstream sedans / hatch:
-  'toyota-corolla',     // Corolla (2022 sedan) - world's best-selling nameplate
-  'toyota-camry',       // Camry (2024) - midsize sedan staple
-  'toyota-yaris',       // Yaris (2020 5-door) supermini
-  'toyota-crown',       // Crown (2022 fastback) - flagship sedan lineage
-  'toyota-prius',       // Prius (2022) - hybrid icon
-  // SUV / ute / 4x4 — core of Australian ownership:
-  'toyota-hilux',          // HiLux (2016 double-cab) - perennial Aus top-seller ute
-  'toyota-landcruiser',    // LandCruiser (300-series, 2021)
-  'toyota-prado',          // LandCruiser Prado (2023)
-  'toyota-rav4',           // RAV4 (XA50, 2019) - top-selling SUV
-  'toyota-kluger',         // Kluger / Highlander (2019)
-  'toyota-fortuner',       // Fortuner (2020) - HiLux-based 7-seat SUV
-  'toyota-fj-cruiser',     // FJ Cruiser (2006) - retro SUV
-  'toyota-4runner',        // 4Runner (2024)
-  'toyota-tundra',         // Tundra (2021) - full-size pickup
-  // People-mover & EV / hydrogen:
-  'toyota-tarago',      // Tarago / Previa (2000) - egg-shape people-mover
-  'toyota-bz4x',        // bZ4X (2022) - first dedicated BEV
-  'toyota-mirai',       // Mirai (2020) - hydrogen fuel-cell sedan
-  // Dropped (no clean orthographic side render — Carsized lacks them, NetCarShow
-  // only has perspective press shots): ae86, supra a80 (Mk4), gr-corolla, 2000gt,
-  // fj40, landcruiser-70, tacoma. Revisit if a clean side source turns up.
+  // ── Extended / other-region nameplates ──
+  'toyota-alphard',         // Alphard (AH30, 2015) - luxury MPV
+  'toyota-auris',           // Auris (E180, 2012) - Euro hatch (Corolla sibling)
+  'toyota-avalon',          // Avalon (XX50, 2018) - full-size sedan
+  'toyota-avensis',         // Avensis (T27, 2009) - Euro midsize
+  'toyota-aygo',            // Aygo (AB40, 2018) - city car
+  'toyota-aygo-x',          // Aygo X (AB7, 2022) - crossover city car
+  'toyota-corolla-verso',   // Corolla Verso (R1, 2004) - compact MPV
+  'toyota-crown-signia',    // Crown Signia (S238, 2024) - crossover wagon
+  'toyota-grand-highlander',// Grand Highlander (AS10, 2023)
+  'toyota-iq',              // iQ (AJ1, 2008) - ultra-compact
+  'toyota-matrix',          // Matrix (E140, 2008) - compact hatch (NA)
+  'toyota-paseo',           // Paseo (L50, 1995) - sport coupe
+  'toyota-prius-c',         // Prius c (NHP10, 2011) - subcompact hybrid (Aqua)
+  'toyota-prius-plus',      // Prius+ (XW30, 2011) - 7-seat hybrid MPV
+  'toyota-proace',          // Proace (V, 2016) - Euro van
+  'toyota-proace-city',     // Proace City (E, 2024) - compact Euro van
+  'toyota-raize',           // Raize (A250, 2019) - subcompact SUV
+  'toyota-rush',            // Rush (F800, 2017) - compact SUV
+  'toyota-sienna',          // Sienna (XL40, 2020) - NA minivan
+  'toyota-solara',          // Solara (XV30, 2003) - Camry coupe (NA)
+  'toyota-starlet',         // Starlet (P90, 1996) - supermini
+  'toyota-tercel',          // Tercel (L20, 1982) - subcompact
+  'toyota-urban-cruiser',   // Urban Cruiser (YF, 2020) - rebadged Maruti
+  'toyota-veloz',           // Veloz (W100, 2021) - compact MPV
+  'toyota-venza',           // Venza (XU80, 2020) - midsize crossover (NA)
+  'toyota-verso',           // Verso (AR2, 2013) - compact MPV
+  'toyota-verso-s',         // Verso-S (XP120, 2010) - mini MPV
+  'toyota-yaris-verso',     // Yaris Verso (P2, 2003) - tall mini MPV
+  // Dropped (no clean orthographic side render — Carsized lacks them, or not in
+  // catalogue): ae86, supra a80 (Mk4), supra a70 (Mk3), gr-corolla, 2000gt, fj40,
+  // landcruiser-70, soarer, echo, aurion (AU/US-built). Revisit if a clean side
+  // source turns up.
 
   // Nissan — a MIXED set, like Porsche/VW. The enthusiast Z-car and GT-R lines
   // are CHASSIS-CODED (like the BMW set / Mazda MX-5), resolving via the chassis
