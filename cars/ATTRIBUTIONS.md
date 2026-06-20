@@ -403,6 +403,56 @@ dark-body caveat.
 |-------|--------|------------------|
 | All 5 (`model-s`, `model-3`, `model-x`, `model-y`, `cybertruck`) | Carsized.com orthographic `_4x.png` side-view renders, native alpha | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via Lab coring (cosmetic only, confers no reuse right) |
 
+## Subaru (13 cutouts)
+
+A MIXED, Australia-weighted set (like Ford/Nissan) covering every distinct Subaru
+nameplate Carsized catalogues with a clean orthographic side render — **one cutout
+per nameplate** (representative/current generation), all MODEL-NAMED. The
+enthusiast lines each have only a single generation in Carsized (no separate WRX
+STI; BRZ gen-1 only), so none warrant chassis-pinning. Each generation's
+year-range was verified from the Carsized detail-page `<title>` and the chassis
+code from the `<h1>` parens.
+
+**AU nameplate aliases** (region renames — the AU badge is used as the slug, the
+Carsized path uses the overseas name):
+
+- `subaru-xv` — Carsized files the current generation as **Crosstrek**; AU badged
+  it "XV" through 2022 and "Crosstrek" from the 2023 (GU) gen. Slug kept as `xv`.
+- `subaru-liberty` — Carsized files it as **Legacy**; sold as "Liberty" in
+  Australia. Slug kept as `liberty`.
+
+Generation verification (from each detail page):
+
+- `subaru-outback` — Outback (BU) SUV, **2025-present**.
+- `subaru-forester` — Forester (SL) SUV, **2024-present**.
+- `subaru-xv` — Crosstrek/XV (GU) SUV, **2023-present** (shares the GU platform with the Impreza).
+- `subaru-impreza` — Impreza (GU) 5-door hatchback, **2023-present**.
+- `subaru-wrx` — WRX (VB) sedan, **2021-present** (current gen; no separate STI in Carsized).
+- `subaru-liberty` — Legacy/Liberty (BW) sedan, **2023-present**.
+- `subaru-brz` — BRZ (ZC) coupé, **2012-2016** (gen-1; the Toyota 86 twin — see `toyota-86`. Carsized has no 2021 ZD gen-2).
+- `subaru-svx` — SVX Alcyone (CX) coupé, **1991-1996** (heritage GT — present in Carsized despite being a JDM-era icon).
+- `subaru-levorg` — Levorg (V1) estate, **2014-2019** (sports wagon).
+- `subaru-ascent` — Ascent (WM) SUV, **2022-present** (NA-market 3-row; the 2018-2021 gen is also catalogued — current chosen).
+- `subaru-baja` — Baja 4-door pick-up, **2002-2006** (NA-market car-based ute; no chassis code).
+- `subaru-justy` — Justy (MHY) 5-door hatchback, **2003-2007** (rebadged supermini).
+- `subaru-solterra` — Solterra SUV, **2022-present** (EV; the Toyota bZ4X twin — see `toyota-bz4x`; no chassis code).
+
+**Dropped — not in Carsized's catalogue** (no clean orthographic side render): WRX
+STI (no generation separate from the WRX), Tribeca, Vivio, Pleo, Exiga, Trezia,
+Sambar, and the JDM older Impreza WRX/STI gens (GC/GD/GR). Carsized *does* list
+older Outback/Forester/Impreza/Legacy/Ascent/XV generations too — one current file
+per nameplate was kept rather than splitting per gen. Revisit if a per-gen split is
+wanted.
+
+All 13 are Carsized renders cut from the **lossless `_4x.png`** variant (native
+anti-aliased alpha; rembg skipped, alpha reattached unchanged), with Lab-space
+watermark dampening on the RGB only (`process_png_cutout.py`). Spot-checked clean
+on saturated/dark bodywork (red Levorg, black SVX) — no residual watermark band.
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| All 13 (`outback`, `forester`, `xv`, `impreza`, `wrx`, `liberty`, `brz`, `svx`, `levorg`, `ascent`, `baja`, `justy`, `solterra`) | Carsized.com orthographic `_4x.png` side-view renders, native alpha (`xv` = Carsized "Crosstrek", `liberty` = Carsized "Legacy") | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via Lab coring (cosmetic only, confers no reuse right) |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC

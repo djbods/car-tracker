@@ -569,6 +569,36 @@ const CUTOUT_SLUGS = new Set([
   'tesla-cybertruck',   // Cybertruck (2023-present) - stainless pickup
   // Dropped — not in Carsized's catalogue: Roadster (original 2008 + 2020
   // next-gen) and the Semi. Revisit if a clean orthographic side source turns up.
+
+  // Subaru — a MIXED set, like Ford/Nissan, Australia-weighted. ONE file per
+  // nameplate (representative/current generation), all MODEL-NAMED — the
+  // enthusiast lines (WRX, BRZ) each have only a single distinct generation in
+  // Carsized, so none warrant chassis-pinning. Each gen verified from its
+  // Carsized detail-page title year-range + h1 chassis code. Sourced from the
+  // lossless `_4x.png` (native alpha, no rembg) with a cosmetically dampened
+  // watermark (see cars/ATTRIBUTIONS.md). Region renames use the AU nameplate as
+  // the slug (XV not Crosstrek, Liberty not Legacy) — alias noted in ATTRIBUTIONS.
+  // AU-core:
+  'subaru-outback',     // Outback (BU, 2025-present) - perennial Aus wagon-SUV
+  'subaru-forester',    // Forester (SL, 2024-present) - core Aus family SUV
+  'subaru-xv',          // XV / Crosstrek (GU, 2023-present) - AU badges current gen "Crosstrek"
+  'subaru-impreza',     // Impreza (GU, 2023-present) - hatch, shares GU platform with XV
+  'subaru-wrx',         // WRX (VB, 2021-present) - current performance sedan
+  'subaru-liberty',     // Liberty / Legacy (BW, 2023-present sedan) - sold as Legacy overseas
+  // Heritage / sport:
+  'subaru-brz',         // BRZ (ZC, 2012-2016) - Toyota 86 twin; Carsized has only gen-1
+  'subaru-svx',         // SVX Alcyone (CX, 1991-1996) - heritage GT coupe
+  'subaru-levorg',      // Levorg (V1, 2014-2019) - sports wagon
+  // Extended / other-region:
+  'subaru-ascent',      // Ascent (WM, 2022-present) - NA-market 3-row SUV
+  'subaru-baja',        // Baja (2002-2006) - NA-market car-based pickup
+  'subaru-justy',       // Justy (MHY, 2003-2007) - rebadged supermini
+  'subaru-solterra',    // Solterra (2022-present) - EV SUV, Toyota bZ4X twin
+  // Dropped — not in Carsized's catalogue (no clean orthographic side render):
+  // WRX STI (no gen separate from the WRX), Tribeca, Vivio, Pleo, Exiga, Trezia,
+  // Sambar, and the JDM older Impreza WRX/STI gens (GC/GD/GR). Carsized DOES list
+  // older Outback/Forester/Impreza/Legacy/Ascent/XV gens too — kept one current
+  // file per nameplate. Revisit if a per-gen split is wanted.
   // add a slug here when you drop its PNG in /cars/
 ]);
 
