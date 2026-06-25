@@ -599,6 +599,48 @@ const CUTOUT_SLUGS = new Set([
   // Sambar, and the JDM older Impreza WRX/STI gens (GC/GD/GR). Carsized DOES list
   // older Outback/Forester/Impreza/Legacy/Ascent/XV gens too — kept one current
   // file per nameplate. Revisit if a per-gen split is wanted.
+
+  // Honda — a MIXED set, like Ford/Nissan, Australia-weighted. ONE file per
+  // nameplate (representative/current generation), all MODEL-NAMED — the
+  // enthusiast lines Carsized carries (NSX, S2000) each have only a single
+  // distinct generation, so none warrant chassis-pinning. Each gen verified from
+  // its Carsized detail-page title year-range + h1 chassis code. Sourced from the
+  // lossless `_4x.png` (native alpha, no rembg) with a cosmetically dampened
+  // watermark (see cars/ATTRIBUTIONS.md). Region renames use the AU nameplate as
+  // the slug (Jazz not Fit) — alias noted in ATTRIBUTIONS.
+  // AU-core:
+  'honda-cr-v',         // CR-V (RS, 2022-present) - top-selling Aus SUV
+  'honda-civic',        // Civic (FE, 2021-present) - core hatch/sedan; no separate Type R in Carsized
+  'honda-hr-v',         // HR-V (RV, 2021-present) - small Aus SUV
+  'honda-accord',       // Accord (CY1, 2023-present) - midsize sedan
+  'honda-jazz',         // Jazz / Fit (GR, 2020-2023) - light hatch; sold as "Fit" overseas
+  'honda-zr-v',         // ZR-V (RZ, 2022-present) - midsize SUV between HR-V and CR-V
+  'honda-city',         // City (2014-2019) - light sedan, Aus + emerging markets
+  // Heritage / sport:
+  'honda-nsx',          // NSX (NC, 2016-present) - 2nd-gen hybrid supercar; Acura-badged in NA/JP
+  'honda-s2000',        // S2000 (AP1, 1999-2003) - roadster; Carsized has only the AP1
+  'honda-prelude',      // Prelude (BF1, 2025-present) - revived hybrid coupe
+  'honda-cr-z',         // CR-Z (ZF1, 2010-2012) - hybrid sport coupe
+  'honda-cr-x',         // CR-X (1987-1991) - 2nd-gen sport compact (badged CRX in some markets)
+  'honda-insight',      // Insight (ZE2, 2009-2012) - 2nd-gen hybrid liftback
+  // Extended / other-region:
+  'honda-odyssey',      // Odyssey (RL6, 2017-2021) - NA-market minivan (distinct from JDM Odyssey)
+  'honda-pilot',        // Pilot (YG1, 2022-present) - NA-market 3-row SUV
+  'honda-passport',     // Passport (YF9, 2025-present) - NA-market 2-row SUV
+  'honda-ridgeline',    // Ridgeline (2016-present) - NA-market unibody pickup
+  'honda-prologue',     // Prologue (2024-present) - NA-market EV SUV (GM Ultium-based)
+  'honda-crosstour',    // Crosstour (2013-2015) - NA-market liftback crossover
+  'honda-element',      // Element (2002-2006) - NA-market boxy SUV
+  'honda-stream',       // Stream (RN1, 2000-2006) - compact MPV
+  'honda-clarity',      // Clarity (2017-2021) - PHEV/FCEV sedan
+  'honda-e',            // e (ZC, 2020-present) - retro city EV
+  'honda-e-ny1',        // e:Ny1 (RSA, 2023-present) - EU-market EV SUV
+  // Dropped — not in Carsized's catalogue (no clean orthographic side render):
+  // Civic Type R (FK8/FL5 — no URL separate from the Civic), Integra / Integra
+  // Type R, Legend (Acura RL), Beat, S660, City Turbo, the JDM kei + older Type R
+  // lines, and the NSX NA1/NA2 first gen (only the 2016 NC is catalogued). Carsized
+  // DOES list older Accord/Civic/CR-V/Jazz/Prelude gens too — kept one current file
+  // per nameplate. Revisit if a per-gen split is wanted.
   // add a slug here when you drop its PNG in /cars/
 ]);
 

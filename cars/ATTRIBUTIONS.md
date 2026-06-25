@@ -453,6 +453,78 @@ on saturated/dark bodywork (red Levorg, black SVX) — no residual watermark ban
 |-------|--------|------------------|
 | All 13 (`outback`, `forester`, `xv`, `impreza`, `wrx`, `liberty`, `brz`, `svx`, `levorg`, `ascent`, `baja`, `justy`, `solterra`) | Carsized.com orthographic `_4x.png` side-view renders, native alpha (`xv` = Carsized "Crosstrek", `liberty` = Carsized "Legacy") | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via Lab coring (cosmetic only, confers no reuse right) |
 
+## Honda (24 cutouts)
+
+A MIXED, Australia-weighted set (like Ford/Nissan) covering every distinct Honda
+nameplate Carsized catalogues with a clean orthographic side render — **one cutout
+per nameplate** (representative/current generation), all MODEL-NAMED. The
+enthusiast lines Carsized carries each have only a single generation (NSX = the
+2016 NC; S2000 = the AP1; no separate Civic Type R URL), so none warrant
+chassis-pinning. Each generation's year-range was verified from the Carsized
+detail-page `<title>` and the chassis code from the `<h1>` parens.
+
+**Nameplate aliases / cross-market notes** (the AU/Honda badge is used as the slug):
+
+- `honda-jazz` — Carsized files it as **Jazz/Fit**; sold as "Fit" in North America
+  and Japan. Slug kept as `jazz` (the AU/EU badge).
+- `honda-nsx` — the 2016 **NC** is badged **Acura NSX** in North America and Japan;
+  AU/EU sold it as the Honda NSX, so the slug stays `honda-nsx`. (Honda's other
+  Acura-badged lines — Integra, Legend/RL — are absent from Carsized, see dropped.)
+- `honda-odyssey` — this is the **NA-market** Odyssey (RL6 minivan); the JDM/AU
+  Odyssey is a different, lower MPV that Carsized does not catalogue.
+
+Generation verification (from each detail page):
+
+AU-core:
+- `honda-cr-v` — CR-V (RS) SUV, **2022-present** (6th gen).
+- `honda-civic` — Civic (FE) sedan, **2021-present** (11th gen; no separate Type R in Carsized).
+- `honda-hr-v` — HR-V (RV) SUV, **2021-present** (3rd gen).
+- `honda-accord` — Accord (CY1) sedan, **2023-present** (11th gen).
+- `honda-jazz` — Jazz/Fit (GR) 5-door hatchback, **2020-2023** (4th gen).
+- `honda-zr-v` — ZR-V (RZ) SUV, **2022-present**.
+- `honda-city` — City sedan, **2014-2019** (no chassis code in the h1).
+
+Heritage / sport:
+- `honda-nsx` — NSX (NC) coupé, **2016-present** (2nd-gen hybrid supercar; Acura-badged in NA/JP).
+- `honda-s2000` — S2000 (AP1) roadster, **1999-2003** (Carsized has only the AP1; no AP2).
+- `honda-prelude` — Prelude (BF1) liftback, **2025-present** (the revived hybrid coupe).
+- `honda-cr-z` — CR-Z (ZF1) liftback, **2010-2012** (hybrid sport coupe).
+- `honda-cr-x` — CR-X liftback, **1987-1991** (2nd gen; badged "CRX" in some markets; no chassis code in the h1).
+- `honda-insight` — Insight (ZE2) liftback, **2009-2012** (2nd-gen hybrid).
+
+Extended / other-region:
+- `honda-odyssey` — Odyssey (RL6) minivan, **2017-2021** (NA-market).
+- `honda-pilot` — Pilot (YG1) SUV, **2022-present** (NA-market 3-row).
+- `honda-passport` — Passport (YF9) SUV, **2025-present** (NA-market 2-row).
+- `honda-ridgeline` — Ridgeline pickup, **2016-present** (NA-market unibody ute; no chassis code in the h1).
+- `honda-prologue` — Prologue SUV, **2024-present** (NA-market EV on GM's Ultium platform; no chassis code in the h1).
+- `honda-crosstour` — Crosstour liftback, **2013-2015** (NA-market crossover; no chassis code in the h1).
+- `honda-element` — Element SUV, **2002-2006** (NA-market; no chassis code in the h1).
+- `honda-stream` — Stream (RN1) MPV, **2000-2006** (1st gen).
+- `honda-clarity` — Clarity sedan, **2017-2021** (PHEV/FCEV; no chassis code in the h1).
+- `honda-e` — e (ZC) hatchback, **2020-present** (retro city EV).
+- `honda-e-ny1` — e:Ny1 (RSA) SUV, **2023-present** (EU-market EV; slug = slugify("e:Ny1")).
+
+**Dropped — not in Carsized's catalogue** (no clean orthographic side render): the
+**Civic Type R** (FK8/FL5 — no URL separate from the standard Civic), **Integra /
+Integra Type R**, **Legend** (Acura RL), **Beat**, **S660**, City Turbo, the JDM
+kei + older Type R lines, and the **NSX NA1/NA2** first generation (only the 2016
+NC is catalogued — the predicted JDM/Acura gaps confirmed). Carsized *does* list
+older Accord/Civic/CR-V/Jazz/Prelude generations too — one current file per
+nameplate was kept rather than splitting per gen. Revisit if a per-gen split is
+wanted.
+
+All 24 are Carsized renders cut from the **lossless `_4x.png`** variant (native
+anti-aliased alpha; rembg skipped, alpha reattached unchanged), with Lab-space
+watermark dampening on the RGB only (`process_png_cutout.py`). Spot-checked on
+saturated/dark bodywork (blue Civic, dark CR-Z) — edges smooth; a faint dark-body
+watermark residual remains on the darkest panels (documented, invisible at
+toy-car size).
+
+| Files | Source | Licence / status |
+|-------|--------|------------------|
+| All 24 (`cr-v`, `civic`, `hr-v`, `accord`, `jazz`, `zr-v`, `city`, `nsx`, `s2000`, `prelude`, `cr-z`, `cr-x`, `insight`, `odyssey`, `pilot`, `passport`, `ridgeline`, `prologue`, `crosstour`, `element`, `stream`, `clarity`, `e`, `e-ny1`) | Carsized.com orthographic `_4x.png` side-view renders, native alpha (`jazz` = Carsized "Jazz/Fit", `nsx` = Acura NSX in NA/JP, `e-ny1` = Carsized "eny1") | ⚠️ **not** an open licence — same faint baked-in "carsized.com" watermark as the other Carsized sets; **dampened** via Lab coring (cosmetic only, confers no reuse right) |
+
 ## ⚠️ Licensing note
 
 Most of these were hand-sourced rather than pulled from a public-domain / CC
